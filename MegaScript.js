@@ -2613,6 +2613,7 @@ class DisplayPerks {
 		this.statGains = [ "Accuracy", "Agility", "Defence", "Strength" ];
 		this.prod = "Production Profit";
 		this.medEffectiveness = "Med Effectiveness";
+        this.medCooldown = "Med Cooldown";
 		this.maxInt = "Max Int";
 		this.intGains = "Int Gains";
 		this.jobProfits = "Job Profits";
@@ -2631,25 +2632,43 @@ class DisplayPerks {
 		return perk;
 	}
 	changeHospitalTime(texts) {
-		let timeText = texts[texts.length - 1];
-		if(timeText === undefined || !timeText.innerText.includes("Hospital timer"))
+		const effectText = texts[texts.length - 1];
+		if(effectText === undefined || !effectText.innerText.includes("Hospital timer"))
 			return;
-		const textSplit = timeText.innerText.split(' ');
-		let time = parseInt(textSplit[textSplit.length - 2]);
-		time *= 1 + this.getPerk(this.medEffectiveness) / 100;
-		timeText.innerText = textSplit.slice(0, -2).join(' ');
- 
-		if(time >= 60) {
+		const textSplit = effectText.innerText.split(' ');
+
+        let lifePercent = parseInt(textSplit[1].slice(0, -1));
+        lifePercent *= 1 + this.getPerk(this.medEffectiveness) / 100;
+
+        let medCooldown = parseInt(textSplit[8]);
+		medCooldown *= 1 - this.getPerk(this.medCooldown) / 100;
+        const medCooldownText = this.formatTime(medCooldown);
+
+		let hospTime = parseInt(textSplit[textSplit.length - 2]);
+		hospTime *= 1 + this.getPerk(this.medEffectiveness) / 100;
+        const hospTimeText = this.formatTime(hospTime);
+
+        const medEffectivenessApplied = `<span class="text-success">(+${this.getPerk(this.medEffectiveness)}% applied)</span>`;
+        const medCooldownApplied = `<span class="text-success">(-${this.getPerk(this.medCooldown)}% applied)</span>`;
+
+        const result = `Restores ${lifePercent}% of Life ${this.getPerk(this.medEffectiveness) === 0 ? '' : medEffectivenessApplied}. \
+Increases Medical cooldown by ${medCooldownText} ${this.getPerk(this.medCooldown) === 0 ? '' : medCooldownApplied} and reduces \
+Hospital timer by ${hospTimeText} ${this.getPerk(this.medEffectiveness) === 0 ? '' : medEffectivenessApplied}.`;
+
+        effectText.innerHTML = result;
+
+	}
+    formatTime(time){
+        let result = '';
+        if(time >= 60) {
 			const hours = Math.floor(time / 60);
-			timeText.innerText += ` ${hours} hour${hours === 1 ? "" : 's'}${time % 60 ? " and" : ""}`;
+			result += `${hours} hour${hours === 1 ? "" : 's'}${time % 60 ? " and" : ""}`;
 		}
 		if(time % 60)
-			timeText.innerText += ` ${time % 60} minute${time % 60 === 1 ? "" : 's'}`;
-		if(this.getPerk(this.medEffectiveness) === 0)
-			timeText.innerText += '.';
-		else
-			timeText.innerHTML += ` <span class="text-success">(+${this.getPerk(this.medEffectiveness)}% applied)</span>.`;
-	}
+			result += ` ${time % 60} minute${time % 60 === 1 ? "" : 's'}`;
+
+        return result;
+    }
 	inHomepage(url) {
     // Grab the perk items from the updated structure
     const perks = document.querySelectorAll(".col-12.d-flex.align-items-stretch.col-xxl-4 .perk-item");
@@ -2690,6 +2709,10 @@ class DisplayPerks {
             this.setPerk(this.intGains, parseFloat(textSplit[textSplit.length - 1].slice(0, -1).replaceAll(',', "")));
         else if (perkDesc.endsWith("increase to Job profits"))
             this.setPerk(this.jobProfits, parseFloat(textSplit[0].slice(0, -1)));
+        else if (perkDesc.endsWith("less Medical cooldown added by items"))
+            this.setPerk(this.medCooldown, parseFloat(textSplit[0].slice(0, -1)));
+        else if (perkDesc.endsWith("increase to medical item effectiveness"))
+            medEffectiveness += parseFloat(textSplit[0].slice(0, -1));
     }
  
     // Update stat gains after processing perks
