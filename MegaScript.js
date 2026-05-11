@@ -2378,6 +2378,9 @@ class ColorStats {
 	calcRep(rep) {
 		return Math.min(1, Math.log(rep / 420000 + 1)); // Arbitrary calculation, reaches max at ~720000
 	}
+    calcLevel(lvl) {
+		return Math.min(1, lvl / 50); // Arbitrary calculation, reaches max at 50
+	}
 	calcCartelRep(rep) {
 		return Math.min(1, Math.log(rep / 1300000 + 1)); // Arbitrary calculation, reaches max at ~2.22 mil
 	}
@@ -2475,6 +2478,11 @@ class ColorStats {
 		const attacksWonContainer = document.querySelector("div#v-content-attackswon");
 		changeAttacksWon(attacksWonContainer);
 		observeDOM(attacksWonContainer, e => changeAttacksWon(e[0].target));
+
+        const changeLevel = content => this.changeHsThing(content, "tbody tr", noCommas, val => val, this.calcLevel.bind(this));
+		const levelContainer = document.querySelector("div#v-content-level");
+		changeLevel(levelContainer);
+		observeDOM(levelContainer, e => changeLevel(e[0].target));
 	}
 	inHomepage(url) {
         const stats = document.querySelectorAll(".col-md-6.d-flex.align-items-stretch.col-xxl-4");
@@ -3428,6 +3436,7 @@ class HighscoreChanges {
 		const battlestatsContainer = document.querySelector("div#v-content-battlestats");
 		this.changeSelfOnly(battlestatsContainer, "Battlestats");
 		observeDOM(battlestatsContainer, e => this.changeSelfOnly(e[0].target, "Battlestats"));
+
 		const networthContainer = document.querySelector("div#v-content-networth");
 		this.changeSelfOnly(networthContainer, "Networth");
 		observeDOM(networthContainer, e => this.changeSelfOnly(e[0].target, "Networth"));
@@ -3435,12 +3444,18 @@ class HighscoreChanges {
 		const repContainer = document.querySelector("div#v-content-reputation");
 		this.change(repContainer, "Reputation");
 		observeDOM(repContainer, e => this.change(e[0].target, "Reputation"));
+
 		const cartelRepContainer = document.querySelector("div#v-content-cartelreputation");
 		this.change(cartelRepContainer, "Cartel Reputation");
 		observeDOM(cartelRepContainer, e => this.change(e[0].target, "Cartel Reputation"));
+
 		const attacksWonContainer = document.querySelector("div#v-content-attackswon");
 		this.change(attacksWonContainer, "Attacks Won");
 		observeDOM(attacksWonContainer, e => this.change(e[0].target, "Attacks Won"));
+
+        const levelContainer = document.querySelector("div#v-content-level");
+		this.change(levelContainer, "Level");
+		observeDOM(levelContainer, e => this.change(e[0].target, "Level"));
  
 		GM_addStyle(`#highscoresTable tr:hover td > span { background-color: ${this.hoverColor} !important }`);
 	}
