@@ -1246,22 +1246,53 @@ class BetterItemValues {
                 requiredElement.parentElement.insertBefore(daysLeftElement, requiredElement.nextSibling);
             }
         }
+
+        function getPrestigeLevels(prestigeTable){
+            const prestigeLevels = {productionBoost: 0, efficiency: 0, premiumProduction: 0};
+            if(!prestigeTable) return prestigeLevels;
+
+            for(const tr of prestigeTable.querySelectorAll('tr')){
+                switch(tr.querySelector('td').textContent){
+                    case 'Production Boost':
+                        prestigeLevels.productionBoost = parseInt(tr.querySelector('th')?.textContent.charAt(0) || '0');
+                        break;
+                    case 'Efficiency':
+                        prestigeLevels.efficiency = parseInt(tr.querySelector('th')?.textContent.charAt(0) || '0');
+                        break;
+                    case 'Premium Production':
+                        prestigeLevels.premiumProduction = parseInt(tr.querySelector('th')?.textContent.charAt(0) || '0');
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return prestigeLevels;
+        }
  
         function calcProfit(id, container){
             let narcoInput = container.querySelector("input.assignNarcoInput");
             assigned[id] = parseInt(narcoInput.value.replaceAll(',', ""));
             if(assigned[id] === 0) return 0;
+
+            const prestigeTable = container.querySelector('div.table-responsive.production-table.mt-1');
+            const prestigeLevels = getPrestigeLevels(prestigeTable);
+
+            // Each level of 'Production Boost' prestige increases profit by 20%
+            const profitBoost = 1 + prestigeLevels.productionBoost * 0.2;
  
-            let profit = this.prodMoney[id];
-            const itemProfit = calcItemProfits.call(this, id);
+            let profit = this.prodMoney[id] * profitBoost;
+            const itemProfit = calcItemProfits.call(this, id) * profitBoost;
             if(itemProfit === null) return null;
             profit += itemProfit;
  
             let prodCount = getProdCount(container);
  
             profit *= calcProfitScalar.call(this, id, prodCount);
+
+            // Each level of 'Efficiency' prestige reduces required supply by 10%
+            const efficiency = 1 - prestigeLevels.efficiency * 0.1;
  
-            const supplyCost = calcSupplyCost.call(this, id, prodCount, container);
+            const supplyCost = calcSupplyCost.call(this, id, prodCount, container) * efficiency;
             if(supplyCost === null) return null;
             profit -= supplyCost;
  
