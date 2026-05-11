@@ -4649,8 +4649,8 @@ class TrueKDR {
  
 		const table = stats[1].querySelector("div.row.align-items-center.gy-2.mb-2:nth-of-type(2)");
 		const lambda = idx => parseInt(table.children[idx].children[0].innerText.replaceAll(',', ""));
-		let totalW = lambda(3) + lambda(5);
-		let totalL = lambda(7) + lambda(9);
+		let totalW = lambda(3) + lambda(7);
+		let totalL = lambda(5) + lambda(9);
  
         const descriptionText = document.createElement("div");
         descriptionText.className = "col-4";
