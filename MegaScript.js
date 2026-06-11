@@ -530,7 +530,8 @@ class BetterItemValues {
 		];
 		//this.jobTimes = [ 5, 30, 60, 180, 15, 30, 60, 90, 360, 720 ]; // NOTE: prestige may change this, so instead calculate
 		this.jobMoney = [ 1650, 14000, 55000, 250000, 111, 111, 111, 260, 700000, 2250000 ];
-		this.jobRep = [ 10, 75, 160, 490, 21, 50, 82, 165, 1130, 2320 ];
+		// Base rep for standard jobs doubled with https://cartelempire.online/Forum/1/7289
+		this.jobRep = [ 20, 150, 320, 980, 21, 50, 82, 165, 2260, 4640 ];
 		this.jobItems = [
 			{},
 			{ "Personal Favour": 1 / 20 },
