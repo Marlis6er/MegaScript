@@ -2381,6 +2381,9 @@ class ColorStats {
     calcLevel(lvl) {
 		return Math.min(1, lvl / 50); // Arbitrary calculation, reaches max at 50
 	}
+	calcRevives(revives) {
+		return Math.min(1, revives / 1000); // Uses revive achievement, reaches max at 1000
+	}
 	calcCartelRep(rep) {
 		return Math.min(1, Math.log(rep / 1300000 + 1)); // Arbitrary calculation, reaches max at ~2.22 mil
 	}
@@ -2483,6 +2486,11 @@ class ColorStats {
 		const levelContainer = document.querySelector("div#v-content-level");
 		changeLevel(levelContainer);
 		observeDOM(levelContainer, e => changeLevel(e[0].target));
+
+		const changeRevives = content => this.changeHsThing(content, "tbody tr", noCommas, val => val, this.calcRevives.bind(this));
+		const revivesContainer = document.querySelector("div#v-content-revives");
+		changeRevives(revivesContainer);
+		observeDOM(revivesContainer, e => changeRevives(e[0].target));
 	}
 	inHomepage(url) {
         const stats = document.querySelectorAll(".col-md-6.d-flex.align-items-stretch.col-xxl-4");
@@ -3350,6 +3358,10 @@ class HighscoreChanges {
 			this.setCache("Cartel Reputation", [ null, null ]);
 		if(this.getCache("Attacks Won") === null)
 			this.setCache("Attacks Won", [ null, null ]);
+        if(this.getCache("Level") === null)
+            this.setCache("Level", [ null, null ]);
+        if(this.getCache("Revives") === null)
+            this.setCache("Revives", [ null, null ]);
 		this.hoverColor = "rgba(var(--bs-emphasis-color-rgb), 0)";
 	}
 	getCache(type) {
