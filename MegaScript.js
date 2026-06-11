@@ -666,11 +666,11 @@ class BetterItemValues {
  
                 itemCards.forEach(card => {
                     try {
-                        const itemName = card.querySelector("h5.card-title").innerText.trim();
+                        const itemName = card.querySelector("h5.card-title").textContent.trim();
                         console.log(`Found item: ${itemName}`);  // Debugging log
  
-                        const itemPriceText = card.querySelector("p.card-text.fst-italic").innerText.trim();
-                        const itemPrice = parseInt(itemPriceText.slice(1).replaceAll(',', ""));
+                        const itemPriceText = card.querySelector("p.card-text.fst-italic").textContent.trim();
+                        const itemPrice = parseInt(itemPriceText.slice(1).split(' ')[0].replaceAll(',', ""));
  
                         // Format key to match required format
                         const key = `value_${itemName.replace(/\s+/g, '_')}`;
