@@ -65,8 +65,6 @@ let user_name = "";
 let user_id = 0;
  
 function extractUserInfo() {
-    console.log("Extracting user info...");
- 
     const labels = document.querySelectorAll(".profileLabel");
  
     let nameIdElement = null;
@@ -77,27 +75,29 @@ function extractUserInfo() {
         }
     });
  
-    if (nameIdElement) {
-        const userInfo = nameIdElement.textContent.trim();
- 
-        const [extractedName, extractedId] = userInfo.split(" - ");
- 
-        if (extractedName && extractedId) {
-            user_name = extractedName.trim();
-            user_id = extractedId.trim();
- 
-            // Save the user name and ID in localstorage
-            localStorage.setItem("user_name", user_name);
-            localStorage.setItem("user_id", user_id);
- 
-            console.debug("✅ Extracted User Name:", user_name);
-            console.debug("✅ Extracted User ID:", user_id);
-        } else {
-            console.warn("⚠️ Failed to properly split name and ID.");
-        }
-    } else {
-        console.error("❌ User name and ID not found on the page!");
+    if (!nameIdElement) {
+		console.error("❌ User name and ID not found on the page!");
+		return;
     }
+
+	const userInfo = nameIdElement.textContent.trim();
+
+	const [extractedName, extractedId] = userInfo.split(" - ");
+
+	if (!extractedName || !extractedId) {
+		console.warn("⚠️ Failed to properly split name and ID.");
+		return;
+	}
+
+	user_name = extractedName.trim();
+	user_id = extractedId.trim();
+
+	// Save the user name and ID in localstorage
+	localStorage.setItem("user_name", user_name);
+	localStorage.setItem("user_id", user_id);
+
+	console.debug("✅ Extracted User Name:", user_name);
+	console.debug("✅ Extracted User ID:", user_id);
 }
  
 // Function to get user name and ID from localstorage
@@ -105,13 +105,12 @@ function getUserInfoFromStorage() {
     const storedName = localStorage.getItem("user_name");
     const storedId = localStorage.getItem("user_id");
  
-    if (storedName && storedId) {
-        console.debug(`From LocalStorage: Name: ${storedName}, ID: ${storedId}`);
-        return { user_name: storedName, user_id: storedId };
-    } else {
-        console.info("ℹ️ User info not found in localStorage.");
-        return null;
+    if (!storedName || !storedId) {
+		console.warn("ℹ️ User info not found in localStorage.");
+		return null;
     }
+	console.debug(`From LocalStorage: Name: ${storedName}, ID: ${storedId}`);
+	return { user_name: storedName, user_id: storedId };
 }
  
 // Try to get user info from localStorage
@@ -139,20 +138,21 @@ if (userInfo) {
 user_name = localStorage.getItem('user_name') || "";
 user_id = localStorage.getItem('user_id') || 0;
  
- 
-const observeDOM = (function() { // Used for seeing when elements update, for some reason there's no neat standard way to do that
-	let MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+// Used for seeing when elements update, for some reason there's no neat standard way to do that
+const observeDOM = (function() {
+	const MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 	return function(obj, callback) {
-		if(!obj || obj.nodeType !== 1)
-			return;
+		if(!obj || obj.nodeType !== 1) return;
+
 		if(MutationObserver) {
-			let mutationObserver = new MutationObserver(callback);
+			const mutationObserver = new MutationObserver(callback);
 			mutationObserver.observe(obj, {
 				childList: true,
 				subtree: true
 			});
 			return mutationObserver;
-		} else if(window.addEventListener) {
+		}
+		if(window.addEventListener) {
 			obj.addEventListener("DOMNodeInserted", callback, false);
 			obj.addEventListener("DOMNodeRemoved", callback, false);
 		}
@@ -206,92 +206,94 @@ class AddItemButtons {
 			$(".useItemMsg").remove();
 		
 			const id = e.currentTarget.getAttribute("id");
-			$.post("/Inventory/Use?id=" + id, data => {
-				if (data.status !== 200) return;
-				if (data.type == "Weapon" || data.type == "Armour" || data.type == "Thrown") {
-					$(location).attr("href", "/Inventory");
-					$(".use-item-btn").prop("disabled", false);
-					return;
-				}
-				if (!data.statusMsg.success) {
-					$(containingRow).append(`<div class="col-12 useItemMsg mt-2 text-danger fw-bold">${dateString} - ${data.statusMsg.error}</div>`);
-					return;
-				}
-				$(containingRow).append(`<div class="col-12 useItemMsg mt-2 text-success fw-bold">${dateString} - ${data.statusMsg.success}</div>`);
-
-				if (data.energyGained) {
-					let currentEnergy = parseInt($("#currentEnergy")[0].innerText);
-					let newEnergy = currentEnergy + data.energyGained;
-					let maxEnergy = parseInt($("#maxEnergy")[0].innerText);
-					let percentageOfMax = ((newEnergy / maxEnergy) * 100);
-
-					$("#currentEnergy")[0].innerText = newEnergy;
-					$("#energyProgress")[0].style.width = `${percentageOfMax}%`;
-					$("#energyProgress")[0].setAttribute("aria-valuenow", newEnergy);
-
-					// Update input fields
-					$("form.input-group input.form-control").each((idx, elem) => {
-						elem.setAttribute("max", newEnergy.toString());
-						elem.setAttribute("value", newEnergy.toString());
-					});
-					$("form.input-group input.btn.disabled").each((idx, elem) => elem.classList.remove("disabled"));
-				}
-				if (data.lifeToSet || data.lifeToSet === 0) {
-					let maxLife = parseInt($("#maxLife")[0].innerText);
-					let newLife = data.lifeToSet;
-					let percentageOfMax = ((newLife / maxLife) * 100);
-					if (newLife > maxLife)
-						newLife = maxLife;
-
-					$("#currentLife")[0].innerText = newLife;
-					$("#lifeProgress")[0].style.width = `${percentageOfMax}%`;
-					$("#lifeProgress")[0].setAttribute("aria-valuenow", newLife);
-				}
-
-				if (data.sentToHospital) {
-					$(".content-container").attr("style", "background-image:linear-gradient(to right, rgba(255,0,0,0.05), rgba(255, 0, 0, 0.2), rgba(255,0,0,0.05)), url(../images/background-hospital.webp);");
-					$("#userStatus").text("In Hospital");
-				}
-				if (data.releaseFromHosp || data.releaseFromJail) {
-					$(".content-container").attr("style", "background-image:linear-gradient(to right, rgba(0,0,0,0.3), rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url(../images/background.webp)");
-					$("#userStatus").text("Active");
-				}
-
-				// Update item count
-				let container = $(e.currentTarget).parents(".inventoryItemWrapper")[0];
-				let itemCountLabel = $(container).find(".itemQuantity");
-				if (itemCountLabel.length == 0) {
-
-				}
-				if (itemCountLabel[0]) {
-					let currentCount = parseInt(itemCountLabel[0].innerText);
-					if (!isNaN(currentCount)) {
-						if (currentCount - 1 > 0)
-							itemCountLabel[0].innerText = currentCount - 1;
-						else
-							containingRow.remove();
-					}
-				}
-
-				// Reload the page if the item was successfully used
-				location.reload();
-				$(".use-item-btn").prop("disabled", false);
-			});
+			$.post("/Inventory/Use?id=" + id, handleInvResponse);
 		}
  
- 
- 
 		function handleInventoryCollapse(target) {
-			if(target.tagName != 'svg' && target.tagName != 'BUTTON' && target.tagName != 'path') {
-				// Hide any open items
-				$('.collapse').collapse('hide');
- 
-				if($(target).hasClass("inventoryItemWrapper")) {
-					$(target).find('.collapse').collapse("show");
-				} else {
-					$(target).parents('.row.inventoryItemWrapper').first().find('.collapse').collapse("show");
-				}
+			if(target.tagName === 'svg' || target.tagName === 'BUTTON' || target.tagName === 'path') return;
+			// Hide any open items
+			$('.collapse').collapse('hide');
+
+			if($(target).hasClass("inventoryItemWrapper")) {
+				$(target).find('.collapse').collapse("show");
+				return;
 			}
+			$(target).parents('.row.inventoryItemWrapper').first().find('.collapse').collapse("show");
+		}
+
+		function handleInvResponse(data) {
+			if (data.status !== 200) return;
+			if (data.type == "Weapon" || data.type == "Armour" || data.type == "Thrown") {
+				$(location).attr("href", "/Inventory");
+				$(".use-item-btn").prop("disabled", false);
+				return;
+			}
+			if (!data.statusMsg.success) {
+				$(containingRow).append(`<div class="col-12 useItemMsg mt-2 text-danger fw-bold">${dateString} - ${data.statusMsg.error}</div>`);
+				return;
+			}
+			$(containingRow).append(`<div class="col-12 useItemMsg mt-2 text-success fw-bold">${dateString} - ${data.statusMsg.success}</div>`);
+
+			if (data.energyGained) {
+				const currentEnergy = parseInt($("#currentEnergy")[0].innerText);
+				const newEnergy = currentEnergy + data.energyGained;
+				const maxEnergy = parseInt($("#maxEnergy")[0].innerText);
+				const percentageOfMax = ((newEnergy / maxEnergy) * 100);
+
+				$("#currentEnergy")[0].innerText = newEnergy;
+				$("#energyProgress")[0].style.width = `${percentageOfMax}%`;
+				$("#energyProgress")[0].setAttribute("aria-valuenow", newEnergy);
+
+				// Update input fields
+				$("form.input-group input.form-control").each((idx, elem) => {
+					elem.setAttribute("max", newEnergy.toString());
+					elem.setAttribute("value", newEnergy.toString());
+				});
+				$("form.input-group input.btn.disabled").each((idx, elem) => elem.classList.remove("disabled"));
+			}
+			if (data.lifeToSet || data.lifeToSet === 0) {
+				const maxLife = parseInt($("#maxLife")[0].innerText);
+				const newLife = data.lifeToSet;
+				const percentageOfMax = ((newLife / maxLife) * 100);
+				if (newLife > maxLife) newLife = maxLife;
+
+				$("#currentLife")[0].innerText = newLife;
+				$("#lifeProgress")[0].style.width = `${percentageOfMax}%`;
+				$("#lifeProgress")[0].setAttribute("aria-valuenow", newLife);
+			}
+
+			if (data.sentToHospital) {
+				$(".content-container").attr("style", "background-image:linear-gradient(to right, rgba(255,0,0,0.05), rgba(255, 0, 0, 0.2), rgba(255,0,0,0.05)), url(../images/background-hospital.webp);");
+				$("#userStatus").text("In Hospital");
+			}
+			if (data.releaseFromHosp || data.releaseFromJail) {
+				$(".content-container").attr("style", "background-image:linear-gradient(to right, rgba(0,0,0,0.3), rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url(../images/background.webp)");
+				$("#userStatus").text("Active");
+			}
+
+			$(".use-item-btn").prop("disabled", false);
+
+			// Update item count
+			const container = $(e.currentTarget).parents(".inventoryItemWrapper")[0];
+			const itemCountLabel = $(container).find(".itemQuantity");
+			if (!itemCountLabel[0]) {
+				location.reload();
+				return;
+			}
+
+			const currentCount = parseInt(itemCountLabel[0].innerText);
+			if (isNaN(currentCount)) {
+				location.reload();
+				return;
+			}
+
+			if (currentCount - 1 > 0)
+				itemCountLabel[0].innerText = currentCount - 1;
+			else
+				containingRow.remove();
+
+			// Reload the page if the item was successfully used
+			location.reload();
 		}
 	}
 	addScript() {
@@ -312,45 +314,47 @@ class AddItemButtons {
 	addListener(coke = true) {
 		const ID = this.getID(coke);
 		if(ID === null) return;
+
 		const item = document.getElementById(`item-${ID}`);
 		observeDOM(item, e => {
 			const added = e[0].addedNodes[0];
-			if(!added || !added.classList || !added.classList.contains("useItemMsg"))
-				return;
-			if(added.classList.contains("text-danger")) return;
+			if(!added || !added.classList ||
+			   !added.classList.contains("useItemMsg") ||
+			   added.classList.contains("text-danger")
+			) return;
+
 			const newCokeCount = (this.getCount(coke) || 1) - 1;
 			this.setCount(newCokeCount, coke);
-			let countText = document.querySelector(`#item-${ID} span.itemQuantity`);
+			const countText = document.querySelector(`#item-${ID} span.itemQuantity`);
 			countText.innerText = newCokeCount.toLocaleString("en-US");
 		});
 	}
 	inGym(url) {
-        let targetElement = document.querySelector(".row.row-cols-2.row-cols-lg-4.row-cols-md-2.mt-2.mb-4.g-4");
-        if (targetElement !== null) {
-            let newDiv = document.createElement("div");
-            newDiv.innerHTML = this.add(this.getCount(true) || 0, this.getValue(true) || "???", 4, true);
-            targetElement.parentNode.insertBefore(newDiv, targetElement.nextSibling);
-            this.addScript();
-            this.addListener(true);
-        }
+        const targetElement = document.querySelector(".row.row-cols-2.row-cols-lg-4.row-cols-md-2.mt-2.mb-4.g-4");
+        if (targetElement === null) return;
+
+		const newDiv = document.createElement("div");
+		newDiv.innerHTML = this.add(this.getCount(true) || 0, this.getValue(true) || "???", 4, true);
+		targetElement.parentNode.insertBefore(newDiv, targetElement.nextSibling);
+		this.addScript();
+		this.addListener(true);
     }
 	inUniversity(url) {
-		let container = document.querySelector("div.contentColumn > div > div:not(#helpAccordion):not(.border-success):not(.border-danger) div.card-body");
+		const container = document.querySelector("div.contentColumn > div > div:not(#helpAccordion):not(.border-success):not(.border-danger) div.card-body");
 		if(container === null) return;
 		const form = container.querySelector("div.text-center.d-flex.flex-column.align-items-center");
 		// At max int
-		if(form === null) return;
-		if(container !== null) {
-			container.innerHTML += this.add(this.getCount(true) || 0, this.getValue(true) || "???", 2, true);
-			this.addScript();
-			this.addListener(true);
-		}
+		if(form === null || container === null) return;
+
+		container.innerHTML += this.add(this.getCount(true) || 0, this.getValue(true) || "???", 2, true);
+		this.addScript();
+		this.addListener(true);
 	}
 	inJail(url) { // Add personal favour button
 		let container = document.querySelector("div.contentColumn > div > div:not(#helpAccordion):not(.border-success):not(.border-danger) div.card-body");
 		const inJail = container.querySelector("p.card-text.fw-bold.text-success");
-		if(inJail === null) return;
-		if(container === null) return;
+		if(inJail === null || container === null) return;
+
 		container.innerHTML += this.add(this.getCount(false) || 0, this.getValue(false) || "???", 2, false);
 		this.addScript();
 		this.addListener(false);
@@ -362,6 +366,7 @@ class AddItemButtons {
 		for(var i = 2; i < itemList.children.length; ++i) {
 			const item = itemList.children[i];
 			if(item.children.length < 2) continue;
+
 			const nameSplit = item.children[1].innerText.split(' ');
 			const itemName = nameSplit.slice(0, -1).join(' ');
 			if(itemName === "Cocaine")
@@ -379,11 +384,11 @@ class AddLinks {
 	}
  
 	inAnywhere(url) {
-		let mobileMenu = document.querySelector("ul#menu");
-		let desktopMenu = document.querySelector("ul#desktopMenu");
+		const mobileMenu = document.querySelector("ul#menu");
+		const desktopMenu = document.querySelector("ul#desktopMenu");
  
-		for (let linkObj of this.links) {
-			let listItem = document.createElement("li");
+		for (const linkObj of this.links) {
+			const listItem = document.createElement("li");
 			listItem.className = "flex-fill"; // Ensures proper desktop spacing
  
 			listItem.innerHTML = `
@@ -395,12 +400,8 @@ class AddLinks {
 				</a>
 			`;
  
-			if (mobileMenu) {
-				mobileMenu.appendChild(listItem.cloneNode(true));
-			}
-			if (desktopMenu) {
-				desktopMenu.appendChild(listItem);
-			}
+			if (mobileMenu) mobileMenu.appendChild(listItem.cloneNode(true));
+			if (desktopMenu) desktopMenu.appendChild(listItem);
 		}
 	}
 }
@@ -423,11 +424,11 @@ class BankDepositTax {
 		let value = Math.floor(parseFloat(depositInput.value.replaceAll(',', "")));
  
 		const row = container.querySelector("div.row");
-		let breakHr = document.createElement("hr");
+		const breakHr = document.createElement("hr");
 		breakHr.classList.add("w-75");
 		container.insertBefore(breakHr, row);
  
-		let tax = document.createElement("p");
+		const tax = document.createElement("p");
 		tax.id = this.ID;
 		tax.classList.add("card-text", "text-muted", "mt-2");
 		tax.innerHTML = this.calc(value);
@@ -589,7 +590,6 @@ class BetterItemValues {
         console.debug(`Fetching value for: ${formattedName}, ItemName: ${itemName}, Result: ${val}`);
         return val;
     }
- 
 	setValue(itemName, value) {
 		GM_setValue(`value_${itemName}`, value);
 		console.debug(`Set value_${itemName} to \u00a3${value.toLocaleString("en-US")}`);
@@ -600,8 +600,8 @@ class BetterItemValues {
         if(itemSelector === null) return;
         const options = itemSelector.options;
  
-        let pointPriceLabel = document.querySelector("#pricePerPointsLabel");
-        let pointCurrentBest = document.createElement("span");
+        const pointPriceLabel = document.querySelector("#pricePerPointsLabel");
+        const pointCurrentBest = document.createElement("span");
         pointCurrentBest.id = "pricePerPointsLabelCurrentBest";
         pointCurrentBest.classList.add("text-muted");
         let currentBest = this.getValue(this.pointName);
@@ -609,8 +609,8 @@ class BetterItemValues {
         pointPriceLabel.innerText += ' ';
         pointPriceLabel.appendChild(pointCurrentBest);
  
-        let pricePerLabel = document.querySelector("#pricePerLabel");
-        let priceCurrentBest = document.createElement("span");
+        const pricePerLabel = document.querySelector("#pricePerLabel");
+        const priceCurrentBest = document.createElement("span");
         priceCurrentBest.id = "pricePerLabelCurrentBest";
         priceCurrentBest.classList.add("text-muted");
         let itemName = options[0].innerText;
@@ -621,19 +621,18 @@ class BetterItemValues {
         pricePerLabel.appendChild(priceCurrentBest);
  
         itemSelector.addEventListener("change", e => {
-            for(var option of options)
-                if(option.value === e.target.value) {
-                    itemName = option.innerText.trim().replace(/\s+-\s+\d+(?:\.\d+)?%$/, "");
-                    currentBest = this.getValue(itemName);
-                    priceCurrentBest.value = itemName;
-                    priceCurrentBest.innerText = `(\u00a3${currentBest === null ? "???" : currentBest.toLocaleString("en-US")})`;
-                    break;
-                }
+            for(var option of options) {
+                if(option.value !== e.target.value) continue;
+
+				itemName = option.innerText.trim().replace(/\s+-\s+\d+(?:\.\d+)?%$/, "");
+				currentBest = this.getValue(itemName);
+				priceCurrentBest.value = itemName;
+				priceCurrentBest.innerText = `(\u00a3${currentBest === null ? "???" : currentBest.toLocaleString("en-US")})`;
+				break;
+			}
         });
  
         const container = document.querySelector("nav#itemMarketNav > div.tab-content");
-        let before = null;
-        let done = [];
  
         // Function to handle item processing
         function processItems() {
@@ -644,43 +643,45 @@ class BetterItemValues {
                 const itemCards = wrapper.querySelectorAll("div.col-xl-2.col-md-3.col-sm-4.col-6");
                 console.info("Number of item cards in wrapper:", itemCards.length);
  
-                itemCards.forEach(card => {
-                    try {
-                        const itemName = card.querySelector("h5.card-title").textContent.trim();
-                        console.debug(`Found item: ${itemName}`);  // Debugging log
- 
-                        const itemPriceText = card.querySelector("p.card-text.fst-italic").textContent.trim();
-                        const itemPrice = parseInt(itemPriceText.slice(1).split(' ')[0].replaceAll(',', ""));
- 
-                        // Format key to match required format
-                        const key = `value_${itemName.replace(/\s+/g, '_')}`;
- 
-                        // Use GM_getValue to retrieve the current best value
-                        const currentBest = GM_getValue(key, null);
-                        console.debug(`Current stored value for ${itemName}: ${currentBest}`);  // Debugging log
- 
-                        if (currentBest === itemPrice) {
-							console.debug(`No update needed for ${itemName}. Current: £${currentBest}, New: £${itemPrice}`);  // Debugging log
-							continue;
-                        }
-
-						console.debug(`Updating value for ${itemName} from ${currentBest} to ${itemPrice}`);  // Debugging log
-						GM_setValue(key, itemPrice);  // Store value with formatted key
-						const newStoredValue = GM_getValue(key);
-						console.debug(`New stored value for ${itemName}: ${newStoredValue}`);  // Debugging log
-
-						// Ensure pointName and priceCurrentBest are defined
-						if (typeof pointName !== 'undefined' && itemName === pointName) {
-							pointCurrentBest.innerText = `(\u00a3${itemPrice.toLocaleString("en-US")})`;
-						} else if (priceCurrentBest && priceCurrentBest.value === itemName) {
-							priceCurrentBest.innerText = `(\u00a3${itemPrice.toLocaleString("en-US")})`;
-						}
-                    } catch (error) {
-                        console.error(`Error processing card: ${error}`);
-                    }
-                });
+                itemCards.forEach(handleItemCard);
             });
         }
+
+		function handleItemCard(card) {
+			try {
+				const itemName = card.querySelector("h5.card-title").textContent.trim();
+				console.debug(`Found item: ${itemName}`);  // Debugging log
+
+				const itemPriceText = card.querySelector("p.card-text.fst-italic").textContent.trim();
+				const itemPrice = parseInt(itemPriceText.slice(1).split(' ')[0].replaceAll(',', ""));
+
+				// Format key to match required format
+				const key = `value_${itemName.replace(/\s+/g, '_')}`;
+
+				// Use GM_getValue to retrieve the current best value
+				const currentBest = GM_getValue(key, null);
+				console.debug(`Current stored value for ${itemName}: ${currentBest}`);  // Debugging log
+
+				if (currentBest === itemPrice) {
+					console.debug(`No update needed for ${itemName}. Current: £${currentBest}, New: £${itemPrice}`);  // Debugging log
+					return;
+				}
+
+				console.debug(`Updating value for ${itemName} from ${currentBest} to ${itemPrice}`);  // Debugging log
+				GM_setValue(key, itemPrice);  // Store value with formatted key
+				const newStoredValue = GM_getValue(key);
+				console.debug(`New stored value for ${itemName}: ${newStoredValue}`);  // Debugging log
+
+				// Ensure pointName and priceCurrentBest are defined
+				if (typeof pointName !== 'undefined' && itemName === pointName) {
+					pointCurrentBest.innerText = `(\u00a3${itemPrice.toLocaleString("en-US")})`;
+				} else if (priceCurrentBest && priceCurrentBest.value === itemName) {
+					priceCurrentBest.innerText = `(\u00a3${itemPrice.toLocaleString("en-US")})`;
+				}
+			} catch (error) {
+				console.error(`Error processing card: ${error}`);
+			}
+		}
  
         // Observer to watch for changes in the market area and re-run the script
         function observeMarketChanges() {
@@ -688,11 +689,11 @@ class BetterItemValues {
             if (!targetNode) return;
  
             const observer = new MutationObserver((mutationsList) => {
-                for (let mutation of mutationsList) {
-                    if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
-                        console.info("Detected new nodes in market area, re-running item processing...");
-                        processItems();  // Re-run the script to process newly added items
-                    }
+                for (const mutation of mutationsList) {
+                    if (mutation.type !== "childList" || mutation.addedNodes.length <= 0)
+						continue;
+					console.info("Detected new nodes in market area, re-running item processing...");
+					processItems();  // Re-run the script to process newly added items
                 }
             });
  
@@ -714,20 +715,20 @@ class BetterItemValues {
         const eventText = eventCard.innerText.split(" - ")[1];
         const textSplit = eventText.split(' ');
  
-        if (textSplit[1] === "listed") {
-            let i = 3;
-            let itemName = textSplit[i];
-            while (textSplit[++i] !== "for") itemName += ` ${textSplit[i]}`;
+        if (textSplit[1] !== "listed") return;
+		
+		let i = 3;
+		itemName = textSplit[i];
+		while (textSplit[++i] !== "for") itemName += ` ${textSplit[i]}`;
 
-            const val = parseInt(textSplit[textSplit.length - 1].slice(1).replace(',', ""));
-            const curVal = this.getValue(itemName);
+		const val = parseInt(textSplit[textSplit.length - 1].slice(1).replace(',', ""));
+		const curVal = this.getValue(itemName);
 
-            if (curVal === null || val < curVal) this.setValue(itemName, val);
-        }
+		if (curVal === null || val < curVal) this.setValue(itemName, val);
  
     }
 	inSupporter(url) {
-		let refillText = document.querySelector("div.card-body p.card-text:not(.fw-bold)");
+		const refillText = document.querySelector("div.card-body p.card-text:not(.fw-bold)");
 		const pointPrice = this.getValue(this.pointName);
 		if(pointPrice === null) return;
 
@@ -737,12 +738,12 @@ class BetterItemValues {
 		const buildReqs = document.querySelectorAll("div.row.pb-2");
  
 		for(var i = 0; i < buildReqs.length; i += 2) {
-			let buildReq = buildReqs[i];
-			let matList = buildReq.children[1].children[1];
-			let mats = matList.innerHTML.split("<br>");
+			const buildReq = buildReqs[i];
+			const matList = buildReq.children[1].children[1];
+			const mats = matList.innerHTML.split("<br>");
 			let totalCost = 0;
-			for(var j = 0; j !== mats.length; ++j) {
-				let mat = mats[j];
+			for(let j = 0; j !== mats.length; ++j) {
+				const mat = mats[j];
 				const count = parseInt(mat.split(' ')[0].slice(1).replaceAll(',', ""));
 				const val = this.getValue(mat.split(' ').slice(1).join(' ').trim());
 				mats[j] = `${mat.trim()} <span class="text-muted">(\u00a3${val === null ? "???" : (count * val).toLocaleString("en-US")})</span>`;
@@ -761,7 +762,7 @@ class BetterItemValues {
 		const buildModal = document.querySelector("div#buildModal");
  
 		observeDOM(buildModal, e => {
-			let modal = e[1].target;
+			const modal = e[1].target;
 			const matList = modal.querySelectorAll("ul li");
  
 			let changed = false;
@@ -815,14 +816,14 @@ class BetterItemValues {
 				const marketHTML = `<br><span class="text-muted">(\u00a3${currentBest.toLocaleString("en-US")})</span>`;
 
 				item.children[4].innerHTML = shopHTML + marketHTML;
-				let otherValueText = item.children[6].querySelector("div.col-6");
+				const otherValueText = item.children[6].querySelector("div.col-6");
 				otherValueText.innerHTML = `<div class="card-text"><div class="fw-bold">Value</div>${shopHTML}${marketHTML}</div>`;
 			}
 		}
 	}
 	inTradeView(url) {
 		const tradeTabs = document.querySelectorAll("div.card-body:not(.text-center)");
-		let totalVal = [ 0, 0 ];
+		const totalVal = [ 0, 0 ];
  
 		for(var i = 0; i !== 2; ++i) {
 			const itemList = tradeTabs[i + 1].querySelector("div.table-responsive tbody");
@@ -860,13 +861,13 @@ class BetterItemValues {
 		}
 		if(totalVal[0] === "???" || totalVal[1] === "???")
 			for(var i = 0; i !== 2; ++i) {
-				let nameHeader = tradeTabs[i + 1].parentNode.querySelector("h2");
+				const nameHeader = tradeTabs[i + 1].parentNode.querySelector("h2");
 				nameHeader.outerHTML = `<h2 class="row"><div class="col">${nameHeader.innerText}</div><div class="col text-end text-muted">\u00a3${totalVal[i] === "???" ? "???" : totalVal[i].toLocaleString("en-US")}</div></h2>`;
 			}
 		else {
-			let totalValSum = totalVal[0] + totalVal[1];
+			const totalValSum = totalVal[0] + totalVal[1];
 			for(var i = 0; i !== 2; ++i) {
-				let nameHeader = tradeTabs[i + 1].parentNode.querySelector("h2");
+				const nameHeader = tradeTabs[i + 1].parentNode.querySelector("h2");
 				const colorVal = totalValSum === 0 ? 0.5 : totalVal[1 - i] / totalValSum;
 				nameHeader.outerHTML = `<h2 class="row"><div class="col">${nameHeader.innerText}</div><div class="col text-end" style="color: hsl(${colorVal * 120}, 67%, ${this.brightness}%)">\u00a3${totalVal[i].toLocaleString("en-US")}</div></h2>`;
 			}
@@ -2497,8 +2498,8 @@ class ColorStats {
  
 		for(var section of container.children)
 			observeDOM(section, e => {
-				const list = e[1].addedNodes[0];
-				if(list.classList === undefined || !list.classList.contains("offerListWrapper"))
+				const list = e[1]?.addedNodes[0];
+				if(!list || list.classList === undefined || !list.classList.contains("offerListWrapper"))
 					return;
  
 				const listings = list.querySelectorAll(".offerItemWrapper");
@@ -3671,20 +3672,24 @@ class RedLeaveCourseButton {
 class RemoveOwnStatus {
     // Immediately execute the static method upon class definition
     static {
-        // Find the "Status" label and its corresponding row
-        const labels = Array.from(document.querySelectorAll("p.fw-bold"));
-        const statusLabel = labels.find(label => label.textContent.trim() === 'Status');
-        const statusRow = statusLabel ? statusLabel.closest('.row') : null;
-        if (!statusRow) return;
+		init();
 
-		// Find and remove the cells containing the "Status" label and value
-		const statusLabelIndex = Array.from(statusRow.children).findIndex(child => child.textContent.trim() === 'Status');
-		if (statusLabelIndex < 0) return;
+		function init(){
+			// Find the "Status" label and its corresponding row
+			const labels = Array.from(document.querySelectorAll("p.fw-bold"));
+			const statusLabel = labels.find(label => label.textContent.trim() === 'Status');
+			const statusRow = statusLabel ? statusLabel.closest('.row') : null;
+			if (!statusRow) return;
 
-		statusRow.children[statusLabelIndex].remove(); // Remove the label's parent container
-		if (!statusRow.children[statusLabelIndex]) return;
+			// Find and remove the cells containing the "Status" label and value
+			const statusLabelIndex = Array.from(statusRow.children).findIndex(child => child.textContent.trim() === 'Status');
+			if (statusLabelIndex < 0) return;
 
-		statusRow.children[statusLabelIndex].remove(); // Remove the value's container
+			statusRow.children[statusLabelIndex].remove(); // Remove the label's parent container
+			if (!statusRow.children[statusLabelIndex]) return;
+
+			statusRow.children[statusLabelIndex].remove(); // Remove the value's container
+		}
     }
 }
  
