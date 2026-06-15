@@ -198,86 +198,86 @@ class AddItemButtons {
             $(".use-item-btn").on("click", e => useItemClicked(e));
         });
  
-	function useItemClicked(e) {
-    // Disable button
-    $(".use-item-btn").prop("disabled", true);
-    var containingRow = $(e.currentTarget).parents(".row")[0];
-    const dateString = new Date(Date.now()).toLocaleTimeString("en-GB", { timeZone: "UTC" });
-    $(".useItemMsg").remove();
- 
-    const id = e.currentTarget.getAttribute("id");
-    $.post("/Inventory/Use?id=" + id, data => {
-        if (data.status == 200) {
-            if (data.type == "Weapon" || data.type == "Armour" || data.type == "Thrown") {
-                $(location).attr("href", "/Inventory");
-            } else {
-                if (data.statusMsg.success) {
-                    $(containingRow).append(`<div class="col-12 useItemMsg mt-2 text-success fw-bold">${dateString} - ${data.statusMsg.success}</div>`);
- 
-                    if (data.energyGained) {
-                        let currentEnergy = parseInt($("#currentEnergy")[0].innerText);
-                        let newEnergy = currentEnergy + data.energyGained;
-                        let maxEnergy = parseInt($("#maxEnergy")[0].innerText);
-                        let percentageOfMax = ((newEnergy / maxEnergy) * 100);
- 
-                        $("#currentEnergy")[0].innerText = newEnergy;
-                        $("#energyProgress")[0].style.width = `${percentageOfMax}%`;
-                        $("#energyProgress")[0].setAttribute("aria-valuenow", newEnergy);
- 
-                        // Update input fields
-                        $("form.input-group input.form-control").each((idx, elem) => {
-                            elem.setAttribute("max", newEnergy.toString());
-                            elem.setAttribute("value", newEnergy.toString());
-                        });
-                        $("form.input-group input.btn.disabled").each((idx, elem) => elem.classList.remove("disabled"));
-                    }
-                    if (data.lifeToSet || data.lifeToSet === 0) {
-                        let maxLife = parseInt($("#maxLife")[0].innerText);
-                        let newLife = data.lifeToSet;
-                        let percentageOfMax = ((newLife / maxLife) * 100);
-                        if (newLife > maxLife)
-                            newLife = maxLife;
- 
-                        $("#currentLife")[0].innerText = newLife;
-                        $("#lifeProgress")[0].style.width = `${percentageOfMax}%`;
-                        $("#lifeProgress")[0].setAttribute("aria-valuenow", newLife);
-                    }
- 
-                    if (data.sentToHospital) {
-                        $(".content-container").attr("style", "background-image:linear-gradient(to right, rgba(255,0,0,0.05), rgba(255, 0, 0, 0.2), rgba(255,0,0,0.05)), url(../images/background-hospital.webp);");
-                        $("#userStatus").text("In Hospital");
-                    }
-                    if (data.releaseFromHosp || data.releaseFromJail) {
-                        $(".content-container").attr("style", "background-image:linear-gradient(to right, rgba(0,0,0,0.3), rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url(../images/background.webp)");
-                        $("#userStatus").text("Active");
-                    }
- 
-                    // Update item count
-                    let container = $(e.currentTarget).parents(".inventoryItemWrapper")[0];
-                    let itemCountLabel = $(container).find(".itemQuantity");
-                    if (itemCountLabel.length == 0) {
- 
-                    }
-                    if (itemCountLabel[0]) {
-                        let currentCount = parseInt(itemCountLabel[0].innerText);
-                        if (!isNaN(currentCount)) {
-                            if (currentCount - 1 > 0)
-                                itemCountLabel[0].innerText = currentCount - 1;
-                            else
-                                containingRow.remove();
-                        }
-                    }
- 
-                    // Reload the page if the item was successfully used
-                    location.reload();
-                } else {
-                    $(containingRow).append(`<div class="col-12 useItemMsg mt-2 text-danger fw-bold">${dateString} - ${data.statusMsg.error}</div>`);
-                }
-            }
-            $(".use-item-btn").prop("disabled", false);
-        }
-    });
-}
+		function useItemClicked(e) {
+			// Disable button
+			$(".use-item-btn").prop("disabled", true);
+			var containingRow = $(e.currentTarget).parents(".row")[0];
+			const dateString = new Date(Date.now()).toLocaleTimeString("en-GB", { timeZone: "UTC" });
+			$(".useItemMsg").remove();
+		
+			const id = e.currentTarget.getAttribute("id");
+			$.post("/Inventory/Use?id=" + id, data => {
+				if (data.status !== 200) return;
+				if (data.type == "Weapon" || data.type == "Armour" || data.type == "Thrown") {
+					$(location).attr("href", "/Inventory");
+					$(".use-item-btn").prop("disabled", false);
+					return;
+				}
+				if (!data.statusMsg.success) {
+					$(containingRow).append(`<div class="col-12 useItemMsg mt-2 text-danger fw-bold">${dateString} - ${data.statusMsg.error}</div>`);
+					return;
+				}
+				$(containingRow).append(`<div class="col-12 useItemMsg mt-2 text-success fw-bold">${dateString} - ${data.statusMsg.success}</div>`);
+
+				if (data.energyGained) {
+					let currentEnergy = parseInt($("#currentEnergy")[0].innerText);
+					let newEnergy = currentEnergy + data.energyGained;
+					let maxEnergy = parseInt($("#maxEnergy")[0].innerText);
+					let percentageOfMax = ((newEnergy / maxEnergy) * 100);
+
+					$("#currentEnergy")[0].innerText = newEnergy;
+					$("#energyProgress")[0].style.width = `${percentageOfMax}%`;
+					$("#energyProgress")[0].setAttribute("aria-valuenow", newEnergy);
+
+					// Update input fields
+					$("form.input-group input.form-control").each((idx, elem) => {
+						elem.setAttribute("max", newEnergy.toString());
+						elem.setAttribute("value", newEnergy.toString());
+					});
+					$("form.input-group input.btn.disabled").each((idx, elem) => elem.classList.remove("disabled"));
+				}
+				if (data.lifeToSet || data.lifeToSet === 0) {
+					let maxLife = parseInt($("#maxLife")[0].innerText);
+					let newLife = data.lifeToSet;
+					let percentageOfMax = ((newLife / maxLife) * 100);
+					if (newLife > maxLife)
+						newLife = maxLife;
+
+					$("#currentLife")[0].innerText = newLife;
+					$("#lifeProgress")[0].style.width = `${percentageOfMax}%`;
+					$("#lifeProgress")[0].setAttribute("aria-valuenow", newLife);
+				}
+
+				if (data.sentToHospital) {
+					$(".content-container").attr("style", "background-image:linear-gradient(to right, rgba(255,0,0,0.05), rgba(255, 0, 0, 0.2), rgba(255,0,0,0.05)), url(../images/background-hospital.webp);");
+					$("#userStatus").text("In Hospital");
+				}
+				if (data.releaseFromHosp || data.releaseFromJail) {
+					$(".content-container").attr("style", "background-image:linear-gradient(to right, rgba(0,0,0,0.3), rgba(0,0,0,0.2), rgba(0,0,0,0.3)), url(../images/background.webp)");
+					$("#userStatus").text("Active");
+				}
+
+				// Update item count
+				let container = $(e.currentTarget).parents(".inventoryItemWrapper")[0];
+				let itemCountLabel = $(container).find(".itemQuantity");
+				if (itemCountLabel.length == 0) {
+
+				}
+				if (itemCountLabel[0]) {
+					let currentCount = parseInt(itemCountLabel[0].innerText);
+					if (!isNaN(currentCount)) {
+						if (currentCount - 1 > 0)
+							itemCountLabel[0].innerText = currentCount - 1;
+						else
+							containingRow.remove();
+					}
+				}
+
+				// Reload the page if the item was successfully used
+				location.reload();
+				$(".use-item-btn").prop("disabled", false);
+			});
+		}
  
  
  
