@@ -1444,11 +1444,18 @@ class BetterItemValues {
 				const prestigeText = jobPanel.querySelector("p.prestigeText");
 				const incrReward = prestigeText !== null && /\+\d+%/.test(prestigeText.innerText) ? parseInt(prestigeText.innerText.match(/\+\d+%/)[0].slice(1, -1)) : 0;
 				this.jobValue[i] *= 1 + incrReward / 100;
+				this.jobRep[i] *= 1 + incrReward  / 100;
  
 				this.jobValue[i] *= this.jobProfitFactor;
 				this.jobValue[i] /= this.jobTimes[i];
 				this.maxJobValue = Math.max(this.maxJobValue, this.jobValue[i]);
 				this.minJobValue = Math.min(this.minJobValue, this.jobValue[i]);
+			}
+
+			const standardJobRepBonus = GM_getValue('perk_Standard Job Rep');
+			// Apply only to standard jobs
+			if (i <= 4) {
+				this.jobRep[i] * (1 + (standardJobRepBonus / 100));
 			}
 			this.maxJobRep = Math.max(this.maxJobRep, this.jobRep[i] / this.jobTimes[i]);
 			this.minJobRep = Math.min(this.minJobRep, this.jobRep[i] / this.jobTimes[i]);
@@ -2634,6 +2641,7 @@ class DisplayPerks {
 		this.maxInt = "Max Int";
 		this.intGains = "Int Gains";
 		this.jobProfits = "Job Profits";
+		this.standardJobRep = "Standard Job Rep"
 		this.streetCrimeProfit = "Street Crime Profit";
  
 		this.all = "Territory";
@@ -2730,6 +2738,8 @@ Hospital timer by ${hospTimeText} ${this.getPerk(this.medEffectiveness) === 0 ? 
             this.setPerk(this.medCooldown, parseFloat(textSplit[0].slice(0, -1)));
         else if (perkDesc.endsWith("increase to medical item effectiveness"))
             medEffectiveness += parseFloat(textSplit[0].slice(0, -1));
+		else if (perkDesc.endsWith("Reputation on Standard Jobs"))
+            this.setPerk(this.standardJobRep, parseFloat(textSplit[0].slice(1, -1)));
     }
  
     // Update stat gains after processing perks
