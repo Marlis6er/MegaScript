@@ -71,7 +71,10 @@ function extractUserInfo() {
  
     labels.forEach(label => {
         if (label.textContent.trim().toLowerCase() === "name") {
-            nameIdElement = label.parentElement.nextElementSibling.querySelector(".form-data-inset");
+            nameIdElement = label
+				.parentElement
+				.nextElementSibling
+				.querySelector(".form-data-inset");
         }
     });
  
@@ -140,7 +143,8 @@ user_id = localStorage.getItem('user_id') || 0;
  
 // Used for seeing when elements update, for some reason there's no neat standard way to do that
 const observeDOM = (function() {
-	const MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+	const MutationObserver = window.MutationObserver
+		|| window.WebKitMutationObserver;
 	return function(obj, callback) {
 		if(!obj || obj.nodeType !== 1) return;
 
@@ -455,7 +459,52 @@ class BetterItemValues {
  
 		const values = GM_listValues().filter(name => name.startsWith("value_")); // Prefill values first use
 		if(values.length === 0) {
-			const defaultVals = {"Walther P38":2200,"AK-47":13000,"M1911":13000,"M16A2 Rifle":13000,"S&W Magnum Revolver":120000,"MG34":400000,"Fragmentation Grenade":24999,"Stun Grenade":18000,"Illuminating Grenade":9999,"Flash Bang Grenade":9999,"Tear Gas Grenade":18000,"Covert Stab Vest":75000,"Tactical Plate Armour":3000000,"Personal Favour":170000,"Supporter Pack":9500000,"Corana Beer":150000,"Mexcal Beer":438000,"Blancoda Tequila":847000,"Repose Tequila":1850000,"Anejo Tequila":1720000,"Raicilla":2000000,"Bandage":3999,"Small Medical Kit":6999,"Tainted Cannabis":9999,"Large Medical Kit":16000,"Basic Trauma Kit":25000,"Large Trauma Kit":40000,"Tainted Cocaine":15000,"Cannabis":24998,"Cocaine":610000,"Bag of Fertiliser":19000,"Coca Paste":26000,"Agave Heart":53000,"Concrete Bags":89000,"Nails":124900,"Bricks":99999,"Steel":94000,"Dog Food":7398,"Supporter Points":34899,"El Chapo's Head":10000000,"Glock 18":500000,"Ballistic Vest":100000,"G36":750000,"Desert Eagle":8000000}; // Players should go to the market to load up-to-date values, these are presets probably over half a year old
+			const defaultVals = {
+				"Walther P38": 2_200,
+				"AK-47": 13_000,
+				"M1911": 13_000,
+				"M16A2 Rifle": 13_000,
+				"S&W Magnum Revolver": 120_000,
+				"MG34": 400_000,
+				"Fragmentation Grenade": 24_999,
+				"Stun Grenade": 18_000,
+				"Illuminating Grenade": 9_999,
+				"Flash Bang Grenade": 9_999,
+				"Tear Gas Grenade": 18_000,
+				"Covert Stab Vest": 75_000,
+				"Tactical Plate Armour": 3_000_000,
+				"Personal Favour": 170_000,
+				"Supporter Pack": 9_500_000,
+				"Corana Beer": 150_000,
+				"Mexcal Beer": 438_000,
+				"Blancoda Tequila": 847_000,
+				"Repose Tequila": 1_850_000,
+				"Anejo Tequila": 1_720_000,
+				"Raicilla": 2_000_000,
+				"Bandage": 3_999,
+				"Small Medical Kit": 6_999,
+				"Tainted Cannabis": 9_999,
+				"Large Medical Kit": 16_000,
+				"Basic Trauma Kit": 25_000,
+				"Large Trauma Kit": 40_000,
+				"Tainted Cocaine": 15_000,
+				"Cannabis": 24_998,
+				"Cocaine": 610_000,
+				"Bag of Fertiliser": 19_000,
+				"Coca Paste": 26_000,
+				"Agave Heart": 53_000,
+				"Concrete Bags": 89_000,
+				"Nails": 124_900,
+				"Bricks": 99_999,
+				"Steel": 94_000,
+				"Dog Food": 7_398,
+				"Supporter Points": 34_899,
+				"El Chapo's Head": 10_000_000,
+				"Glock 18": 500_000,
+				"Ballistic Vest": 100_000,
+				"G36": 750_000,
+				"Desert Eagle": 8_000_000
+			}; // Players should go to the market to load up-to-date values, these are presets probably over half a year old
 			for(var name in defaultVals)
 				this.setValue(name, defaultVals[name]);
 		}
@@ -483,7 +532,7 @@ class BetterItemValues {
  
 		this.prodDepreciation = 2;
 		this.narcoCounts = [ 1, 5, 25, 10, 60 ];
-		this.prodMoney = [ 1000, 0, 105000, 70000, 800000 ]; // Accurate
+		this.prodMoney = [ 1_000, 0, 105_000, 70_000, 800000 ]; // Accurate
 		this.prodCokeScaling = [ 1, 1.75, 2.3125, 2.734375 ]; // Source: screenshot in the Coke suggestions thread
 		this.prodReqs = [ // NOTE: values no longer used, since courses can reduce requirements
 			{},
@@ -523,9 +572,9 @@ class BetterItemValues {
 			}
 		];
 		//this.jobTimes = [ 5, 30, 60, 180, 15, 30, 60, 90, 360, 720 ]; // NOTE: prestige may change this, so instead calculate
-		this.jobMoney = [ 1650, 14000, 55000, 250000, 111, 111, 111, 260, 700000, 2250000 ];
+		this.jobMoney = [ 1_650, 14_000, 55_000, 250_000, 111, 111, 111, 260, 700_000, 2250000 ];
 		// Base rep for standard jobs doubled with https://cartelempire.online/Forum/1/7289
-		this.jobRep = [ 20, 150, 320, 980, 21, 50, 82, 165, 2260, 4640 ];
+		this.jobRep = [ 20, 150, 320, 980, 21, 50, 82, 165, 2_260, 4640 ];
 		this.jobItems = [
 			{},
 			{ "Personal Favour": 1 / 20 },
