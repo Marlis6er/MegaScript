@@ -90,8 +90,8 @@ function extractUserInfo() {
             localStorage.setItem("user_name", user_name);
             localStorage.setItem("user_id", user_id);
  
-            console.log("✅ Extracted User Name:", user_name);
-            console.log("✅ Extracted User ID:", user_id);
+            console.debug("✅ Extracted User Name:", user_name);
+            console.debug("✅ Extracted User ID:", user_id);
         } else {
             console.warn("⚠️ Failed to properly split name and ID.");
         }
@@ -106,10 +106,10 @@ function getUserInfoFromStorage() {
     const storedId = localStorage.getItem("user_id");
  
     if (storedName && storedId) {
-        console.log(`From LocalStorage: Name: ${storedName}, ID: ${storedId}`);
+        console.debug(`From LocalStorage: Name: ${storedName}, ID: ${storedId}`);
         return { user_name: storedName, user_id: storedId };
     } else {
-        console.log("ℹ️ User info not found in localStorage.");
+        console.info("ℹ️ User info not found in localStorage.");
         return null;
     }
 }
@@ -133,7 +133,7 @@ if (userInfo) {
         userInfoElement.textContent = `Name: ${user_name}, ID: ${user_id}`;
     }
  
-    console.log(`Final Name: ${user_name}, Final ID: ${user_id}`);
+    console.info(`Final Name: ${user_name}, Final ID: ${user_id}`);
 }
  
 user_name = localStorage.getItem('user_name') || "";
@@ -174,7 +174,7 @@ class AddItemButtons {
 	setID(cache, coke = true) {
 		const itemName = coke ? "Cocaine" : "Personal Favour";
 		GM_setValue(`itemID_${itemName}`, cache);
-		console.log(`Set itemID_${itemName} to ${cache}`);
+		console.debug(`Set itemID_${itemName} to ${cache}`);
 		return cache;
 	}
 	getCount(coke = true) {
@@ -184,7 +184,7 @@ class AddItemButtons {
 	setCount(cache, coke = true) {
 		const itemName = coke ? "Cocaine" : "Personal Favour"
 		GM_setValue(`itemCache_${itemName}`, cache);
-		console.log(`Set itemCache_${itemName} to ${cache}`);
+		console.debug(`Set itemCache_${itemName} to ${cache}`);
 		return cache;
 	}
 	getValue(coke = true) {
@@ -593,13 +593,13 @@ class BetterItemValues {
             val = GM_getValue(formattedName, null);
         }
  
-        console.log(`Fetching value for: ${formattedName}, ItemName: ${itemName}, Result: ${val}`);
+        console.debug(`Fetching value for: ${formattedName}, ItemName: ${itemName}, Result: ${val}`);
         return val;
     }
  
 	setValue(itemName, value) {
 		GM_setValue(`value_${itemName}`, value);
-		console.log(`Set value_${itemName} to \u00a3${value.toLocaleString("en-US")}`);
+		console.debug(`Set value_${itemName} to \u00a3${value.toLocaleString("en-US")}`);
 		return value;
 	}
     inMarket(url) {
@@ -659,16 +659,16 @@ class BetterItemValues {
         // Function to handle item processing
         function processItems() {
             const offerListWrappers = document.querySelectorAll(".offerListWrapper.mb-3");
-            console.log("Number of offerListWrappers found:", offerListWrappers.length);
+            console.info("Number of offerListWrappers found:", offerListWrappers.length);
  
             offerListWrappers.forEach(wrapper => {
                 const itemCards = wrapper.querySelectorAll("div.col-xl-2.col-md-3.col-sm-4.col-6");
-                console.log("Number of item cards in wrapper:", itemCards.length);
+                console.info("Number of item cards in wrapper:", itemCards.length);
  
                 itemCards.forEach(card => {
                     try {
                         const itemName = card.querySelector("h5.card-title").textContent.trim();
-                        console.log(`Found item: ${itemName}`);  // Debugging log
+                        console.debug(`Found item: ${itemName}`);  // Debugging log
  
                         const itemPriceText = card.querySelector("p.card-text.fst-italic").textContent.trim();
                         const itemPrice = parseInt(itemPriceText.slice(1).split(' ')[0].replaceAll(',', ""));
@@ -678,13 +678,13 @@ class BetterItemValues {
  
                         // Use GM_getValue to retrieve the current best value
                         const currentBest = GM_getValue(key, null);
-                        console.log(`Current stored value for ${itemName}: ${currentBest}`);  // Debugging log
+                        console.debug(`Current stored value for ${itemName}: ${currentBest}`);  // Debugging log
  
                         if (currentBest !== itemPrice) {
-                            console.log(`Updating value for ${itemName} from ${currentBest} to ${itemPrice}`);  // Debugging log
+                            console.debug(`Updating value for ${itemName} from ${currentBest} to ${itemPrice}`);  // Debugging log
                             GM_setValue(key, itemPrice);  // Store value with formatted key
                             const newStoredValue = GM_getValue(key);
-                            console.log(`New stored value for ${itemName}: ${newStoredValue}`);  // Debugging log
+                            console.debug(`New stored value for ${itemName}: ${newStoredValue}`);  // Debugging log
  
                             // Ensure pointName and priceCurrentBest are defined
                             if (typeof pointName !== 'undefined' && itemName === pointName) {
@@ -693,7 +693,7 @@ class BetterItemValues {
                                 priceCurrentBest.innerText = `(\u00a3${itemPrice.toLocaleString("en-US")})`;
                             }
                         } else {
-                            console.log(`No update needed for ${itemName}. Current: £${currentBest}, New: £${itemPrice}`);  // Debugging log
+                            console.debug(`No update needed for ${itemName}. Current: £${currentBest}, New: £${itemPrice}`);  // Debugging log
                         }
                     } catch (error) {
                         console.error(`Error processing card: ${error}`);
@@ -710,7 +710,7 @@ class BetterItemValues {
             const observer = new MutationObserver((mutationsList) => {
                 for (let mutation of mutationsList) {
                     if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
-                        console.log("Detected new nodes in market area, re-running item processing...");
+                        console.info("Detected new nodes in market area, re-running item processing...");
                         processItems();  // Re-run the script to process newly added items
                     }
                 }
@@ -1153,7 +1153,7 @@ class BetterItemValues {
             return;
         }
  
-        console.log("Found", containers.length, "production containers.");
+        console.debug("Found", containers.length, "production containers.");
  
         const cokeVal = this.getValue("Cocaine");
         let assigned = [];
@@ -1218,10 +1218,10 @@ class BetterItemValues {
             let owned = parseInt(ownedText);
  
             // Log extracted values
-            console.log(`Production ID: ${productionId}`);
-            console.log(`Required: ${requiredText}`);
-            console.log(`Owned: ${ownedText}`);
-            console.log(`Assigned Narcos: ${narcoInput.value}`);
+            console.info(`Production ID: ${productionId}`);
+            console.info(`Required: ${requiredText}`);
+            console.info(`Owned: ${ownedText}`);
+            console.info(`Assigned Narcos: ${narcoInput.value}`);
  
             // Calculate days left
             let daysLeftElement = document.createElement("p");
@@ -1813,7 +1813,7 @@ class BlackjackHelper {
 	}
 	setMoneyStat(stat, money) {
 		GM_setValue(`blackjack_${stat}`, money);
-		console.log(`Set blackjack_${stat} to \u00a3${money.toLocaleString("en-US")}`);
+		console.debug(`Set blackjack_${stat} to \u00a3${money.toLocaleString("en-US")}`);
 		return money;
 	}
 	getStats() {
@@ -1822,7 +1822,7 @@ class BlackjackHelper {
 	}
 	setStats(stats) {
 		GM_setValue("blackjack_Stats", stats);
-		console.log(`Set blackjack_${stats} to ${JSON.stringify(stats)}`);
+		console.debug(`Set blackjack_${stats} to ${JSON.stringify(stats)}`);
 		return stats;
 	}
 	addProfit(val) {
@@ -2071,7 +2071,7 @@ class CartelMemberRep {
 	}
 	setAttackList(list) {
 		GM_setValue("cartelMemberRep_attackList", list);
-		console.log(`Set cartelMemberRep_attackList to ${JSON.stringify(list)}`);
+		console.debug(`Set cartelMemberRep_attackList to ${JSON.stringify(list)}`);
 		return list;
 	}
 	getMemberRep(memberID) {
@@ -2080,7 +2080,7 @@ class CartelMemberRep {
 	}
 	setMemberRep(memberID, rep) {
 		GM_setValue(`cartelMemberRep_${memberID}`, rep);
-		console.log(`Set cartelMemberRep_${memberID} to ${rep.toLocaleString("en-US")}`);
+		console.debug(`Set cartelMemberRep_${memberID} to ${rep.toLocaleString("en-US")}`);
 		return rep;
 	}
 	processLogs(rows) {
@@ -2234,7 +2234,7 @@ class ColorChatNames {
 	}
 	setList(list, friends = true) {
 		GM_setValue(`connections_${friends ? "friends" : "enemies"}`, list);
-		console.log(`Set connections_${friends ? "friends" : "enemies"} to ${JSON.stringify(list)}`);
+		console.debug(`Set connections_${friends ? "friends" : "enemies"} to ${JSON.stringify(list)}`);
 		return list;
 	}
 	inConnections(url) {
@@ -2651,7 +2651,7 @@ class DisplayPerks {
 	}
 	setPerk(type, perk) {
 		GM_setValue(`perks_${type}`, perk);
-		console.log(`Set perks_${type} to ${perk}`);
+		console.debug(`Set perks_${type} to ${perk}`);
 		return perk;
 	}
 	changeHospitalTime(texts) {
@@ -2894,7 +2894,7 @@ class DisplayTownCaches {
 	}
 	setCache(type, cache) {
 		GM_setValue(`cache_${type}`, cache);
-		console.log(`Set cache_${type} to ${cache}`);
+		console.debug(`Set cache_${type} to ${cache}`);
 		return cache;
 	}
 	timeFunc(now) {
@@ -2942,8 +2942,8 @@ class DisplayTownCaches {
         const headerSections = document.querySelectorAll('.header-section');
         const pointsHeader = headerSections[2].querySelector('h2').innerText;
         const pointsDepleted = pointsHeader.includes("(0/25)");
-        console.log(pointsHeader);
-        console.log(pointsDepleted);
+        console.debug(pointsHeader);
+        console.debug(pointsDepleted);
  
         const curCache = this.getCache("MateosPoints");
         const now = Date.now() - this.hoursLate * 1000 * 60 * 60;
@@ -3237,7 +3237,7 @@ class ExpeditionChances {
 					chances[team_i] = Math.min(chances[team_i], teamStats[team_i][i - 1] / stat);
 				}
 			}
-			chances.forEach(c => console.log(c * 100));
+			chances.forEach(c => console.debug(c * 100));
 			let options = exped.querySelectorAll("select.expeditionTeamSelector option");
 			for(var opt of options) {
 				const team_i = parseInt(opt.value);
@@ -3379,7 +3379,7 @@ class HighscoreChanges {
 	}
 	setCache(type, cache) {
 		GM_setValue(`highscoreCache_${type}`, cache);
-		console.log(`Set highscoreCache_${type} to ${JSON.stringify(cache)}`);
+		console.debug(`Set highscoreCache_${type} to ${JSON.stringify(cache)}`);
 		return cache;
 	}
 	timeFunc(now) {
@@ -3535,7 +3535,7 @@ class ItemCache {
 	}
 	setCache(type, cache) {
 		GM_setValue(`itemCache_${type}`, cache);
-		console.log(`Set itemCache_${type} to ${cache}`);
+		console.debug(`Set itemCache_${type} to ${cache}`);
 		return cache;
 	}
 	getReq(type) {
@@ -3544,7 +3544,7 @@ class ItemCache {
 	}
 	setReq(type, req) {
 		GM_setValue(`prodReq_${type}`, req);
-		console.log(`Set prodReq_${type} to ${req}`);
+		console.debug(`Set prodReq_${type} to ${req}`);
 		return req;
 	}
 	inMarket(url) {
@@ -3682,7 +3682,7 @@ class PropertyPageAgentLink {
     inProperty(url) {
         // Find the correct container for the tabs and content
         let container = document.querySelector("#cartelPerksNav");
-        console.log("Container element found:", container);
+        console.info("Container element found:", container);
  
         if (!container) {
             console.error("Container not found!");
@@ -3692,15 +3692,15 @@ class PropertyPageAgentLink {
         // Remove the default button
         const defaultButton = container.querySelector("div.gap-2.d-flex");
         if (defaultButton !== null) {
-            console.log("Removing default button.");
+            console.debug("Removing default button.");
             defaultButton.remove();
         } else {
-            console.log("No default button found.");
+            console.warn("No default button found.");
         }
  
         // Check if combined content already exists
         if (container.querySelector("#combined-content")) {
-            console.log("Combined content already exists, skipping creation.");
+            console.debug("Combined content already exists, skipping creation.");
             return; // If it exists, exit the function
         }
  
@@ -3708,8 +3708,8 @@ class PropertyPageAgentLink {
         const tabs = container.querySelectorAll(".nav-link");
         const tabContents = container.querySelectorAll(".tab-content .tab-pane");
  
-        console.log("Tabs found:", tabs.length);
-        console.log("Tab contents found:", tabContents.length);
+        console.info("Tabs found:", tabs.length);
+        console.info("Tab contents found:", tabContents.length);
  
         // Create the estate agent section
         let agentSection = document.createElement("div");
@@ -3745,32 +3745,32 @@ class PropertyPageAgentLink {
  
         // Hide tabs
         tabs.forEach((tab, index) => {
-            console.log(`Hiding tab ${index}:`, tab);
+            console.debug(`Hiding tab ${index}:`, tab);
             tab.classList.add('d-none');
         });
  
         // Remove all existing tab content
         tabContents.forEach((content, index) => {
-            console.log(`Removing tab content ${index}:`, content);
+            console.debug(`Removing tab content ${index}:`, content);
             content.remove();
         });
  
         // Check if there is any element with the class 'mb-4 card border-success'
         var successCard = container.querySelector('.mb-4.card.border-success');
-        console.log("Success card found:", successCard);
+        console.debug("Success card found:", successCard);
  
         if (!successCard) {
             // If no such element exists, append the estate agent section first
-            console.log("No success card found, appending agent section at the top.");
+            console.warn("No success card found, appending agent section at the top.");
             container.insertBefore(agentSection, container.firstChild);
         } else {
             // Otherwise, insert it after the 'mb-4 card border-success' element
-            console.log("Success card found, inserting agent section after it.");
+            console.debug("Success card found, inserting agent section after it.");
             container.insertBefore(agentSection, successCard.nextSibling);
         }
  
         // Append the new combined card
-        console.log("Appending combined card.");
+        console.debug("Appending combined card.");
         container.appendChild(combinedCard);
     }
 }
@@ -3902,7 +3902,7 @@ class StatEstimate {
 	}
 	setEst(ID, estimate) {
 		GM_setValue(`statEstimate_${ID}`, estimate);
-		console.log(`Set statEstimate_${ID} to "${estimate}"`);
+		console.debug(`Set statEstimate_${ID} to "${estimate}"`);
 		return estimate;
 	}
 	getList() {
@@ -3919,7 +3919,7 @@ class StatEstimate {
 	}
 	setName(ID, name) {
 		GM_setValue(`name_${ID}`, name);
-		console.log(`Set name_${ID} to "${name}"`);
+		console.debug(`Set name_${ID} to "${name}"`);
 		return name;
 	}
 	calcFairFight(ownStats, theirStats) {
@@ -4384,7 +4384,7 @@ class StatEstimate {
  
                 // If value has changed, update
                 if (this.ownStats !== statValue && statValue !== 0) {
-                    console.log("Updating ownStats");
+                    console.info("Updating ownStats");
                     this.setEst("self", statValue);
                 }
             } else {
@@ -4510,12 +4510,11 @@ class StatEstimate {
 					return;
 				}
 				const oldEst = Adate > Bdate ? Bstats : Astats;
-				console.log(parseInt(oldEst.split(' ')[0].slice(1).replaceAll(',', "")), parseInt(otherEst[1].replaceAll(',', "")), oldEst[0], otherEst[0]);
+				console.info(parseInt(oldEst.split(' ')[0].slice(1).replaceAll(',', "")), parseInt(otherEst[1].replaceAll(',', "")), oldEst[0], otherEst[0]);
 				if(this.dontOverride(parseInt(oldEst.split(' ')[0].slice(1).replaceAll(',', "")), parseInt(otherEst[1].replaceAll(',', "")), oldEst[0], otherEst[0])) {
 					showEsts(userA.innerText, userB.innerText, A_ID, B_ID);
 					return;
 				}
-				console.log("hi");
 				const otherID = Adate > Bdate ? B_ID : A_ID;
 				this.setEst(otherID, `${otherEst[0]}${otherEst[1]} ${newerStats.split(' ')[1]} ${fightID}`);
 				if(!this.currentList.includes(parseInt(otherID))) {
