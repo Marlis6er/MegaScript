@@ -1767,7 +1767,7 @@ class CenterTabs {
 	constructor() {}
 	inNavTabPlace(URL) {
 		let tabs = document.querySelectorAll(".nav-tabs");
-		for(var tab of tabs) tab.classList.add("nav-justified");
+		for(const tab of tabs) tab.classList.add("nav-justified");
 
 		GM_addStyle(".nav-tabs .nav-link.active { border-bottom: 3px solid #0d6efd !important }");
 	}
@@ -1778,23 +1778,24 @@ class CenterText {
 	constructor() {}
 	inTown(url) {
 		const places = document.querySelectorAll("div.equipmentModule p.card-text.flex-grow-1");
-		for(var place of places) place.classList.add("text-center");
+		for(const place of places) place.classList.add("text-center");
 	}
 	inAnywhere() {
 		const chatRows = document.querySelector("div.chats.row");
-		observeDOM(chatRows, e => {
-			for(var ev of e) {
+		const chatObserver = e => {
+			for(const ev of e) {
 				if(ev.target !== chatRows) continue;
 
-				for(var addedChat of ev.addedNodes) {
+				for(const addedChat of ev.addedNodes) {
 					let header = addedChat.querySelector("div.header h6");
 					header.classList.add("text-center");
 				}
 			}
-		});
+		};
+		observeDOM(chatRows, chatObserver);
  
 		const headers = chatRows.querySelectorAll("div.header h6");
-		for(var header of headers) header.classList.add("text-center");
+		for(const header of headers) header.classList.add("text-center");
 	}
 }
  
@@ -1805,9 +1806,11 @@ class DisableThrow {
 	}
 	inInventory(url) {
 		const buttons = document.querySelectorAll("button.btn.action-btn.ms-1.float-end");
-		for(var button of buttons)
-			if(button.title === this.throwText)
-				button.setAttribute("disabled", true);
+		for (const button of buttons) {
+			if(button.title !== this.throwText) continue;
+
+			button.setAttribute("disabled", true);
+		}
 	}
 }
  
@@ -1849,15 +1852,16 @@ class EstateLevelInfo {
 	inEstateAgent(url) {
 		const containers = document.querySelectorAll("div.accordion-body");
  
-		for(var i = 1; i !== containers.length; ++i) {
+		for(const i = 1; i !== containers.length; ++i) {
 			const container = containers[i];
 			const numbers = container.querySelectorAll("div.col-6 p:not(.mb-0)");
 			const jAdd = i > 5 ? 1 : 0;
-			for(var j = 2 + jAdd; j !== numbers.length; ++j) {
+			for(const j = 2 + jAdd; j !== numbers.length; ++j) {
 				let numberP = numbers[j];
 				const number = parseInt(numberP.innerText);
 				const val = this.values[j - jAdd][number];
 				if(val === undefined) return;
+
 				const colorVal = // j - jAdd === 2 ? 1 - ((val - 26) / (41.3 - 26)) :
 					val / this.values[j - jAdd][this.values[j - jAdd].length - 1];
 				numberP.innerHTML += ` <span style="color: hsl(${colorVal * 120}, 67%, ${this.brightness}%)">(${this.prefixes[j - jAdd]}${val.toLocaleString("en-US")}${this.postfixes[j - jAdd]})</span>`;
@@ -1871,28 +1875,28 @@ class ExpeditionChances {
 	constructor() {}
 	inExpeditions(URL) {
 		let teamStats = [ [], [], [], [], [] ];
-		for(var team_i = 1; team_i <= 5; ++team_i) {
+		for(let team_i = 1; team_i <= 5; ++team_i) {
 			const stats = document.querySelectorAll(`#v-content-team${team_i} > .justify-content-center span:not(.fw-bold)`);
 			if(stats.length !== 4) return;
 
-			for(var statText of stats) {
+			for(const statText of stats) {
 				teamStats[team_i - 1].push(parseInt(statText.innerText.replaceAll(',', "")));
 			}
 		}
 		const expeds = document.querySelectorAll(".expeditionButton");
-		for(var exped of expeds) {
+		for(const exped of expeds) {
 			if(exped.children.length < 5) continue;
 
 			let chances = [ 1, 1, 1, 1, 1 ];
-			for(var i = 1; i < 4; ++i) { // Don't factor in speed (last value) since it only affects expedition time not success rate
+			for(let i = 1; i < 4; ++i) { // Don't factor in speed (last value) since it only affects expedition time not success rate
 				const stat = parseInt(exped.children[i].children[1].innerText.replaceAll(',', ""));
-				for(var team_i = 0; team_i < 5; ++team_i) {
+				for(let team_i = 0; team_i < 5; ++team_i) {
 					chances[team_i] = Math.min(chances[team_i], teamStats[team_i][i - 1] / stat);
 				}
 			}
 			chances.forEach(c => console.debug(c * 100));
 			let options = exped.querySelectorAll("select.expeditionTeamSelector option");
-			for(var opt of options) {
+			for(const opt of options) {
 				const team_i = parseInt(opt.value);
 				if(team_i === 0) continue;
 
@@ -1965,7 +1969,7 @@ class HighlightInactives {
 		const table = document.querySelector("div.card-body > div.container-fluid");
 		let rows = table.querySelectorAll(".row.align-middle");
  
-		for(var row of rows) {
+		for(const row of rows) {
 			const cols = row.querySelectorAll(".col:not(.fw-bold)");
 			let activity = cols[cols.length - 2];
 			if(!activity.innerText.endsWith("days ago") && !activity.innerText.endsWith("day ago"))
@@ -1985,9 +1989,10 @@ class HighlightUnequipped {
 	inInventory(url) {
 		let titles = document.querySelectorAll("h6.card-title");
  
-		for(var title of titles)
-			if(title.innerText === "None")
-				title.classList.add("fw-bold", "text-danger");
+		for(const title of titles) {
+			if(title.innerText !== "None") continue;
+			title.classList.add("fw-bold", "text-danger");
+		}
 	}
 	inProduction(url) {
 		let idle = document.querySelector("p.idleNarcos");
@@ -2014,14 +2019,15 @@ class IntPerWeek {
 		let maxIpd = 0;
 		let minIpd = Infinity;
  
-		for(var course of courses) {
+		for(const course of courses) {
 			const data = course.children[1].children[0];
 			const length = parseInt(data.children[0].children[1].children[1].innerText.split(' ')[2]);
 			const intGainText = data.children[1].children[1].children[1].innerHTML.match(/\d+\s/g);
 			let intGain = 0;
-			for(var text of intGainText) intGain += parseInt(text);
+			for(const text of intGainText) intGain += parseInt(text);
 
-			if(this.stats && data.children[1].children[1].children[1].innerHTML.includes("intelligence")) // One course gives int rather than stats
+			// One course gives int rather than stats
+			if(this.stats && data.children[1].children[1].children[1].innerHTML.includes("intelligence"))
 				intGain = 0;
  
 			const ipd = 7 * intGain / length;
@@ -2030,10 +2036,10 @@ class IntPerWeek {
 			minIpd = Math.min(minIpd, ipd);
 		}
  
-		for(var i = 0; i !== courses.length; ++i) {
+		for(let i = 0; i !== courses.length; ++i) {
 			const ipd = intPerDay[i];
 			const colorVal = (ipd - minIpd) / (maxIpd - minIpd);
-			let { children } = courses[i].children[0].children[0];
+			const { children } = courses[i].children[0].children[0];
 			children[children.length - 1].children[0].innerHTML += ` <span style="color: hsl(${colorVal * 120}, 67%, ${this.brightness}%)">(${ipd.toLocaleString("en-US", { minimumFractionDigits: 2 })} ${this.stats ? "stats" : "INT"}/week)</span>`
 		}
 	}
@@ -2046,11 +2052,11 @@ class LargerGymGraph {
 		this.factor = 1.12;
 	}
 	inGym(url) {
-		let container = document.querySelector("div#graphContainer div.card-body div");
+		const container = document.querySelector("div#graphContainer div.card-body div");
 		if(container === null) return;
 
 		container.style.maxHeight = `${this.newHeight * this.factor}px`;
-		let graph = container.querySelector("canvas#gymGraph");
+		const graph = container.querySelector("canvas#gymGraph");
 		graph.style.height = `${this.newHeight * this.factor}px`;
 		graph.height = this.newHeight;
 	}
@@ -2063,7 +2069,7 @@ class RedLeaveCourseButton {
 	}
 	inUniversity(url) {
 		const leaveButtons = document.querySelectorAll("button.leaveCourseBtn");
-		for(var button of leaveButtons)
+		for(const button of leaveButtons)
 			button.classList.add(this.redClassName);
 	}
 }
@@ -2082,7 +2088,9 @@ class RemoveOwnStatus {
 			if (!statusRow) return;
 
 			// Find and remove the cells containing the "Status" label and value
-			const statusLabelIndex = Array.from(statusRow.children).findIndex(child => child.textContent.trim() === 'Status');
+			const statusLabelIndex = Array
+				.from(statusRow.children)
+				.findIndex(child => child.textContent.trim() === 'Status');
 			if (statusLabelIndex < 0) return;
 
 			statusRow.children[statusLabelIndex].remove(); // Remove the label's parent container
@@ -2147,13 +2155,13 @@ class ScriptSettings {
 class TotalListingValue {
 	constructor() {}
 	inMarket(url) {
-		let ownOffers = document.querySelector(".offerListWrapper");
+		const ownOffers = document.querySelector(".offerListWrapper");
 		if(ownOffers === null) return;
 
 		const header = ownOffers.querySelector("div.row.row-cols-3.row-header");
  
 		let totalVal = 0;
-		for(var i = 1; i < ownOffers.children.length; ++i) {
+		for(let i = 1; i < ownOffers.children.length; ++i) {
 			const item = ownOffers.children[i];
 			if(item.children.length < 5) continue;
 			const val = parseInt(item.children[2].innerText.slice(1).replaceAll(',', ""));
@@ -2161,7 +2169,7 @@ class TotalListingValue {
 			totalVal += val * countOf;
 		}
  
-		let totalValCard = document.createElement("div");
+		const totalValCard = document.createElement("div");
 		totalValCard.classList.add("card-body", "mb-2");
 		totalValCard.innerHTML = `<p class="card-text">The total value of your listings is <span class="fw-bold">\u00a3${totalVal.toLocaleString("en-US")}</span>.</p>`;
 		ownOffers.insertBefore(totalValCard, header);
