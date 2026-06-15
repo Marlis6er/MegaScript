@@ -311,15 +311,13 @@ class AddItemButtons {
 	}
 	addListener(coke = true) {
 		const ID = this.getID(coke);
-		if(ID === null)
-			return;
+		if(ID === null) return;
 		const item = document.getElementById(`item-${ID}`);
 		observeDOM(item, e => {
 			const added = e[0].addedNodes[0];
 			if(!added || !added.classList || !added.classList.contains("useItemMsg"))
 				return;
-			if(added.classList.contains("text-danger") /*&& added.innerText.endsWith(coke ? "max Drug cooldown." : "you're in Jail.")*/) // Couldn't use
-				return;
+			if(added.classList.contains("text-danger")) return;
 			const newCokeCount = (this.getCount(coke) || 1) - 1;
 			this.setCount(newCokeCount, coke);
 			let countText = document.querySelector(`#item-${ID} span.itemQuantity`);
@@ -338,11 +336,10 @@ class AddItemButtons {
     }
 	inUniversity(url) {
 		let container = document.querySelector("div.contentColumn > div > div:not(#helpAccordion):not(.border-success):not(.border-danger) div.card-body");
-		if(container === null)
-			return;
+		if(container === null) return;
 		const form = container.querySelector("div.text-center.d-flex.flex-column.align-items-center");
-		if(form === null) // At max int
-			return;
+		// At max int
+		if(form === null) return;
 		if(container !== null) {
 			container.innerHTML += this.add(this.getCount(true) || 0, this.getValue(true) || "???", 2, true);
 			this.addScript();
@@ -352,23 +349,19 @@ class AddItemButtons {
 	inJail(url) { // Add personal favour button
 		let container = document.querySelector("div.contentColumn > div > div:not(#helpAccordion):not(.border-success):not(.border-danger) div.card-body");
 		const inJail = container.querySelector("p.card-text.fw-bold.text-success");
-		if(inJail === null)
-			return;
-		if(container !== null) {
-			container.innerHTML += this.add(this.getCount(false) || 0, this.getValue(false) || "???", 2, false);
-			this.addScript();
-			this.addListener(false);
-		}
+		if(inJail === null) return;
+		if(container === null) return;
+		container.innerHTML += this.add(this.getCount(false) || 0, this.getValue(false) || "???", 2, false);
+		this.addScript();
+		this.addListener(false);
 	}
 	inInventory(url) {
 		const itemList = document.querySelector("div.container.inventoryWrapper");
-		if(itemList === null)
-			return;
+		if(itemList === null) return;
  
 		for(var i = 2; i < itemList.children.length; ++i) {
 			const item = itemList.children[i];
-			if(item.children.length < 2)
-				continue;
+			if(item.children.length < 2) continue;
 			const nameSplit = item.children[1].innerText.split(' ');
 			const itemName = nameSplit.slice(0, -1).join(' ');
 			if(itemName === "Cocaine")
@@ -424,8 +417,8 @@ class BankDepositTax {
 	}
 	inBank(url) {
 		const container = document.querySelector("div.text-center.d-flex.flex-column.align-items-center");
-		if(container === null)
-			return;
+		if(container === null) return;
+
 		const depositInput = container.querySelector("input#depositInput");
 		let value = Math.floor(parseFloat(depositInput.value.replaceAll(',', "")));
  
@@ -563,23 +556,23 @@ class BetterItemValues {
  
 		for(var item in this.energyItems) {
 			const price = this.getValue(item);
-			if(price !== null) {
-				const ppe = price / this.energyItems[item];
-				this.poundPerEnergy[item] = ppe;
-				this.maxPpe = Math.max(this.maxPpe, ppe);
-				this.minPpe = Math.min(this.minPpe, ppe);
-			}
+			if (price === null) continue;
+
+			const ppe = price / this.energyItems[item];
+			this.poundPerEnergy[item] = ppe;
+			this.maxPpe = Math.max(this.maxPpe, ppe);
+			this.minPpe = Math.min(this.minPpe, ppe);
 		}
 		for(var item in this.hospitalItems) {
 			const price = this.getValue(item);
-			if(price !== null) {
-				let time = this.hospitalItems[item];
-				time *= this.medEffectivenessFactor;
-				const ppht = price / time;
-				this.poundPerHospitalTime[item] = ppht;
-				this.maxPpht = Math.max(this.maxPpht, ppht);
-				this.minPpht = Math.min(this.minPpht, ppht);
-			}
+			if (price === null) continue;
+
+			let time = this.hospitalItems[item];
+			time *= this.medEffectivenessFactor;
+			const ppht = price / time;
+			this.poundPerHospitalTime[item] = ppht;
+			this.maxPpht = Math.max(this.maxPpht, ppht);
+			this.minPpht = Math.min(this.minPpht, ppht);
 		}
 		// NOTE: calculate job values inJob since it's only used there and we need prestige levels
 	}
@@ -604,8 +597,7 @@ class BetterItemValues {
 	}
     inMarket(url) {
         const itemSelector = document.querySelector("#itemSelector");
-        if(itemSelector === null)
-            return;
+        if(itemSelector === null) return;
         const options = itemSelector.options;
  
         let pointPriceLabel = document.querySelector("#pricePerPointsLabel");
@@ -643,19 +635,6 @@ class BetterItemValues {
         let before = null;
         let done = [];
  
-        /* const ownOffers = document.querySelector("div.card-body > div.offerListWrapper");
-		let ownItems = {};
-		let list = ownOffers.children;
-		for(var itemNum = 1; itemNum < list.children.length; ++itenNum) {
-			const listing = list.children[itemNum];
-			const listingName = listing.children[1].children[0].innerText;
-			const listingPrice = parseInt(listing.children[2].innerText.slice(1).replaceAll(',', ""));
-			if(listingName in ownItems)
-				ownItems[listingName] = Math.min(ownItems[listingName], listingPrice);
-			else
-				ownItems[listingName] = listingPrice;
-		} */
- 
         // Function to handle item processing
         function processItems() {
             const offerListWrappers = document.querySelectorAll(".offerListWrapper.mb-3");
@@ -680,21 +659,22 @@ class BetterItemValues {
                         const currentBest = GM_getValue(key, null);
                         console.debug(`Current stored value for ${itemName}: ${currentBest}`);  // Debugging log
  
-                        if (currentBest !== itemPrice) {
-                            console.debug(`Updating value for ${itemName} from ${currentBest} to ${itemPrice}`);  // Debugging log
-                            GM_setValue(key, itemPrice);  // Store value with formatted key
-                            const newStoredValue = GM_getValue(key);
-                            console.debug(`New stored value for ${itemName}: ${newStoredValue}`);  // Debugging log
- 
-                            // Ensure pointName and priceCurrentBest are defined
-                            if (typeof pointName !== 'undefined' && itemName === pointName) {
-                                pointCurrentBest.innerText = `(\u00a3${itemPrice.toLocaleString("en-US")})`;
-                            } else if (priceCurrentBest && priceCurrentBest.value === itemName) {
-                                priceCurrentBest.innerText = `(\u00a3${itemPrice.toLocaleString("en-US")})`;
-                            }
-                        } else {
-                            console.debug(`No update needed for ${itemName}. Current: £${currentBest}, New: £${itemPrice}`);  // Debugging log
+                        if (currentBest === itemPrice) {
+							console.debug(`No update needed for ${itemName}. Current: £${currentBest}, New: £${itemPrice}`);  // Debugging log
+							continue;
                         }
+
+						console.debug(`Updating value for ${itemName} from ${currentBest} to ${itemPrice}`);  // Debugging log
+						GM_setValue(key, itemPrice);  // Store value with formatted key
+						const newStoredValue = GM_getValue(key);
+						console.debug(`New stored value for ${itemName}: ${newStoredValue}`);  // Debugging log
+
+						// Ensure pointName and priceCurrentBest are defined
+						if (typeof pointName !== 'undefined' && itemName === pointName) {
+							pointCurrentBest.innerText = `(\u00a3${itemPrice.toLocaleString("en-US")})`;
+						} else if (priceCurrentBest && priceCurrentBest.value === itemName) {
+							priceCurrentBest.innerText = `(\u00a3${itemPrice.toLocaleString("en-US")})`;
+						}
                     } catch (error) {
                         console.error(`Error processing card: ${error}`);
                     }
@@ -729,8 +709,7 @@ class BetterItemValues {
  
         // Handle event card updates (unchanged)
         const eventCard = document.querySelector("div.contentColumn p.card-text.fw-bold.text-white");
-        if (eventCard === null)
-            return;
+        if (eventCard === null) return;
  
         const eventText = eventCard.innerText.split(" - ")[1];
         const textSplit = eventText.split(' ');
@@ -738,20 +717,21 @@ class BetterItemValues {
         if (textSplit[1] === "listed") {
             let i = 3;
             let itemName = textSplit[i];
-            while (textSplit[++i] !== "for")
-                itemName += ` ${textSplit[i]}`;
+            while (textSplit[++i] !== "for") itemName += ` ${textSplit[i]}`;
+
             const val = parseInt(textSplit[textSplit.length - 1].slice(1).replace(',', ""));
             const curVal = this.getValue(itemName);
-            if (curVal === null || val < curVal)
-                this.setValue(itemName, val);
+
+            if (curVal === null || val < curVal) this.setValue(itemName, val);
         }
  
     }
 	inSupporter(url) {
 		let refillText = document.querySelector("div.card-body p.card-text:not(.fw-bold)");
 		const pointPrice = this.getValue(this.pointName);
-		if(pointPrice !== null)
-			refillText.innerHTML = `${refillText.innerText.slice(0, -1)} <span class="text-muted">(\u00a3${(pointPrice * 25).toLocaleString("en-US")})</span>.`;
+		if(pointPrice === null) return;
+
+		refillText.innerHTML = `${refillText.innerText.slice(0, -1)} <span class="text-muted">(\u00a3${(pointPrice * 25).toLocaleString("en-US")})</span>.`;
 	}
 	inEstateAgent(url) {
 		const buildReqs = document.querySelectorAll("div.row.pb-2");
@@ -766,10 +746,9 @@ class BetterItemValues {
 				const count = parseInt(mat.split(' ')[0].slice(1).replaceAll(',', ""));
 				const val = this.getValue(mat.split(' ').slice(1).join(' ').trim());
 				mats[j] = `${mat.trim()} <span class="text-muted">(\u00a3${val === null ? "???" : (count * val).toLocaleString("en-US")})</span>`;
-				if(val === null)
-					totalCost = "???";
-				else if(totalCost !== "???")
-					totalCost += count * val;
+
+				if(val === null) totalCost = "???";
+				else if(totalCost !== "???") totalCost += count * val;
 			}
 			matList.innerHTML = mats.join("<br>");
 			if(totalCost !== "???") {
@@ -789,8 +768,7 @@ class BetterItemValues {
 			let totalCost = 0;
 			for(var matDesc of matList) {
 				const mat = matDesc.innerText;
-				if(matDesc.children.length)
-					continue;
+				if(matDesc.children.length) continue;
 				else if(mat[0] === '\u00a3') {
 					totalCost += parseInt(mat.slice(1).replaceAll(',', ""));
 					continue;
@@ -800,10 +778,9 @@ class BetterItemValues {
 				const matName = mat.split(' ').slice(1).join(' ').trim();
 				const val = this.getValue(matName === "Concrete" ? "Concrete Bags" : matName);
 				matDesc.innerHTML = `${mat.trim()} <span class="text-muted">(\u00a3${val === null ? "???" : (count * val).toLocaleString("en-US")})</span>`;
-				if(val === null)
-					totalCost = "???";
-				else if(totalCost !== "???")
-					totalCost += count * val;
+
+				if(val === null) totalCost = "???";
+				else if(totalCost !== "???") totalCost += count * val;
 			}
 			if(changed)
 				modal.innerHTML += `<p class="fw-bold text-center mt-3">Total value: <span class="text-muted">\u00a3${totalCost === "???" ? "???" : totalCost.toLocaleString("en-US")}</span></p>`;
@@ -816,8 +793,8 @@ class BetterItemValues {
 			const itemList = itemLists[il];
 			for(var i = 1; i !== itemList.children.length; ++i) {
 				const item = itemList.children[i];
-				if(item.children.length < 2)
-					continue;
+				if(item.children.length < 2) continue;
+
 				let selling = false;
 				let itemName = "";
 				if(item.children[1].children.length) {
@@ -827,19 +804,19 @@ class BetterItemValues {
 					itemName = item.children[1].innerText;
  
 				const currentBest = this.getValue(itemName);
-				if(currentBest !== null) {
-					const currentVal = parseInt(item.children[4].innerText.slice(1).replaceAll(',', ""));
-					let shopHTML = item.children[4].innerHTML;
-					if(currentVal > currentBest)
-						shopHTML = `<span class="text-${selling ? "success" : "danger"}">${item.children[4].innerText}</span>`;
-					else if(currentVal === currentBest && selling)
-						shopHTML = `<span class="text-warning">${item.children[4].innerText}</span>`;
-					const marketHTML = `<br><span class="text-muted">(\u00a3${currentBest.toLocaleString("en-US")})</span>`;
- 
-					item.children[4].innerHTML = shopHTML + marketHTML;
-					let otherValueText = item.children[6].querySelector("div.col-6");
-					otherValueText.innerHTML = `<div class="card-text"><div class="fw-bold">Value</div>${shopHTML}${marketHTML}</div>`;
-				}
+				if(currentBest === null) continue;
+
+				const currentVal = parseInt(item.children[4].innerText.slice(1).replaceAll(',', ""));
+				let shopHTML = item.children[4].innerHTML;
+				if(currentVal > currentBest)
+					shopHTML = `<span class="text-${selling ? "success" : "danger"}">${item.children[4].innerText}</span>`;
+				else if(currentVal === currentBest && selling)
+					shopHTML = `<span class="text-warning">${item.children[4].innerText}</span>`;
+				const marketHTML = `<br><span class="text-muted">(\u00a3${currentBest.toLocaleString("en-US")})</span>`;
+
+				item.children[4].innerHTML = shopHTML + marketHTML;
+				let otherValueText = item.children[6].querySelector("div.col-6");
+				otherValueText.innerHTML = `<div class="card-text"><div class="fw-bold">Value</div>${shopHTML}${marketHTML}</div>`;
 			}
 		}
 	}
@@ -861,11 +838,10 @@ class BetterItemValues {
 					if(val === null) {
 						totalVal[i] = "???";
 						break;
-					} else
-						totalVal[i] += val * itemCount;
+					}
+					totalVal[i] += val * itemCount;
 				}
-				if(totalVal[i] === "???")
-					continue;
+				if(totalVal[i] === "???") continue;
 			}
 			const inputs = tradeTabs[i + 1].querySelectorAll("input.form-control");
 			const pointVal = this.getValue(this.pointName);
@@ -898,8 +874,7 @@ class BetterItemValues {
 	}
 	inAddItems(url) {
 		let itemList = document.querySelector("div.container.inventoryWrapper");
-		if(itemList === null)
-			return;
+		if(itemList === null) return;
  
 		let buttonNode = itemList.parentNode.querySelector("div.contentColumn input.btn");
 		const buttonHTML = buttonNode.outerHTML;
@@ -914,8 +889,8 @@ class BetterItemValues {
 		itemList = itemList.children;
 		for(var i = 1; i !== itemList.length; ++i) {
 			let item = itemList[i];
-			if(item.children.length < 2)
-				continue;
+			if(item.children.length < 2) continue;
+
 			const itemName = item.children[1].innerText.split(' ').slice(0, -1).join(' ');
 			const currentBest = this.getValue(itemName);
  
@@ -935,8 +910,8 @@ class BetterItemValues {
 					value.classList.add("text-muted");
 					value.style.color = null;
 					value.innerText = `(\u00a3${currentBest === null ? "???" : currentBest.toLocaleString("en-US")})`;
-					if(currentBest === null)
-						return;
+					if(currentBest === null) return;
+
 					totalVals[currentBest] = 0;
 					for(var val in totalVals)
 						totalValue += val * totalVals[val];
@@ -946,8 +921,8 @@ class BetterItemValues {
 					value.classList.add("fw-bold");
 					value.style.color = this.bestColor;
 					value.innerText = `(\u00a3${currentBest === null ? "???" : (currentBest * count).toLocaleString("en-US")})`;
-					if(!currentBest)
-						return;
+					if(!currentBest) return;
+
 					totalVals[currentBest] = count;
 					for(var val in totalVals)
 						totalValue += val * totalVals[val];
@@ -982,10 +957,9 @@ class BetterItemValues {
 			value.classList.add("itemValue", "text-muted", "float-end");
 			value.innerText = `(\u00a3${currentBest === null ? "???" : (currentBest * countOf).toLocaleString("en-US")})`;
 			itemText.appendChild(value);
-			if(currentBest === null)
-				haveAll = false;
-			else
-				totalVal += currentBest * countOf;
+
+			if(currentBest === null) haveAll = false;
+			else totalVal += currentBest * countOf;
  
 			if(this.alwaysColorNames.includes(itemName))
 				item.children[1].style.color = this.bestColor;
@@ -1099,8 +1073,8 @@ class BetterItemValues {
 					if(val === null) {
 						haveAll = false;
 						break;
-					} else
-						totalVal += countOf * val;
+					}
+					totalVal += countOf * val;
 				}
 			}
 			profit.push(haveAll ? totalVal : "???");
@@ -1230,12 +1204,9 @@ class BetterItemValues {
             if (!isNaN(required) && !isNaN(owned) && required > 0) {
                 let daysLeft = Math.floor(owned / required);
  
-                let colorClass = "text-success"; // Default to green
-                if (daysLeft <= 3) {
-                    colorClass = "text-danger"; // Red for 0-3 days
-                } else if (daysLeft <= 10) {
-                    colorClass = "text-warning"; // Orange for 4-10 days
-                }
+                let colorClass = "text-success";
+                if (daysLeft <= 3) colorClass = "text-danger";
+                else if (daysLeft <= 10) colorClass = "text-warning";
  
                 daysLeftElement.innerHTML = `Days Left: <span class="fw-bold ${colorClass}">${daysLeft}</span>`;
             } else {
@@ -1298,8 +1269,7 @@ class BetterItemValues {
             profit -= supplyCost;
  
             profit *= this.prodProfitFactor;
-            if(id === 0)
-                profit *= this.streetProfitFactor;
+            if(id === 0) profit *= this.streetProfitFactor;
             profit /= this.narcoCounts[id] * (id === 4 ? prodCount : 1); // Also dealing with coke custom scaling
             return profit;
         }
@@ -1360,9 +1330,8 @@ class BetterItemValues {
         function calcDailyProfit(profit, assigned, containers){
             let dailyProfit = 0;
             for(var j = 0; j !== containers.length; ++j) {
-                if(profit[j] === null && assigned[j]) {
-                    return null;
-                }
+                if(profit[j] === null && assigned[j]) return null;
+
                 dailyProfit += profit[j] * assigned[j];
             }
             return dailyProfit;
@@ -1410,8 +1379,7 @@ class BetterItemValues {
 	inJobs(url) {
 		const jobPanels = document.querySelectorAll("div.equipmentModule div.flex-column");
 		const buttons = document.querySelectorAll("div.equipmentModule form > .btn.w-100:not(#upgradeTimeButton):not(#upgradeRewardButton)");
-		if(jobPanels === null || buttons.length <= 1)
-			return;
+		if(jobPanels === null || buttons.length <= 1) return;
  
 		this.jobTimes = [];
 		this.maxJobRep = 0;
@@ -1454,9 +1422,8 @@ class BetterItemValues {
 
 			const standardJobRepBonus = GM_getValue('perk_Standard Job Rep');
 			// Apply only to standard jobs
-			if (i <= 4) {
-				this.jobRep[i] * (1 + (standardJobRepBonus / 100));
-			}
+			if (i <= 4) this.jobRep[i] * (1 + (standardJobRepBonus / 100));
+
 			this.maxJobRep = Math.max(this.maxJobRep, this.jobRep[i] / this.jobTimes[i]);
 			this.minJobRep = Math.min(this.minJobRep, this.jobRep[i] / this.jobTimes[i]);
 		}
@@ -1474,20 +1441,6 @@ class BetterItemValues {
 			jobPanel.innerHTML += append;
 		}
 	}
-	/*
-	inJail(url) {
-		let bribeText = document.querySelector("div.card.mb-4 p.card-text.fw-bold:not(.text-success)");
-		if(bribeText === null || !bribeText.innerText.startsWith("I'm willing to release you but it's going to cost you."))
-			return;
-		const PFvalue = this.getValue("Personal Favour");
-		if(PFvalue === null)
-			return;
-		const textSplit = bribeText.innerText.split(' ');
-		const bribe = parseInt(textSplit[textSplit.length - 1].slice(2, -1).replaceAll(',', ""));
-		if(bribe > PFvalue)
-			bribeText.innerHTML += `<br><span class="text-warning">You can get out of jail cheaper using a <a class="text-warning" href="/Inventory">Personal Favour</a>.</span>`;
-	}
-	*/
 	inInventory(url) {
 		const itemList = document.querySelector("div.container.inventoryWrapper.pt-2");
 		const header = itemList.querySelector("div.row.row-cols-3.row-header");
@@ -1496,8 +1449,7 @@ class BetterItemValues {
  
 		for(var i = 2; i < itemList.children.length; ++i) {
 			const item = itemList.children[i];
-			if(item.children.length < 7)
-				continue;
+			if(item.children.length < 7) continue;
 			const nameSplit = item.children[1].innerText.split(' ');
 			const itemName = nameSplit.slice(0, -1).join(' ');
  
@@ -1616,22 +1568,22 @@ class BetterMoneyInputs {
 	inBank(url) {
 		let depositInput = document.querySelector("input#depositInput");
 		let withdrawInput = document.querySelector("input#withdrawInput");
-		if(depositInput === null)
-			return;
+		if(depositInput === null) return;
+
 		this.update(depositInput);
 		this.update(withdrawInput);
 	}
 	inCartelArmory(url) {
 		let pointsDeposit = document.querySelector("input#pointsdepositquantity");
-		if(pointsDeposit === null)
-			return;
+		if(pointsDeposit === null) return;
+
 		this.update(pointsDeposit);
 	}
 	inTradeView(url) {
 		let cashInput = document.querySelector("input#cashModifier");
 		let pointsInput = document.querySelector("input#pointsModifier");
-		if(cashInput === null || cashInput.disabled)
-			return;
+		if(cashInput === null || cashInput.disabled) return;
+
 		this.update(cashInput);
 		this.update(pointsInput);
 	}
@@ -1640,8 +1592,8 @@ class BetterMoneyInputs {
 		let pointsPricePer = document.querySelector("input#pointspriceper");
 		let qty = document.querySelector("input#quantity");
 		let pointsQty = document.querySelector("input#pointsquantity");
-		if(pricePer === null)
-			return;
+		if(pricePer === null) return;
+
 		this.update(pricePer);
 		this.update(pointsPricePer);
 		this.update(qty);
@@ -1659,8 +1611,8 @@ class BetterMoneyInputs {
 	}
 	inUserProfile(url) {
 		let sendCash = document.querySelector("input#sendCashInput");
-		if(sendCash === null)
-			return;
+		if(sendCash === null) return;
+
 		this.update(sendCash);
 	}
 }
@@ -1690,9 +1642,7 @@ class BetterProgressBars {
  
     inExpeditions(url) {
         const bars = document.querySelectorAll(".progress-bar-striped");
-        for (var bar of bars) {
-            bar.classList.remove("bg-success");
-        }
+        for (var bar of bars) bar.classList.remove("bg-success");
     }
  
     inJobs(url) {
@@ -1769,8 +1719,6 @@ class BlackjackHelper {
 		// https://www.beatingbonuses.com/bjstrategy.php?decks2=4&h17=stand&doubleon2=any2cards&peek2=off&surrender2=earlyf&charlie2=no&dsa2=on&resplits2=0&shuffle=0&bj=3to2&opt2=1&btn2=Generate+Strategy
  		this.houseOdds = -0.17; // percent
 		this.blackjackBroken = true; // 1.5x payout instead of push when both get blackjack
-		//if(this.blackjackBroken)
-			//this.houseOdds -= 100 * 1.5 * 4 * ((4*16) *(4*16-1) * (4*4) * (4*4-1)) / (208 * 207 * 206 * 205);
 		this.normalTable = [ // First row is 5-7, last row is 18+
 			"HHHHHHHHHR",
 			"HHHHHHHHHH",
@@ -1829,12 +1777,13 @@ class BlackjackHelper {
 	}
 	addProfit(val) {
 		const setTo = this.getMoneyStat("Profit") + val;
-		if(isNaN(setTo)) // Not sure why this is happening
-			return;
+		// Not sure why this is happening
+		if(isNaN(setTo)) return;
+
 		this.setMoneyStat("Profit", setTo);
-		if(val > 0) {
+		if(val > 0)
 			this.setMoneyStat("Gain", this.getMoneyStat("Gain") + val);
-		} else
+		else
 			this.setMoneyStat("Loss", this.getMoneyStat("Loss") - val);
  
 		let profitText = document.querySelector(`span#${this.id}`);
@@ -1851,8 +1800,8 @@ class BlackjackHelper {
 		}
 	}
 	addStat(gameType) {
-		if(!this.statIndexes.includes(gameType))
-			return;
+		if(!this.statIndexes.includes(gameType)) return;
+
 		let curStats = this.getStats();
 		curStats[this.statIndexes.indexOf(gameType)] += 1;
 		this.setStats(curStats);
@@ -1897,12 +1846,12 @@ class BlackjackHelper {
 		observeDOM(bjGame, () => {
 			removeHighlights();
 			const dealerCardText = dealerCards.innerText.replace(/10|J|Q/g, "K");
-			if(dealerCardText.length !== 1)
-				return;
+			if(dealerCardText.length !== 1) return;
+
 			const dealerVal = this.cardVals.indexOf(dealerCardText) + 2;
 			let playerCardText = playerCards.innerText.replace(/\s+/g, '').replace(/10|J|Q/g, "K");
-			if(playerCardText.length < 2)
-				return;
+			if(playerCardText.length < 2) return;
+
 			let playerVal = 0;
 			for(var l of playerCardText)
 				playerVal += this.cardVals.indexOf(l) + 2;
@@ -1914,8 +1863,7 @@ class BlackjackHelper {
 						move = this.splitTable[playerVal / 2 - 2][dealerVal - 2];
 				} else if(playerCardText[0] === 'A' || playerCardText[1] === 'A') {
 					if(playerVal === 21) {
-						if(!standButton.disabled)
-							move = 'S';
+						if(!standButton.disabled) move = 'S';
 					} else
 						move = this.softTable[playerVal - 11 - 2][dealerVal - 2];
 				}
@@ -1967,11 +1915,11 @@ class BlackjackHelper {
 		dealButton.addEventListener("click", applyBet.bind(this));
 		observeDOM(result, e => {
 			const val = e[0].target.innerText;
-			if(val === "")
-				return;
+			if(val === "") return;
+
 			let betAmount = parseInt(betAmountInput.value.replaceAll(',', ""));
-			if(doubled)
-				betAmount *= 2;
+			if(doubled) betAmount *= 2;
+
 			if(val.startsWith("Win") || val.startsWith("Blackjack")) {
 				e[0].target.classList.add("text-success");
 				e[0].target.classList.remove("text-warning", "text-danger");
@@ -2013,15 +1961,12 @@ class BlackjackHelper {
 		const curGain = this.getMoneyStat("Gain");
 		const curLoss = this.getMoneyStat("Loss");
 		if(curProfit) {
-			if(curProfit > 0)
-				colorClass = "text-success";
-			else if(curProfit < 0)
-				colorClass = "text-danger";
+			if(curProfit > 0) colorClass = "text-success";
+			else if(curProfit < 0) colorClass = "text-danger";
 		}
 		const curStats = this.getStats();
 		let totalGames = 0;
-		for(var gameCount of curStats)
-			totalGames += gameCount;
+		for(var gameCount of curStats) totalGames += gameCount;
 		for(var i = 0; i !== curStats.length; ++i)
 			insertHTML += `<tr class="align-middle"><td>${this.statIndexes[i]}</td><td>${curStats[i]}</td><td>${(curStats[i] / totalGames * 100).toFixed(2)}%</td></tr>`;
 		insertHTML += `<tr class="align-middle"><td>Hands played</td><td>${totalGames}</td><td></td></tr><tr class="align-middle"><td>Total gain</td><td>\u00a3${curGain !== null ? curGain.toLocaleString("en-US") : 0}</td><td></td></tr><tr class="align-middle"><td>Total loss</td><td>\u00a3${curLoss !== null ? curLoss.toLocaleString("en-US") : 0}</td><td></td></tr><tr class="align-middle"><th>Net total profit</th><th class="${colorClass}">\u00a3${curProfit ? curProfit.toLocaleString("en-US") : 0}</th><td></td></tr><tr class="align-middle"><td>Reset money stats</td><td></td><td><button onclick="window.location.href += '?resetMoney=true'" title="Reset" aria-label="Reset money stats" class="btn btn-danger action-btn fw-normal">Reset</button></td></tr>`;
@@ -2115,8 +2060,7 @@ class CartelMemberRep {
 		this.processLogs(rows);
  
 		const table = document.querySelector("div.card-body > div.container-fluid");
-		if(table === null)
-			return;
+		if(table === null) return;
  
 		const tableHead = table.querySelector(".row-header");
 		let levelCol = tableHead.querySelectorAll(".col")[2]; // Already reduced to col-xl-1 by stat estimate
@@ -2154,9 +2098,8 @@ class CenterTabs {
 	constructor() {}
 	inNavTabPlace(URL) {
 		let tabs = document.querySelectorAll(".nav-tabs");
-		for(var tab of tabs) {
-			tab.classList.add("nav-justified");
-		}
+		for(var tab of tabs) tab.classList.add("nav-justified");
+
 		GM_addStyle(".nav-tabs .nav-link.active { border-bottom: 3px solid #0d6efd !important }");
 	}
 }
@@ -2166,15 +2109,14 @@ class CenterText {
 	constructor() {}
 	inTown(url) {
 		const places = document.querySelectorAll("div.equipmentModule p.card-text.flex-grow-1");
-		for(var place of places)
-			place.classList.add("text-center");
+		for(var place of places) place.classList.add("text-center");
 	}
 	inAnywhere() {
 		const chatRows = document.querySelector("div.chats.row");
 		observeDOM(chatRows, e => {
 			for(var ev of e) {
-				if(ev.target !== chatRows)
-					continue;
+				if(ev.target !== chatRows) continue;
+
 				for(var addedChat of ev.addedNodes) {
 					let header = addedChat.querySelector("div.header h6");
 					header.classList.add("text-center");
@@ -2183,8 +2125,7 @@ class CenterText {
 		});
  
 		const headers = chatRows.querySelectorAll("div.header h6");
-		for(var header of headers)
-			header.classList.add("text-center");
+		for(var header of headers) header.classList.add("text-center");
 	}
 }
  
@@ -2196,40 +2137,6 @@ class ColorChatNames {
 	ownColor(l) {
 		return `hsl(200, 70%, ${l}%)`;
 	}
-	/*
-	changeColor(msgNode) {
-		const chatName = msgNode.children[0];
-		const ID = parseInt(chatName.href.match(/\d+$/)[0]);
-		if(ID === this.ownID)
-			chatName.style.color = this.ownColor;
-	}
-	inAnywhere(url) {
-		const chatRows = document.querySelector("div.chats.row");
-		observeDOM(chatRows, e => {
-			for(var ev of e) {
-				if(ev.target !== chatRows)
-					continue;
- 
-				for(var addedChat of ev.addedNodes) {
-					const messageContainer = addedChat.querySelector("div.MessagesContainer");
-					observeDOM(messageContainer, e => {
-						for(var newMsg of e)
-							this.changeColor(newMsg.addedNodes[1])
-					});
-					for(var newMsg of messageContainer.querySelectorAll("div.messageText"))
-						this.changeColor(newMsg);
-				}
-			}
-		});
- 
-		const messageContainers = chatRows.querySelectorAll("div.MessagesContainer");
-		for(var messageContainer of messageContainers)
-			observeDOM(messageContainer, e => {
-				for(var newMsg of e)
-					this.changeColor(newMsg.addedNodes[1]);
-			});
-	}
-	*/
 	getList(friends = true) {
 		const list = GM_getValue(`connections_${friends ? "friends" : "enemies"}`);
 		return list === undefined ? [] : list;
@@ -2256,12 +2163,12 @@ class ColorChatNames {
 	}
 	inUserProfile(url) {
 		const text = document.querySelector("div.card p.card-text.fw-bold");
-		if(text === null)
-			return;
+		if(text === null) return;
+
 		const textSplit = text.innerText.split(' ');
 		let userID = url.replace('#', "").match(/\d+\/?$/)[0];
-		if(userID.endsWith('/'))
-			userID = userID.slice(0, -1);
+		if(userID.endsWith('/')) userID = userID.slice(0, -1);
+
 		if(textSplit[textSplit.length - 1] === "enemy") {
 			let list = this.getList(false);
 			if(textSplit[textSplit.length - 3] === "Added") {
@@ -2431,17 +2338,17 @@ class ColorStats {
 		return z > 0.0 ? ((x + 1.0) * 0.5) : ((1.0 - x) * 0.5);
 	}
 	changeQuality(elem) {
-		if(elem === null)
-			return;
+		if(elem === null) return;
+
 		const percent = elem.innerText.replace(/^\s+\w+\s+/, "");
 		if(percent !== elem.innerText && elem.innerText.trim().split(/\s/)[0] !== "Quality")
 			return;
-		if(percent === "" || percent === "N/A")
-			return;
+		if(percent === "" || percent === "N/A") return;
+
 		const qual = parseFloat(percent.slice(0, -1));
 		const qualChance = (this.poz((50 - qual) / 12.5) * 100).toString(); // mean = 50, std = 12.5
-		if(qualChance === "NaN")
-			return;
+		if(qualChance === "NaN") return;
+
 		const first4 = qualChance.slice(0, 4);
 		elem.innerHTML += ` <span style="color: hsl(${this.calcQuality(qualChance) * 120}, 67%, ${this.brightness}%)">(top ${qualChance.slice(0, first4 === "0.00" ? 5 : first4 === "99.9" ? (qualChance.slice(0, 5) === "99.99" ? 6 : 5) : 4)}%)</span>`;
 	}
@@ -2502,8 +2409,7 @@ class ColorStats {
 	}
 	inHomepage(url) {
         const stats = document.querySelectorAll(".col-md-6.d-flex.align-items-stretch.col-xxl-4");
-		if(stats.length < 2)
-			return;
+		if(stats.length < 2) return;
  
 		const leftStats = stats[0].querySelectorAll(".form-data-inset.p-2.mb-0.rounded");
 		for(var i = 0; i !== 2; ++i) {
@@ -2514,8 +2420,8 @@ class ColorStats {
 		}
  
 		const trs = stats[1].querySelectorAll(".form-data-inset.p-2.mb-0.rounded");
-		if(trs.length < 5)
-			return;
+		if(trs.length < 5) return;
+
 		for(var i = 0; i !== 5; ++i) {
 			let td = trs[i];
 			const valText = td.innerText.match(/^[\d\.,]+/)[0];
@@ -2529,8 +2435,8 @@ class ColorStats {
 	}
 	inGym(url) {
 		let statCols = document.querySelector("div.row.row-cols-2.row-cols-lg-4.row-cols-md-2.mt-2.mb-4.g-4");
-		if(statCols === null)
-			return;
+		if(statCols === null) return;
+
 		statCols = statCols.children;
  
 		let totalStats = document.querySelector("p.card-text.fw-bold.text-muted"); // Is the first one
@@ -2547,8 +2453,8 @@ class ColorStats {
 	}
 	inUniversity(url) {
 		const container = document.querySelector("div.text-center.d-flex.flex-column.align-items-center");
-		if(container === null)
-			return;
+		if(container === null) return;
+
 		let currentInt = container.querySelector("p.card-text.fw-bold.text-muted");
  
 		const textSplit = currentInt.innerText.split(' ');
@@ -2557,8 +2463,7 @@ class ColorStats {
 	}
 	inPersonalStats(url) {
 		let stats = document.querySelectorAll(".list-group .list-group-item ~ .list-group-item .col-4 ~ .col-4");
-		if(stats.length === 0)
-			return;
+		if(stats.length === 0) return;
  
 		const noCommas = text => text.replaceAll(',', "");
 		for(var i = 0; i < 2; ++i) {
@@ -2575,13 +2480,12 @@ class ColorStats {
 	}
 	inInventory(url) {
 		const itemList = document.querySelector("div.container.inventoryWrapper");
-		if(itemList === null)
-			return;
+		if(itemList === null) return;
  
 		for(var i = 2; i < itemList.children.length; ++i) {
 			const item = itemList.children[i];
-			if(item.children.length < 7)
-				continue;
+			if(item.children.length < 7) continue;
+
 			this.changeQuality(item.children[4]);
 			let otherElem = item.children[6].querySelector(".align-items-center .col-xl-2");
 			this.changeQuality(otherElem);
@@ -2589,8 +2493,7 @@ class ColorStats {
 	}
 	inMarket(url) {
 		const container = document.querySelector("nav#itemMarketNav > div.tab-content");
-		if(container === null)
-			return;
+		if(container === null) return;
  
 		for(var section of container.children)
 			observeDOM(section, e => {
@@ -2601,8 +2504,8 @@ class ColorStats {
 				const listings = list.querySelectorAll(".offerItemWrapper");
 				for(var listing of listings) {
 					let qualElem = listing.children[3];
-					if(qualElem.innerText.slice(-1) !== "%")
-						continue;
+					if(qualElem.innerText.slice(-1) !== "%") continue;
+
 					this.changeQuality(qualElem);
 				}
 				const collapsed = list.querySelectorAll(".collapse, .collapsing");
@@ -2764,25 +2667,23 @@ Hospital timer by ${hospTimeText} ${this.getPerk(this.medEffectiveness) === 0 ? 
  
 	inGym(url) {
 		let statCols = document.querySelector("div.row.row-cols-2.row-cols-lg-4.row-cols-md-2.mt-2.mb-4.g-4");
-		if(statCols === null)
-			return;
+		if(statCols === null) return;
+
 		statCols = statCols.children;
  
 		for(var col of statCols) {
 			const perkGainText = `${col.children[0].children[0].innerText}Gain`;
 			const perkGain = this.getPerk(perkGainText);
-			if(perkGain !== null) {
-				let extraGains = document.createElement("p");
-				extraGains.classList.add("extraGains", "card-text");
-				extraGains.innerHTML = `(+${perkGain}% gains)`;
- 
-				col.children[0].insertBefore(extraGains, col.children[0].children[3]);
-			}
+			if(perkGain !== null) continue;
+			let extraGains = document.createElement("p");
+			extraGains.classList.add("extraGains", "card-text");
+			extraGains.innerHTML = `(+${perkGain}% gains)`;
+
+			col.children[0].insertBefore(extraGains, col.children[0].children[3]);
 		}
 	}
 	inInventory(url) {
-		if(!this.getPerk(this.medEffectiveness))
-			return;
+		if(!this.getPerk(this.medEffectiveness)) return;
 		const itemList = document.querySelector("div.container.inventoryWrapper.pt-2");
  
 		for(var i = 2; i < itemList.children.length; ++i) {
@@ -2905,12 +2806,12 @@ class DisplayTownCaches {
 	inPetshop(url) {
 		const rarities = document.querySelectorAll(".equipmentModule div.fw-bold > span:not(.fw-normal)");
  
-		if(rarities.length === 3) {
-			const curCache = this.getCache("Pets");
-			const now = Date.now() - this.hoursLate * 1000 * 60 * 60;
-			if(curCache === null || this.timeFunc(now) !== this.timeFunc(curCache[0])) // New day
-				this.setCache("Pets", [ now, rarities[0].innerText, rarities[1].innerText, rarities[2].innerText ]);
-		}
+		if(rarities.length !== 3) return;
+
+		const curCache = this.getCache("Pets");
+		const now = Date.now() - this.hoursLate * 1000 * 60 * 60;
+		if(curCache === null || this.timeFunc(now) !== this.timeFunc(curCache[0])) // New day
+			this.setCache("Pets", [ now, rarities[0].innerText, rarities[1].innerText, rarities[2].innerText ]);
 	}
 	inSicarios(url) {
 		const curCache = this.getCache("Sicarios");
@@ -2955,8 +2856,8 @@ class DisplayTownCaches {
     }
 	inTown(url) {
 		const places = document.querySelectorAll("div.equipmentModule");
-		if(places.length === 0)
-			return;
+		if(places.length === 0) return;
+
 		const now = Date.now() - this.hoursLate * 1000 * 60 * 60;
  
 		const petShop = places[this.petsIdx].children[0];
@@ -2994,8 +2895,8 @@ class DisplayTownCaches {
 	}
 	inCasino(url) {
 		const places = document.querySelectorAll("div.card-group div.card");
-		if(places.length === 0)
-			return;
+		if(places.length === 0) return;
+
 		const now = Date.now() - this.hoursLate * 1000 * 60 * 60;
  
 		const spins = places[this.spinsIdx].children[0];
@@ -3069,11 +2970,12 @@ class DPEnergyRefillReminder {
 		observeDOM(modalText, e => {
 			const textSplit = e[0].target.innerText.split(' ');
 			const option = textSplit[textSplit.length - 1];
-			if(option === "Energy?")
-				if(document.querySelector("#maxEnergy").innerText !== "200")
-					modalText.innerHTML += `<br><span class="text-warning">Your max energy isn't 200!</span>`;
-				else if(document.querySelector("#currentEnergy").innerText !== "0")
-					modalText.innerHTML += `<br><span class="text-danger">Your current energy isn't 0!</span>`;
+			if(option !== "Energy?") return;
+
+			if(document.querySelector("#maxEnergy").innerText !== "200")
+				modalText.innerHTML += `<br><span class="text-warning">Your max energy isn't 200!</span>`;
+			else if(document.querySelector("#currentEnergy").innerText !== "0")
+				modalText.innerHTML += `<br><span class="text-danger">Your current energy isn't 0!</span>`;
 		});
 	}
 }
@@ -3106,8 +3008,7 @@ class EstateLevelInfo {
 				let numberP = numbers[j];
 				const number = parseInt(numberP.innerText);
 				const val = this.values[j - jAdd][number];
-				if(val === undefined)
-					return;
+				if(val === undefined) return;
 				const colorVal = // j - jAdd === 2 ? 1 - ((val - 26) / (41.3 - 26)) :
 					val / this.values[j - jAdd][this.values[j - jAdd].length - 1];
 				numberP.innerHTML += ` <span style="color: hsl(${colorVal * 120}, 67%, ${this.brightness}%)">(${this.prefixes[j - jAdd]}${val.toLocaleString("en-US")}${this.postfixes[j - jAdd]})</span>`;
@@ -3143,75 +3044,69 @@ class EstimatedIntGains {
 		const eToMax = Math.log(this.maxInt / currentInt) / Math.log(this.base) / this.extraGainsFactor;
 		return `<span class="fw-bold">~${Math.round(eToMax).toLocaleString("en-US")}</span> energy until ${this.maxInt.toLocaleString("en-US")}`;
 	}
-inUniversity(url) {
-    const container = document.querySelector("div.text-center.d-flex.flex-column.align-items-center");
-    if (container === null) return;
- 
-    // Look for the form or the "too tired" message
-    let targetElement = container.querySelector("form.input-group");
-    if (targetElement === null) {
-        targetElement = container.querySelector("p.card-text.text-danger");
-        if (targetElement === null) {
-            return; // Exit if neither the form nor the message is found
-        }
-    }
- 
-    let currentIntVal = 0;
-    const currentInt = container.querySelector("p.card-text.fw-bold.text-muted");
-    if (currentInt !== null) {
-        currentIntVal = parseFloat(currentInt.innerText.split(' ')[0].slice(1));
-    } else {
-        return; // Exit if currentInt is not found
-    }
- 
-    let energy = 50;
-    if (targetElement.tagName === 'FORM') {
-        const energyInput = targetElement.querySelector("input.form-control");
-        if (energyInput !== null) {
-            energy = parseInt(energyInput.value);
-        }
- 
-        let value = this.calcGain(energy, currentIntVal);
- 
-        let expectedIntGains = document.createElement("p");
-        expectedIntGains.id = this.ID;
-        expectedIntGains.classList.add("card-text", "mt-2");
-        expectedIntGains.innerHTML = this.genText(value, currentIntVal);
- 
-        // Insert the expected gain element after the form
-        targetElement.insertAdjacentElement("afterend", expectedIntGains);
- 
-        // Add event listener for energy input changes
-        if (energyInput !== null) {
-            energyInput.addEventListener("input", e => {
-                const energyText = e.target.value;
-                if (energyText !== "" && energyText.trim()[0] !== '-') {
-                    energy = parseInt(energyText);
-                    value = this.calcGain(energy, currentIntVal);
-                    expectedIntGains.innerHTML = this.genText(value, currentIntVal);
-                }
-            });
-        }
-    }
- 
-    // Always create and insert the "energy until maximum" element
-    let eToMaxText = document.createElement("p");
-    eToMaxText.classList.add("card-text", "mb-0");
-    eToMaxText.innerHTML = this.genToMaxText(currentIntVal);
- 
-    // Insert the "energy until maximum" element after the targetElement
-    targetElement.insertAdjacentElement("afterend", eToMaxText);
- 
-    const usedGainBox = document.querySelector("div.mb-4.card.border-success p.card-text.fw-bold.text-white");
-    if (usedGainBox !== null) {
-        const textSplit = usedGainBox.innerText.split(' ');
-        if (textSplit[textSplit.length - 1] === "Intelligence") {
-            const prevIntVal = currentIntVal - parseFloat(textSplit[7]);
-            const expected = this.calcGain(parseInt(textSplit[4]), prevIntVal);
-            usedGainBox.innerHTML += ` <span class="text-muted">(expected ${expected.toLocaleString("en-US", { minimumFractionDigits: 2 })})</span>`;
-        }
-    }
-}
+	inUniversity(url) {
+		const container = document.querySelector("div.text-center.d-flex.flex-column.align-items-center");
+		if (container === null) return;
+	
+		// Look for the form or the "too tired" message
+		let targetElement = container.querySelector("form.input-group");
+		if (targetElement === null) {
+			targetElement = container.querySelector("p.card-text.text-danger");
+			// Exit if neither the form nor the message is found
+			if (targetElement === null) return;
+		}
+	
+		let currentIntVal = 0;
+		const currentInt = container.querySelector("p.card-text.fw-bold.text-muted");
+		if (currentInt !== null) {
+			currentIntVal = parseFloat(currentInt.innerText.split(' ')[0].slice(1));
+		} else return; // Exit if currentInt is not found
+	
+		let energy = 50;
+		if (targetElement.tagName === 'FORM') {
+			const energyInput = targetElement.querySelector("input.form-control");
+			if (energyInput !== null) energy = parseInt(energyInput.value);
+	
+			let value = this.calcGain(energy, currentIntVal);
+	
+			let expectedIntGains = document.createElement("p");
+			expectedIntGains.id = this.ID;
+			expectedIntGains.classList.add("card-text", "mt-2");
+			expectedIntGains.innerHTML = this.genText(value, currentIntVal);
+	
+			// Insert the expected gain element after the form
+			targetElement.insertAdjacentElement("afterend", expectedIntGains);
+	
+			// Add event listener for energy input changes
+			if (energyInput === null) return;
+			energyInput.addEventListener("input", e => {
+				const energyText = e.target.value;
+				if (energyText === "" || energyText.trim()[0] === '-') return;
+				
+				energy = parseInt(energyText);
+				value = this.calcGain(energy, currentIntVal);
+				expectedIntGains.innerHTML = this.genText(value, currentIntVal);
+			});
+		}
+	
+		// Always create and insert the "energy until maximum" element
+		let eToMaxText = document.createElement("p");
+		eToMaxText.classList.add("card-text", "mb-0");
+		eToMaxText.innerHTML = this.genToMaxText(currentIntVal);
+	
+		// Insert the "energy until maximum" element after the targetElement
+		targetElement.insertAdjacentElement("afterend", eToMaxText);
+	
+		const usedGainBox = document.querySelector("div.mb-4.card.border-success p.card-text.fw-bold.text-white");
+		if (usedGainBox === null) return;
+
+		const textSplit = usedGainBox.innerText.split(' ');
+		if (textSplit[textSplit.length - 1] !== "Intelligence") return;
+
+		const prevIntVal = currentIntVal - parseFloat(textSplit[7]);
+		const expected = this.calcGain(parseInt(textSplit[4]), prevIntVal);
+		usedGainBox.innerHTML += ` <span class="text-muted">(expected ${expected.toLocaleString("en-US", { minimumFractionDigits: 2 })})</span>`;
+	}
  
 }
  
@@ -3222,16 +3117,16 @@ class ExpeditionChances {
 		let teamStats = [ [], [], [], [], [] ];
 		for(var team_i = 1; team_i <= 5; ++team_i) {
 			const stats = document.querySelectorAll(`#v-content-team${team_i} > .justify-content-center span:not(.fw-bold)`);
-			if(stats.length !== 4)
-				return;
+			if(stats.length !== 4) return;
+
 			for(var statText of stats) {
 				teamStats[team_i - 1].push(parseInt(statText.innerText.replaceAll(',', "")));
 			}
 		}
 		const expeds = document.querySelectorAll(".expeditionButton");
 		for(var exped of expeds) {
-			if(exped.children.length < 5)
-				continue;
+			if(exped.children.length < 5) continue;
+
 			let chances = [ 1, 1, 1, 1, 1 ];
 			for(var i = 1; i < 4; ++i) { // Don't factor in speed (last value) since it only affects expedition time not success rate
 				const stat = parseInt(exped.children[i].children[1].innerText.replaceAll(',', ""));
@@ -3243,8 +3138,8 @@ class ExpeditionChances {
 			let options = exped.querySelectorAll("select.expeditionTeamSelector option");
 			for(var opt of options) {
 				const team_i = parseInt(opt.value);
-				if(team_i === 0)
-					continue;
+				if(team_i === 0) continue;
+
 				opt.innerText += ` - ${Math.floor(chances[team_i - 1] * 100)}%`;
 			}
 		}
@@ -3264,27 +3159,27 @@ class GreenMoney {
             // Find the cash elements
             let cash = document.querySelector(`span.${className}`);
  
-            if (cash !== null) {
-                // Apply color to the cash amount
-                cash.style.color = this.color;
- 
-                // Determine the parent element for context
-                let parentElement = cash.closest('li') || cash.closest('.row');
- 
-                if (parentElement) {
-                    // Case 1: Handle £ in the same element
-                    if (parentElement.textContent.includes('£')) {
-                        parentElement.innerHTML = parentElement.innerHTML.replace(/£/, `<span style="color: ${this.color};">£</span>`);
-                    }
- 
-                    // Case 2: Handle £ as a sibling element
-                    let poundSymbol = parentElement.querySelector('span, p')?.previousSibling;
-                    if (poundSymbol && poundSymbol.nodeType === Node.TEXT_NODE && poundSymbol.textContent.includes('£')) {
-                        poundSymbol.textContent = poundSymbol.textContent.replace('£', `£`);
-                        poundSymbol.style.color = this.color;
-                    }
-                }
-            }
+            if (cash === null) return;
+
+			// Apply color to the cash amount
+			cash.style.color = this.color;
+
+			// Determine the parent element for context
+			let parentElement = cash.closest('li') || cash.closest('.row');
+
+			if (!parentElement) return;
+
+			// Case 1: Handle £ in the same element
+			if (parentElement.textContent.includes('£')) {
+				parentElement.innerHTML = parentElement.innerHTML.replace(/£/, `<span style="color: ${this.color};">£</span>`);
+			}
+
+			// Case 2: Handle £ as a sibling element
+			let poundSymbol = parentElement.querySelector('span, p')?.previousSibling;
+			if (poundSymbol && poundSymbol.nodeType === Node.TEXT_NODE && poundSymbol.textContent.includes('£')) {
+				poundSymbol.textContent = poundSymbol.textContent.replace('£', `£`);
+				poundSymbol.style.color = this.color;
+			}
         });
     }
 }
@@ -3294,14 +3189,13 @@ class HighlightExcessHealth {
 	constructor() {}
 	inUserProfile(url) {
 		const trs = document.querySelectorAll("table.table tbody tr");
-		if(trs.length < 6)
-			return;
+		if(trs.length < 6) return;
+
 		let lifeTd = trs[5].children[1];
 		const life = lifeTd.innerText;
 		const curHealth = parseInt(life.split(" / ")[0].replaceAll(',', ""));
 		const maxHealth = parseInt(life.split(" / ")[1].replaceAll(',', ""));
-		if(curHealth > maxHealth)
-			lifeTd.classList.add("text-danger", "fw-bold");
+		if(curHealth > maxHealth) lifeTd.classList.add("text-danger", "fw-bold");
 	}
 }
  
@@ -3318,13 +3212,13 @@ class HighlightInactives {
 		for(var row of rows) {
 			const cols = row.querySelectorAll(".col:not(.fw-bold)");
 			let activity = cols[cols.length - 2];
-			if(activity.innerText.endsWith("days ago") || activity.innerText.endsWith("day ago")) {
-				const days = parseInt(activity.innerText.match(/\d+/)[0]);
-				if(days >= this.redBy)
-					activity.classList.add("text-danger");
-				else if(days >= this.yellowBy)
-					activity.classList.add("text-warning");
-			}
+			if(!activity.innerText.endsWith("days ago") && !activity.innerText.endsWith("day ago"))
+				return;
+			const days = parseInt(activity.innerText.match(/\d+/)[0]);
+			if(days >= this.redBy)
+				activity.classList.add("text-danger");
+			else if(days >= this.yellowBy)
+				activity.classList.add("text-warning");
 		}
 	}
 }
@@ -3341,13 +3235,10 @@ class HighlightUnequipped {
 	}
 	inProduction(url) {
 		let idle = document.querySelector("p.idleNarcos");
-		if(idle === null)
-			return;
+		if(idle === null) return;
 		const setColor = text => {
-			if(text === "0")
-				idle.classList.remove("fw-bold", "text-danger");
-			else
-				idle.classList.add("fw-bold", "text-danger");
+			if(text === "0") idle.classList.remove("fw-bold", "text-danger");
+			else idle.classList.add("fw-bold", "text-danger");
 		};
 		setColor(idle.innerText);
 		observeDOM(idle, e => setColor(e[0].target.innerText));
@@ -3398,26 +3289,22 @@ class HighscoreChanges {
 	}
 	changeSelfOnly(content, type) {
 		const ownStats = content.querySelector("tbody tr.fw-bold");
-		if(ownStats === null)
-			return;
+		if(ownStats === null) return;
+
 		const timeNow = this.timeFunc(Date.now());
 		let curCache = this.getCache(`${type}_self`);
 		const ownRank = ownStats.children[0];
 		const newVal = parseInt(ownRank.innerText.replaceAll(',', ""));
-		if(curCache[1] === null)
-			curCache[1] = [ timeNow, newVal ];
+		if(curCache[1] === null) curCache[1] = [ timeNow, newVal ];
 		else if(curCache[1][0] !== timeNow) {
 			curCache[0] = curCache[1];
 			curCache[1] = [ timeNow, newVal ];
 		}
 		if(curCache[0] !== null && curCache[1] !== null) {
 			const diff = curCache[0][1] - curCache[1][1];
-			if(diff > 0)
-				ownRank.innerHTML += this.up(diff);
-			else if(diff < 0)
-				ownRank.innerHTML += this.down(diff);
-			else
-				ownRank.innerHTML += this.same(diff);
+			if(diff > 0) ownRank.innerHTML += this.up(diff);
+			else if(diff < 0) ownRank.innerHTML += this.down(diff);
+			else ownRank.innerHTML += this.same(diff);
 		}
 		this.setCache(`${type}_self`, curCache);
 	}
@@ -3433,8 +3320,7 @@ class HighscoreChanges {
 			const userID = user.children.length ? parseInt(user.children[0].href.match(/\d+$/)[0]) : "self";
 			newRanks[userID] = parseInt(row.children[0].innerText.replaceAll(',', ""));
 		}
-		if(curCache[1] === null)
-			curCache[1] = [ timeNow, newRanks ];
+		if(curCache[1] === null) curCache[1] = [ timeNow, newRanks ];
 		else if(curCache[1][0] !== timeNow) {
 			curCache[0] = curCache[1];
 			curCache[1] = [ timeNow, newRanks ];
@@ -3443,15 +3329,15 @@ class HighscoreChanges {
 			for(var row of rows) {
 				let user = row.children[1];
 				const userID = user.children.length ? parseInt(user.children[0].href.match(/\d+$/)[0]) : "self";
-				if(userID in curCache[0][1] && userID in curCache[1][1]) {
-					const diff = curCache[0][1][userID] - curCache[1][1][userID];
-					if(diff > 0)
-						row.children[0].innerHTML += this.up(diff);
-					else if(diff < 0)
-						row.children[0].innerHTML += this.down(diff);
-					else
-						row.children[0].innerHTML += this.same(diff);
-				}
+				if(!(userID in curCache[0][1] && userID in curCache[1][1])) return;
+
+				const diff = curCache[0][1][userID] - curCache[1][1][userID];
+				if(diff > 0)
+					row.children[0].innerHTML += this.up(diff);
+				else if(diff < 0)
+					row.children[0].innerHTML += this.down(diff);
+				else
+					row.children[0].innerHTML += this.same(diff);
 			}
 		this.setCache(type, curCache);
 	}
@@ -3502,8 +3388,8 @@ class IntPerWeek {
 			const length = parseInt(data.children[0].children[1].children[1].innerText.split(' ')[2]);
 			const intGainText = data.children[1].children[1].children[1].innerHTML.match(/\d+\s/g);
 			let intGain = 0;
-			for(var text of intGainText)
-				intGain += parseInt(text);
+			for(var text of intGainText) intGain += parseInt(text);
+
 			if(this.stats && data.children[1].children[1].children[1].innerHTML.includes("intelligence")) // One course gives int rather than stats
 				intGain = 0;
  
@@ -3551,64 +3437,60 @@ class ItemCache {
 	}
 	inMarket(url) {
 		const eventCard = document.querySelector("div.contentColumn p.card-text.fw-bold.text-white");
-		if(eventCard === null)
-			return;
+		if(eventCard === null) return;
  
 		const eventText = eventCard.innerText.split(" - ")[1];
 		const textSplit = eventText.split(' ');
 		if(textSplit[1] === "listed") {
 			let i = 3;
 			let itemName = textSplit[i];
-			while(textSplit[++i] !== "for")
-				itemName += ` ${textSplit[i]}`;
-			if(!this.itemNames.includes(itemName))
-				return;
+			while(textSplit[++i] !== "for") itemName += ` ${textSplit[i]}`;
+			if(!this.itemNames.includes(itemName)) return;
+
 			const curVal = this.getCache(itemName);
-			if(curVal === null)
-				return;
+			if(curVal === null) return;
+
 			const amount = parseInt(textSplit[2].slice(1).replace(',', ""));
 			this.setCache(itemName, curVal - amount);
 		} else if(textSplit[0] === "bought") {
 			let i = 2;
 			let itemName = textSplit[i];
-			while(textSplit[++i] !== "for")
-				itemName += ` ${textSplit[i]}`;
-			if(!this.itemNames.includes(itemName))
-				return;
+			while(textSplit[++i] !== "for") itemName += ` ${textSplit[i]}`;
+
+			if(!this.itemNames.includes(itemName)) return;
+
 			const curVal = this.getCache(itemName);
-			if(curVal === null)
-				return;
+			if(curVal === null) return;
+
 			const amount = parseInt(textSplit[1].slice(1).replace(',', ""));
 			this.setCache(itemName, curVal + amount);
 		}
 	}
 	inInventory(url) {
 		let itemList = document.querySelector("div.container.inventoryWrapper.pt-2");
-		if(itemList === null)
-			return;
+		if(itemList === null) return;
+
 		itemList = itemList.children;
 		let done = [];
  
 		for(var i = 2; i !== itemList.length; ++i) {
 			const item = itemList[i];
-			if(item.children.length < 2)
-				continue;
+			if(item.children.length < 2) continue;
+
 			const itemName = item.children[1].innerText.split(' ').slice(0, -1).join(' ');
-			if(!this.itemNames.includes(itemName))
-				continue;
+			if(!this.itemNames.includes(itemName)) continue;
+
 			const itemCount = parseInt(item.querySelector("span.itemQuantity").innerText.replace(",", ""));
 			this.setCache(itemName, itemCount);
 			done.push(itemName);
 		}
 		for(var itemName of this.itemNames) {
-			if(!done.includes(itemName))
-				this.setCache(itemName, 0);
+			if(!done.includes(itemName)) this.setCache(itemName, 0);
 		}
 	}
 	inProduction(url) {
 		const containers = document.querySelectorAll("div.prodContainer div.equipmentModule div.row.flex-column");
-		if(containers === null)
-			return;
+		if(containers === null) return;
  
 		const narcosPerProd = [ 25, 10, 60 ];
 		const prodReqs = [ 10, 5, 35 ];
@@ -3623,8 +3505,7 @@ class ItemCache {
 	inJobs(url) {
 		const jobPanels = document.querySelectorAll("div.equipmentModule div.flex-column");
 		const buttons = document.querySelectorAll("div.equipmentModule form > .btn.w-100:not(#upgradeTimeButton):not(#upgradeRewardButton)");
-		if(jobPanels === null || buttons.length <= 1)
-			return;
+		if(jobPanels === null || buttons.length <= 1) return;
  
 		for(var i = 4; i !== 8; ++i) {
 			let jobPanel = jobPanels[i];
@@ -3640,8 +3521,7 @@ class ItemCache {
 					append += `Have <span class="text-muted">???/${prodReq}</span>`;
 				else
 					append += `Have <span class="fw-bold" style="color: hsl(${prodReq === 0 ? 120 : Math.min(have / (prodReq * this.days), 1) * 120}, 67%, ${this.brightness}%)">${have.toLocaleString("en-US")}/${prodReq}</span>`;
-			} else
-				append += "None needed";
+			} else append += "None needed";
 			append += " for production</p>";
 			jobPanel.innerHTML += append;
 		}
@@ -3656,8 +3536,8 @@ class LargerGymGraph {
 	}
 	inGym(url) {
 		let container = document.querySelector("div#graphContainer div.card-body div");
-		if(container === null)
-			return;
+		if(container === null) return;
+
 		container.style.maxHeight = `${this.newHeight * this.factor}px`;
 		let graph = container.querySelector("canvas#gymGraph");
 		graph.style.height = `${this.newHeight * this.factor}px`;
@@ -3696,9 +3576,7 @@ class PropertyPageAgentLink {
         if (defaultButton !== null) {
             console.debug("Removing default button.");
             defaultButton.remove();
-        } else {
-            console.warn("No default button found.");
-        }
+        } else console.warn("No default button found.");
  
         // Check if combined content already exists
         if (container.querySelector("#combined-content")) {
@@ -3797,17 +3675,16 @@ class RemoveOwnStatus {
         const labels = Array.from(document.querySelectorAll("p.fw-bold"));
         const statusLabel = labels.find(label => label.textContent.trim() === 'Status');
         const statusRow = statusLabel ? statusLabel.closest('.row') : null;
- 
-        if (statusRow) {
-            // Find and remove the cells containing the "Status" label and value
-            const statusLabelIndex = Array.from(statusRow.children).findIndex(child => child.textContent.trim() === 'Status');
-            if (statusLabelIndex >= 0) {
-                statusRow.children[statusLabelIndex].remove(); // Remove the label's parent container
-                if (statusRow.children[statusLabelIndex]) {
-                    statusRow.children[statusLabelIndex].remove(); // Remove the value's container
-                }
-            }
-        }
+        if (!statusRow) return;
+
+		// Find and remove the cells containing the "Status" label and value
+		const statusLabelIndex = Array.from(statusRow.children).findIndex(child => child.textContent.trim() === 'Status');
+		if (statusLabelIndex < 0) return;
+
+		statusRow.children[statusLabelIndex].remove(); // Remove the label's parent container
+		if (!statusRow.children[statusLabelIndex]) return;
+
+		statusRow.children[statusLabelIndex].remove(); // Remove the value's container
     }
 }
  
@@ -3828,8 +3705,7 @@ class ScriptSettings {
 	inSettings(URL) {
 		let navTabs = document.querySelector("#settingsNav .nav-tabs");
 		let tabContent = document.querySelector("#settingsNav .tab-content");
-		if(navTabs === null || tabContent === null)
-			return;
+		if(navTabs === null || tabContent === null) return;
  
 		const urlParams = new URLSearchParams(window.location.search);
 		const selected = urlParams.get("t") === this.name;
@@ -3837,8 +3713,8 @@ class ScriptSettings {
 		let button = document.createElement("button");
 		button.id = `v-tab-${this.name}`;
 		button.classList.add("nav-link", "settings-nav-link");
-		if(selected)
-			button.classList.add("active");
+		if(selected) button.classList.add("active");
+
 		button.setAttribute("data-bs-toggle", "tab");
 		button.setAttribute("data-bs-target", `#v-content-${this.name}`);
 		button.type = "button";
@@ -3846,21 +3722,19 @@ class ScriptSettings {
 		button.setAttribute("aria-controls", `v-content-${this.name}`);
 		button.setAttribute("aria-selected", selected.toString());
 		button.setAttribute("tab", this.name);
-		if(!selected)
-			button.setAttribute("tabindex", "-1");
+		if(!selected) button.setAttribute("tabindex", "-1");
+
 		button.innerText = this.fullName;
 		navTabs.append(button);
 		let tab = document.createElement("div");
 		tab.classList.add("tab-pane", "fade");
-		if(selected)
-			tab.classList.add("active", "show");
+		if(selected) tab.classList.add("active", "show");
+
 		tab.id = `v-content-${this.name}`;
 		tab.setAttribute("role", "tabpanel");
 		tab.setAttribute("aria-labelledby", `v-tab-${this.name}`);
 		tab.innerHTML = `<div class="card"><div class="card-body"> <h5 class="h5">${this.fullName}</h5><p class="card-text">Currently there's no toggleable script settings.</p></div></div>`;
 		tabContent.appendChild(tab);
-		//navTabs.innerHTML += `<button class="nav-link settings-nav-link${selected ? " active" : ""}" id="v-tab-${this.name}" data-bs-toggle="tab" data-bs-target="#v-content-${this.name}" type="button" role="tab" aria-controls="v-content-${this.name}" aria-selected="${selected.toString()}" tab="${this.name}"${selected ? "" : 'tabindex="-1"'}>${this.fullName}</button>`;
-		//tabContent.innerHTML += `<div class="tab-pane fade${selected ? " active show" : ""}" id="v-content-${this.name}" role="tabpanel" aria-labelledby="v-tab-${this.name}"><div class="card"><div class="card-body"> <h5 class="h5">${this.fullName}</h5><p class="card-text">Currently there's no toggleable script settings, but if you want a minor change done you can message me in-game (<a href="/User/781">K9ER</a>) or on Discord (k9er.), and I'll likely do it for free.</p></div></div></div>`;
 	}
 }
  
@@ -3876,8 +3750,6 @@ class StatEstimate {
 			this.currentList = [];
 			this.setList([]);
 		}
-		//GM_deleteValue("statEstimate_40");
-		//this.currentList = this.currentList.filter(x=>x != 40);
 		this.ownID = user_id;
 		this.ownStats = this.getEst("self");
  
@@ -3944,8 +3816,7 @@ class StatEstimate {
 		const knownChar = knownStatsText[0];
 		const knownStats = parseInt(knownStatsText.split(' ')[0].slice(1).replaceAll(',', ""));
 		const theirStats = (knownIsA ? this.estimateYouAttacked : this.estimateAttackedYou).bind(this)(knownStats, fairFight);
-		if(knownChar === '~')
-			return theirStats;
+		if(knownChar === '~') return theirStats;
 		else if(knownChar === '>' && fairFight === (knownIsA ? this.minFF : this.maxFF))
 			return [];
 		else if(knownChar === '<' && fairFight === (knownIsA ? this.maxFF : this.minFF))
@@ -3956,10 +3827,8 @@ class StatEstimate {
 		if(curChar === '>' && newChar === '>' && curStatEst > newStatEst)
 			return true;
 		else if(curChar === '~' && newChar !== '~') {
-			if(newChar === '>' && curStatEst > newStatEst)
-				return true;
-			else if(newChar === '<' && curStatEst > newStatEst)
-				return true;
+			if(newChar === '>' && curStatEst > newStatEst) return true;
+			else if(newChar === '<' && curStatEst > newStatEst) return true;
 		}
 		return false;
 	}
@@ -3997,8 +3866,7 @@ class StatEstimate {
 			} else if($("#userName").attr("value") == "") {
 				$("#userInput").addClass("is-invalid");
 				allValid = false;
-			} else
-				$("#userInput").removeClass("is-invalid");
+			} else $("#userInput").removeClass("is-invalid");
  
 			let statsInput = document.getElementById("stats");
 			if(!statsInput) {
@@ -4012,10 +3880,8 @@ class StatEstimate {
 				statsInput.value = parseInt(statsInput.value.replaceAll(',', "")).toLocaleString("en-US");
 			}
  
-			if(allValid)
-				$("#addEstimate").attr("disabled", false);
-			else
-				$("#addEstimate").attr("disabled", true);
+			if(allValid) $("#addEstimate").attr("disabled", false);
+			else $("#addEstimate").attr("disabled", true);
 		}
 	}
 	inStatEstimate(url) {
@@ -4049,8 +3915,7 @@ class StatEstimate {
 			const userName = this.getName(deleteID);
 			container.innerHTML = `<div class="col-12 col-md-10"><div class="mb-4 card border-success"><div class="card-body text-center bg-success"><p class="card-text fw-bold text-white">Removed the stat estimate for <a class="text-white" href="/User/${deleteID}">${userName}</a></p></div></div></div>`;
 			window.history.replaceState({}, document.title, this.statEstimateLink); // remove params from URL
-		} else
-			container.innerHTML = "";
+		} else container.innerHTML = "";
  
 		let extractedData = [];
 		const ownData = [ ownName, "self", '~', this.ownStats, "---", 0 ];
@@ -4065,23 +3930,17 @@ class StatEstimate {
 			extractedData.push([ this.getName(ID) || "???", ID, estimate[0], parseInt(textSplit[0].slice(1).replaceAll(',', "")), parseInt(textSplit[1]), parseInt(textSplit[2]) ]);
 		}
 		extractedData.sort((a, b) => {
-			if(a[3] !== b[3])
-				return b[3] - a[3];
-			else if(a[2] === '>' && b[2] !== '>')
-				return -1;
-			else if(b[2] === '>' && a[2] !== '>')
-				return 1;
-			else if(b[2] === '<' && a[2] !== '<')
-				return -1;
-			else if(a[2] === '<' && b[2] !== '<')
-				return 1;
+			if(a[3] !== b[3]) return b[3] - a[3];
+			else if(a[2] === '>' && b[2] !== '>') return -1;
+			else if(b[2] === '>' && a[2] !== '>') return 1;
+			else if(b[2] === '<' && a[2] !== '<') return -1;
+			else if(a[2] === '<' && b[2] !== '<') return 1;
 			return 0;
 		});
 		const ownRank = extractedData.indexOf(ownData);
 		const pageNumText = url.replace('#', "").match(/\/\d+\/?$/);
 		let pageNum = pageNumText === null ? Math.ceil(ownRank / this.perPage) : parseInt(pageNumText[0].replaceAll('/', ""));
-		if(pageNum === 0)
-			pageNum = 1;
+		if(pageNum === 0) pageNum = 1;
  
 		let navHTML = "";
 		let insert = "";
@@ -4132,25 +3991,25 @@ class StatEstimate {
 		fileInput.classList.add("d-none");
 		fileInput.addEventListener("input", async e => {
 			const file = e.target.files[0];
-			if(file.type !== "application/json")
-				return;
+			if(file.type !== "application/json") return;
+
 			const contentText = await file.text();
 			const content = JSON.parse(contentText);
 			for(var entry of content) {
 				const userName = entry[0];
 				const userID = entry[1];
-				if(userID == this.ownID)
-					continue;
+				if(userID == this.ownID) continue;
+
 				if(userName !== "???" && userName !== this.getName(userID))
 					this.setName(userID, userName);
 				const curEst = this.getEst(userID);
-				if(curEst === null || entry[4] > parseInt(curEst.split(' ')[1])) {
-					this.setEst(userID, `${entry[2]}${entry[3].toLocaleString("en-US")} ${entry[4]} ${entry[5]}`);
-					if(!this.currentList.includes(userID)) {
-						this.currentList.push(userID);
-						this.setList(this.currentList);
-					}
-				}
+				if(curEst !== null || entry[4] <= parseInt(curEst.split(' ')[1])) continue;
+
+				this.setEst(userID, `${entry[2]}${entry[3].toLocaleString("en-US")} ${entry[4]} ${entry[5]}`);
+				if(this.currentList.includes(userID)) continue;
+
+				this.currentList.push(userID);
+				this.setList(this.currentList);
 			}
 			window.location.reload();
 		});
@@ -4201,14 +4060,13 @@ class StatEstimate {
 	}
 	inBountyOrOtherCartel(url) {
 		const table = document.querySelector("div.table-responsive table.table");
-		if(table === null)
-			return;
+		if(table === null) return;
  
 		const tableHeadTr = table.querySelector("thead tr");
 		let levelCol = tableHeadTr.querySelectorAll("th")[1];
 		let statEstCol = document.createElement("th");
-		if(/^cartel/.test(url))
-			statEstCol.setAttribute("scope", "col");
+		if(/^cartel/.test(url)) statEstCol.setAttribute("scope", "col");
+
 		statEstCol.innerText = "Stat Estimate";
 		tableHeadTr.insertBefore(statEstCol, levelCol);
  
@@ -4217,8 +4075,7 @@ class StatEstimate {
 		let linkIdx = 1;
 		if(/^cartel/.test(url)) {
 			entries = table.querySelectorAll("tbody tr");
-			if(/\d\/?$/.test(url))
-				linkIdx = 0;
+			if(/\d\/?$/.test(url)) linkIdx = 0;
 		} else {
 			entries = table.querySelectorAll("thead tr");
 			start = 1;
@@ -4253,8 +4110,7 @@ class StatEstimate {
 	}
 	inCartelHomepage(url) {
 		const table = document.querySelector("div.card-body > div.container-fluid");
-		if(table === null)
-			return;
+		if(table === null) return;
  
 		const tableHead = table.querySelector(".row-header");
 		let levelCol = tableHead.querySelectorAll(".col")[1];
@@ -4338,8 +4194,8 @@ class StatEstimate {
 		const tableBody = theirTable.querySelector("tbody");
  
 		observeDOM(theirTable, e => {
-			if(e[0].target !== tableBody)
-				return;
+			if(e[0].target !== tableBody) return;
+
 			let trs = tableBody.querySelectorAll("tr");
 			for(var tr of trs) {
 				const tds = tr.querySelectorAll("td");
@@ -4379,19 +4235,19 @@ class StatEstimate {
             const statRows = stats?.querySelectorAll(".row.align-items-center.gy-2.mb-2");
  
             // Ensure stats and rows are found
-            if (stats && statRows?.length > 0) {
-                const fifthSpan = statRows[0].querySelector("div:last-of-type > p");  // Get last p in the first row
-                const statText = (fifthSpan.lastChild ?? fifthSpan)?.textContent.replace(/\D/g, "");
-                const statValue = statText ? parseInt(statText, 10) : 0;
- 
-                // If value has changed, update
-                if (this.ownStats !== statValue && statValue !== 0) {
-                    console.info("Updating ownStats");
-                    this.setEst("self", statValue);
-                }
-            } else {
-                console.error("Stats or stat rows not found");
+            if (!stats || statRows?.length <= 0) {
+				console.error("Stats or stat rows not found");
+				return;
             }
+			const fifthSpan = statRows[0].querySelector("div:last-of-type > p");  // Get last p in the first row
+			const statText = (fifthSpan.lastChild ?? fifthSpan)?.textContent.replace(/\D/g, "");
+			const statValue = statText ? parseInt(statText, 10) : 0;
+
+			// If value has changed, update
+			if (this.ownStats === statValue || statValue === 0) return;
+
+			console.info("Updating ownStats");
+			this.setEst("self", statValue);
         } catch (error) {
             console.error("Error in inHomepage:", error);
         }
@@ -4399,12 +4255,11 @@ class StatEstimate {
  
 	inGym(url) {
 		const totalStats = document.querySelector("p.card-text.fw-bold.text-muted"); // Total is the first one
-		if(totalStats === null)
-			return;
+		if(totalStats === null) return;
+
 		const totalStatsVal = parseInt(totalStats.innerText.split(' ')[0].slice(1).replaceAll(',', ""));
  
-		if(this.ownStats !== totalStatsVal)
-			this.setEst("self", totalStatsVal);
+		if(this.ownStats !== totalStatsVal) this.setEst("self", totalStatsVal);
 	}
 	inFight(url) {
 		const showEsts = (nameA, nameB, A_ID, B_ID, Anew = false, Bnew = false) => {
@@ -4417,15 +4272,13 @@ class StatEstimate {
 			let inner = `<div class="row"><div class="col-md-6 col-12"><div class="mb-4 card"><div class="row mb-0"><div class="col-12"><div class="header-section text-center"><h2>`;
 			inner += nameA === "You" ? "You" : `<a class="text-white" href="/${A_ID === "self" ? "user" : ("User/" + A_ID)}">${nameA}</a>`;
 			inner += `</h2></div></div></div><div class="card-body"><p class="card-text text-center">Stat estimate: `;
-			if(estA === "???")
-				inner += `<span class="text-muted">???</span>`;
+			if(estA === "???") inner += `<span class="text-muted">???</span>`;
 			else {
 				const Astats = parseInt(estA.split(' ')[0].replace(/[,<>~]/g, ""));
 				inner += `<span class="fw-bold" style="color: hsl(${this.colorVal(this.ownStats, Astats) * 120}, 67%, ${this.brightness}%)">${estA.split(' ')[0].replace('>', "&gt;").replace('<', "&lt;")}</span>${Anew ? " (new)" : ""}`;
 			}
 			inner += `</p></div></div></div><div class="col-md-6 col-12"><div class="mb-4 card"><div class="row mb-0"><div class="col-12"><div class="header-section text-center"><h2><a class="text-white" href="/${"User/" + B_ID}">${nameB}</a></h2></div></div></div><div class="card-body"><p class="card-text text-center">Stat estimate: `;
-			if(estB === "???")
-				inner += `<span class="text-muted">???</span>`;
+			if(estB === "???") inner += `<span class="text-muted">???</span>`;
 			else {
 				const Bstats = parseInt(estB.split(' ')[0].replace(/[,<>~]/g, ""));
 				inner += `<span class="fw-bold" style="color: hsl(${this.colorVal(this.ownStats, Bstats) * 120}, 67%, ${this.brightness}%)">${estB.split(' ')[0].replace('>', "&gt;").replace('<', "&lt;")}</span>${Bnew ? " (new)" : ""}`;
@@ -4458,8 +4311,7 @@ class StatEstimate {
 		const fightDate = Date.UTC(dateText[5], parseInt(dateText[4]) - 1, dateText[3], dateText[0], dateText[1], dateText[2]);
  
 		let fightID = url.replace('#', "").match(/\d+\/?$/)[0];
-		if(fightID.endsWith('/'))
-			fightID = fightID.slice(0, -1);
+		if(fightID.endsWith('/')) fightID = fightID.slice(0, -1);
  
 		// Method: replace old log with new log, but only if it's more extreme OR specific
 		if(youAttacked || attackedYou) {
@@ -4554,10 +4406,8 @@ class StatEstimate {
 	}
 	inUserProfile(url) {
 		let userID = url.replace('#', "").match(/\d+\/?$/)[0];
-		if(userID.endsWith('/'))
-			userID = userID.slice(0, -1);
-		if(userID === this.ownID)
-			return;
+		if(userID.endsWith('/')) userID = userID.slice(0, -1);
+		if(userID === this.ownID) return;
  
 		let statsTable = document.querySelector("div.card-body tbody");
 		const estimate = this.getEst(userID);
@@ -4598,14 +4448,12 @@ class StatEstimate {
 		});
  
 		const userName = document.querySelector("div.header-section > .profileNameTitle").innerText;
-		if(userName !== this.getName(userID))
-			this.setName(userID, userName);
+		if(userName !== this.getName(userID)) this.setName(userID, userName);
 	}
 	inEvents(url) {
 		const urlParams = new URLSearchParams(window.location.search);
 		const category = urlParams.get("filter");
-		if(category !== "Attack")
-			return;
+		if(category !== "Attack") return;
  
 		const eventList = document.querySelector("div.container.eventWrapper").children;
 		for(var i = 1; i !== eventList.length; ++i) {
@@ -4647,15 +4495,14 @@ class TotalListingValue {
 	constructor() {}
 	inMarket(url) {
 		let ownOffers = document.querySelector(".offerListWrapper");
-		if(ownOffers === null)
-			return;
+		if(ownOffers === null) return;
+
 		const header = ownOffers.querySelector("div.row.row-cols-3.row-header");
  
 		let totalVal = 0;
 		for(var i = 1; i < ownOffers.children.length; ++i) {
 			const item = ownOffers.children[i];
-			if(item.children.length < 5)
-				continue;
+			if(item.children.length < 5) continue;
 			const val = parseInt(item.children[2].innerText.slice(1).replaceAll(',', ""));
 			const countOf = parseInt(item.children[4].innerText.replaceAll(',', ""));
 			totalVal += val * countOf;
@@ -4681,8 +4528,7 @@ class TrueKDR {
 	constructor() {}
 	inHomepage(url) {
 		const stats = document.querySelectorAll(".col-md-6.d-flex.align-items-stretch.col-xxl-4");
-		if(stats.length < 2)
-			return;
+		if(stats.length < 2) return;
  
 		const table = stats[1].querySelector("div.row.align-items-center.gy-2.mb-2:nth-of-type(2)");
 		const lambda = idx => parseInt(table.children[idx].children[0].innerText.replaceAll(',', ""));
