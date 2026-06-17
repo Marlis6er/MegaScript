@@ -1934,14 +1934,13 @@ class ExpeditionChances {
 class GreenMoney {
     constructor() {
         this.color = "hsl(95, 100%, 25%)"; // Default color
-        this.inAnywhere(); // Automatically run inAnywhere when the class is defined
     }
  
     inAnywhere() {
         // List of class names to handle
         ["currentCashDesktop", "cashDisplay"].forEach(className => {
             // Find the cash elements
-            let cash = document.querySelector(`span.${className}`);
+            const cash = document.querySelector(`span.${className}`);
  
             if (cash === null) return;
 
@@ -1949,7 +1948,7 @@ class GreenMoney {
 			cash.style.color = this.color;
 
 			// Determine the parent element for context
-			let parentElement = cash.closest('li') || cash.closest('.row');
+			const parentElement = cash.closest('li') || cash.closest('.row');
 
 			if (!parentElement) return;
 
@@ -1959,11 +1958,10 @@ class GreenMoney {
 			}
 
 			// Case 2: Handle £ as a sibling element
-			let poundSymbol = parentElement.querySelector('span, p')?.previousSibling;
-			if (poundSymbol && poundSymbol.nodeType === Node.TEXT_NODE && poundSymbol.textContent.includes('£')) {
-				poundSymbol.textContent = poundSymbol.textContent.replace('£', `£`);
-				poundSymbol.style.color = this.color;
-			}
+			const poundSymbol = parentElement.querySelector('span, p')?.previousSibling;
+			if (poundSymbol && poundSymbol.nodeType === Node.TEXT_NODE
+				&& poundSymbol.textContent.includes('£')
+			) poundSymbol.style.color = this.color;
         });
     }
 }
@@ -1975,11 +1973,12 @@ class HighlightExcessHealth {
 		const trs = document.querySelectorAll("table.table tbody tr");
 		if(trs.length < 6) return;
 
-		let lifeTd = trs[5].children[1];
-		const life = lifeTd.innerText;
+		const lifeTd = trs[5].children[1];
+		const life = lifeTd.textContent;
 		const curHealth = parseInt(life.split(" / ")[0].replaceAll(',', ""));
 		const maxHealth = parseInt(life.split(" / ")[1].replaceAll(',', ""));
-		if(curHealth > maxHealth) lifeTd.classList.add("text-danger", "fw-bold");
+		if(curHealth > maxHealth)
+			lifeTd.classList.add("text-danger", "fw-bold");
 	}
 }
  
@@ -1991,13 +1990,15 @@ class HighlightInactives {
 	}
 	inCartel(url) { // Run after stat estimates
 		const table = document.querySelector("div.card-body > div.container-fluid");
-		let rows = table.querySelectorAll(".row.align-middle");
+		const rows = table.querySelectorAll(".row.align-middle");
  
 		for(const row of rows) {
 			const cols = row.querySelectorAll(".col:not(.fw-bold)");
-			let activity = cols[cols.length - 2];
-			if(!activity.innerText.endsWith("days ago") && !activity.innerText.endsWith("day ago"))
-				return;
+			const activity = cols[cols.length - 2];
+			if(!activity.textContent.endsWith("days ago")
+				&& !activity.textContent.endsWith("day ago")
+			) continue;
+			
 			const days = parseInt(activity.innerText.match(/\d+/)[0]);
 			if(days >= this.redBy)
 				activity.classList.add("text-danger");
@@ -2011,20 +2012,21 @@ class HighlightInactives {
 class HighlightUnequipped {
 	constructor(darkMode) {}
 	inInventory(url) {
-		let titles = document.querySelectorAll("h6.card-title");
+		const titles = document.querySelectorAll("h6.card-title");
  
 		for(const title of titles) {
-			if(title.innerText !== "None") continue;
-			title.classList.add("fw-bold", "text-danger");
+			if (['Fists', 'None', 'No Armour'].includes(title.textContent))
+				title.classList.add("fw-bold", "text-danger");
 		}
 	}
 	inProduction(url) {
-		let idle = document.querySelector("p.idleNarcos");
+		const idle = document.querySelector("p.idleNarcos");
 		if(idle === null) return;
 		const setColor = text => {
 			if(text === "0") idle.classList.remove("fw-bold", "text-danger");
 			else idle.classList.add("fw-bold", "text-danger");
 		};
+
 		setColor(idle.innerText);
 		observeDOM(idle, e => setColor(e[0].target.innerText));
 	}
@@ -2044,14 +2046,16 @@ class IntPerWeek {
 		let minIpd = Infinity;
  
 		for(const course of courses) {
-			const data = course.children[1].children[0];
-			const length = parseInt(data.children[0].children[1].children[1].innerText.split(' ')[2]);
-			const intGainText = data.children[1].children[1].children[1].innerHTML.match(/\d+\s/g);
+			const body = course.querySelector('div.accordion-collapse > div.accordion-body');
+			const lengthElem = body.querySelector('div.row.pb-4 > div.col-6 > p.card-text:nth-of-type(2)');
+			const length = parseInt(lengthElem.textContent.split(' ')[2]);
+			const intGainElem = body.querySelector('div:nth-child(2) > div:nth-child(2) > p:nth-child(2)');
+			const intGainText = intGainElem.textContent.match(/\d+\s/g);
 			let intGain = 0;
 			for(const text of intGainText) intGain += parseInt(text);
 
-			// One course gives int rather than stats
-			if(this.stats && data.children[1].children[1].children[1].innerHTML.includes("intelligence"))
+			// One combat course gives int rather than stats; ignore it
+			if(this.stats && intGainElem.textContent.includes("intelligence"))
 				intGain = 0;
  
 			const ipd = 7 * intGain / length;
@@ -2059,12 +2063,16 @@ class IntPerWeek {
 			maxIpd = Math.max(maxIpd, ipd);
 			minIpd = Math.min(minIpd, ipd);
 		}
- 
-		for(let i = 0; i !== courses.length; ++i) {
+		
+		this.updateUI(courses, intPerDay, minIpd, maxIpd);
+	}
+
+	updateUI(courses, intPerDay, minIpd, maxIpd) {
+		for(let i = 0; i < courses.length; ++i) {
 			const ipd = intPerDay[i];
 			const colorVal = (ipd - minIpd) / (maxIpd - minIpd);
-			const { children } = courses[i].children[0].children[0];
-			children[children.length - 1].children[0].innerHTML += ` <span style="color: hsl(${colorVal * 120}, 67%, ${this.brightness}%)">(${ipd.toLocaleString("en-US", { minimumFractionDigits: 2 })} ${this.stats ? "stats" : "INT"}/week)</span>`
+			const infoTextElem = courses[i].querySelector('h2 > button > div:last-of-type > span');
+			infoTextElem.innerHTML += ` <span style="color: hsl(${colorVal * 120}, 67%, ${this.brightness}%)">(${ipd.toLocaleString("en-US", { minimumFractionDigits: 2 })} ${this.stats ? "stats" : "INT"}/week)</span>`
 		}
 	}
 }
