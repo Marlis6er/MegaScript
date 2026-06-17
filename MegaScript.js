@@ -264,7 +264,7 @@ class EstateLevelInfo {
 		this.values = [
 			[],
 			[],
-			[ 0, 10, 50, 150, 250, 500, 2000 ],
+			[ 0, 10, 50, 150, 250, 500, 2000, 5000 ],
 			[ 0, 1, 2, 4, 6, 8, 10 ],
 			[ 0, 0.05, 0.1, 0.2, 0.3, 0.5, 0.75 ],
 			[ 0, 50, 100, 150, 200 ],
@@ -272,21 +272,19 @@ class EstateLevelInfo {
 		];
 	}
 	inEstateAgent(url) {
-		const containers = document.querySelectorAll("div.accordion-body");
+		const containers = document.querySelectorAll("#v-content-plots div.accordion-body");
  
-		for(const i = 1; i !== containers.length; ++i) {
+		for(let i = 0; i < containers.length; ++i) {
 			const container = containers[i];
 			const numbers = container.querySelectorAll("div.col-6 p:not(.mb-0)");
-			const jAdd = i > 5 ? 1 : 0;
-			for(const j = 2 + jAdd; j !== numbers.length; ++j) {
+			for(let j = 2; j < numbers.length; ++j) {
 				let numberP = numbers[j];
-				const number = parseInt(numberP.innerText);
-				const val = this.values[j - jAdd][number];
+				const number = parseInt(numberP.textContent);
+				const val = this.values[j][number];
 				if(val === undefined) return;
 
-				const colorVal = // j - jAdd === 2 ? 1 - ((val - 26) / (41.3 - 26)) :
-					val / this.values[j - jAdd][this.values[j - jAdd].length - 1];
-				numberP.innerHTML += ` <span style="color: hsl(${colorVal * 120}, 67%, ${this.brightness}%)">(${this.prefixes[j - jAdd]}${val.toLocaleString("en-US")}${this.postfixes[j - jAdd]})</span>`;
+				const colorVal = val / this.values[j][this.values[j].length - 1];
+				numberP.innerHTML += ` <span style="color: hsl(${colorVal * 120}, 67%, ${this.brightness}%)">(${this.prefixes[j]}${val.toLocaleString("en-US")}${this.postfixes[j]})</span>`;
 			}
 		}
 	}
@@ -725,7 +723,7 @@ class TrueKDR {
 		// In the town main page
 		centerText.inTown(URL);
 		displayTownCaches.inTown(URL);
-	} else if(/^town\/estateagent\/?$/.test(URL)) {
+	} else if(/^town\/estateagent\/?/.test(URL)) {
 		// In the estate agent
 		betterItemValues.inEstateAgent(URL);
 		estateLevelInfo.inEstateAgent(URL);
