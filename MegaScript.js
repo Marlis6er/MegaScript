@@ -1844,13 +1844,13 @@ class EstateLevelInfo {
 		this.prefixes = [ "", "", '\u00a3', '-', '+', '+', '+' ];
 		this.postfixes = [ "", "", 'M', '%', '%', " INT", '%' ];
 		this.values = [
-			[],
-			[],
-			[ 0, 10, 50, 150, 250, 500, 2000, 5000 ],
-			[ 0, 1, 2, 4, 6, 8, 10 ],
-			[ 0, 0.05, 0.1, 0.2, 0.3, 0.5, 0.75 ],
-			[ 0, 50, 100, 150, 200 ],
-			[ 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.75 ]
+			[],                                       // Plot cost, nothing to process here
+			[],                                       // Best house type, nothing to process here
+			[ 0, 10, 50, 150, 250, 500, 2000, 5000 ], // Max safe, between 0 and 5bil
+			[ 0, 1, 2, 4, 6, 8, 10 ],                 // Uni course time reduction, between 0% and 10%
+			[ 0, 0.05, 0.1, 0.2, 0.3, 0.5, 0.75 ],    // Gym bonus, between 0% and 0.75%
+			[ 0, 50, 100, 150, 200 ],                 // Intelligence cap bonus, between 0 and 200 int
+			[ 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.75 ]      // Int gain bonus, between 0% and 0.75%
 		];
 	}
 	inEstateAgent(url) {
