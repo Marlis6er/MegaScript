@@ -72,33 +72,9 @@ class AddItemButtons {
 			}
 			$(containingRow).append(`<div class="col-12 useItemMsg mt-2 text-success fw-bold">${dateString} - ${data.statusMsg.success}</div>`);
 
-			if (data.energyGained) {
-				const currentEnergy = parseInt($("#currentEnergy")[0].innerText);
-				const newEnergy = currentEnergy + data.energyGained;
-				const maxEnergy = parseInt($("#maxEnergy")[0].innerText);
-				const percentageOfMax = ((newEnergy / maxEnergy) * 100);
+			if (data.energyGained) handleEnergyGain(data);
 
-				$("#currentEnergy")[0].innerText = newEnergy;
-				$("#energyProgress")[0].style.width = `${percentageOfMax}%`;
-				$("#energyProgress")[0].setAttribute("aria-valuenow", newEnergy);
-
-				// Update input fields
-				$("form.input-group input.form-control").each((idx, elem) => {
-					elem.setAttribute("max", newEnergy.toString());
-					elem.setAttribute("value", newEnergy.toString());
-				});
-				$("form.input-group input.btn.disabled").each((idx, elem) => elem.classList.remove("disabled"));
-			}
-			if (data.lifeToSet || data.lifeToSet === 0) {
-				const maxLife = parseInt($("#maxLife")[0].innerText);
-				const newLife = data.lifeToSet;
-				const percentageOfMax = ((newLife / maxLife) * 100);
-				if (newLife > maxLife) newLife = maxLife;
-
-				$("#currentLife")[0].innerText = newLife;
-				$("#lifeProgress")[0].style.width = `${percentageOfMax}%`;
-				$("#lifeProgress")[0].setAttribute("aria-valuenow", newLife);
-			}
+			if (data.lifeToSet || data.lifeToSet === 0) handleLifeUpdate(data);
 
 			if (data.sentToHospital) {
 				$(".content-container").attr("style", "background-image:linear-gradient(to right, rgba(255,0,0,0.05), rgba(255, 0, 0, 0.2), rgba(255,0,0,0.05)), url(../images/background-hospital.webp);");
@@ -127,12 +103,40 @@ class AddItemButtons {
 
 			if (currentCount - 1 > 0)
 				itemCountLabel[0].innerText = currentCount - 1;
-
 			else
 				containingRow.remove();
 
 			// Reload the page if the item was successfully used
 			location.reload();
+		}
+
+		function handleEnergyGain(data) {
+			const currentEnergy = parseInt($("#currentEnergy")[0].innerText);
+			const newEnergy = currentEnergy + data.energyGained;
+			const maxEnergy = parseInt($("#maxEnergy")[0].innerText);
+			const percentageOfMax = ((newEnergy / maxEnergy) * 100);
+
+			$("#currentEnergy")[0].innerText = newEnergy;
+			$("#energyProgress")[0].style.width = `${percentageOfMax}%`;
+			$("#energyProgress")[0].setAttribute("aria-valuenow", newEnergy);
+
+			// Update input fields
+			$("form.input-group input.form-control").each((idx, elem) => {
+				elem.setAttribute("max", newEnergy.toString());
+				elem.setAttribute("value", newEnergy.toString());
+			});
+			$("form.input-group input.btn.disabled").each((idx, elem) => elem.classList.remove("disabled"));
+		}
+
+		function handleLifeUpdate(data) {
+			const maxLife = parseInt($("#maxLife")[0].innerText);
+			const newLife = data.lifeToSet;
+			const percentageOfMax = ((newLife / maxLife) * 100);
+			if (newLife > maxLife) newLife = maxLife;
+
+			$("#currentLife")[0].innerText = newLife;
+			$("#lifeProgress")[0].style.width = `${percentageOfMax}%`;
+			$("#lifeProgress")[0].setAttribute("aria-valuenow", newLife);
 		}
 	}
 	addScript() {
@@ -143,8 +147,8 @@ class AddItemButtons {
 	}
 	add(count, value, pb, coke = true) {
 		const ID = this.getID(coke);
-		if (ID === null)
-			return "";
+		if (ID === null) return "";
+
 		const imageID = coke ? 301 : 3;
 		const itemName = coke ? "Cocaine" : "Personal Favour";
 		const actionName = coke ? "Take" : "Use";
@@ -157,14 +161,15 @@ class AddItemButtons {
 		const item = document.getElementById(`item-${ID}`);
 		observeDOM(item, e => {
 			const added = e[0].addedNodes[0];
-			if (!added || !added.classList ||
-				!added.classList.contains("useItemMsg") ||
-				added.classList.contains("text-danger")) return;
+			if (!added || !added.classList
+				|| !added.classList.contains("useItemMsg")
+				|| added.classList.contains("text-danger")
+			) return;
 
 			const newCokeCount = (this.getCount(coke) || 1) - 1;
 			this.setCount(newCokeCount, coke);
 			const countText = document.querySelector(`#item-${ID} span.itemQuantity`);
-			countText.innerText = newCokeCount.toLocaleString("en-US");
+			countText.textContent = newCokeCount.toLocaleString("en-US");
 		});
 	}
 	inGym(url) {
@@ -180,6 +185,7 @@ class AddItemButtons {
 	inUniversity(url) {
 		const container = document.querySelector("div.contentColumn > div > div:not(#helpAccordion):not(.border-success):not(.border-danger) div.card-body");
 		if (container === null) return;
+
 		const form = container.querySelector("div.text-center.d-flex.flex-column.align-items-center");
 		// At max int
 		if (form === null || container === null) return;
@@ -205,7 +211,7 @@ class AddItemButtons {
 			const item = itemList.children[i];
 			if (item.children.length < 2) continue;
 
-			const nameSplit = item.children[1].innerText.split(' ');
+			const nameSplit = item.children[1].textContent.split(' ');
 			const itemName = nameSplit.slice(0, -1).join(' ');
 			if (itemName === "Cocaine")
 				this.setID(item.id.slice(5), true);
