@@ -2084,7 +2084,7 @@ class LargerGymGraph {
 		this.factor = 1.12;
 	}
 	inGym(url) {
-		const container = document.querySelector("div#graphContainer div.card-body div");
+		const container = document.querySelector("div#graphContainer > div.card-body > div");
 		if(container === null) return;
 
 		container.style.maxHeight = `${this.newHeight * this.factor}px`;
@@ -2092,45 +2092,6 @@ class LargerGymGraph {
 		graph.style.height = `${this.newHeight * this.factor}px`;
 		graph.height = this.newHeight;
 	}
-}
- 
- 
-class RedLeaveCourseButton {
-	constructor() {
-		this.redClassName = "bg-danger";
-	}
-	inUniversity(url) {
-		const leaveButtons = document.querySelectorAll("button.leaveCourseBtn");
-		for(const button of leaveButtons)
-			button.classList.add(this.redClassName);
-	}
-}
- 
- 
-class RemoveOwnStatus {
-    // Immediately execute the static method upon class definition
-    static {
-		init();
-
-		function init(){
-			// Find the "Status" label and its corresponding row
-			const labels = Array.from(document.querySelectorAll("p.fw-bold"));
-			const statusLabel = labels.find(label => label.textContent.trim() === 'Status');
-			const statusRow = statusLabel ? statusLabel.closest('.row') : null;
-			if (!statusRow) return;
-
-			// Find and remove the cells containing the "Status" label and value
-			const statusLabelIndex = Array
-				.from(statusRow.children)
-				.findIndex(child => child.textContent.trim() === 'Status');
-			if (statusLabelIndex < 0) return;
-
-			statusRow.children[statusLabelIndex].remove(); // Remove the label's parent container
-			if (!statusRow.children[statusLabelIndex]) return;
-
-			statusRow.children[statusLabelIndex].remove(); // Remove the value's container
-		}
-    }
 }
  
  
@@ -2187,24 +2148,33 @@ class ScriptSettings {
 class TotalListingValue {
 	constructor() {}
 	inMarket(url) {
-		const ownOffers = document.querySelector(".offerListWrapper");
+		const ownOffers = document.querySelector("div.offerListWrapper:first-of-type");
 		if(ownOffers === null) return;
 
 		const header = ownOffers.querySelector("div.row.row-cols-3.row-header");
+		const offerItems = ownOffers.querySelectorAll('div.inventoryItemWrapper');
  
-		let totalVal = 0;
-		for(let i = 1; i < ownOffers.children.length; ++i) {
-			const item = ownOffers.children[i];
-			if(item.children.length < 5) continue;
-			const val = parseInt(item.children[2].innerText.slice(1).replaceAll(',', ""));
-			const countOf = parseInt(item.children[4].innerText.replaceAll(',', ""));
-			totalVal += val * countOf;
-		}
+		const totalVal = this.getTotalValue(offerItems);
  
 		const totalValCard = document.createElement("div");
 		totalValCard.classList.add("card-body", "mb-2");
 		totalValCard.innerHTML = `<p class="card-text">The total value of your listings is <span class="fw-bold">\u00a3${totalVal.toLocaleString("en-US")}</span>.</p>`;
 		ownOffers.insertBefore(totalValCard, header);
+	}
+	getTotalValue(offerItems) {
+		let totalVal = 0;
+		for(const item of offerItems) {
+			if(item.children.length < 5) continue;
+
+			const valueText = item.children[2].textContent;
+			const val = parseInt(valueText.slice(1).replaceAll(',', ""));
+
+			const countText = item.children[4].textContent;
+			const countOf = parseInt(countText.replaceAll(',', ""));
+
+			totalVal += val * countOf;
+		}
+		return totalVal;
 	}
 }
  
@@ -2224,9 +2194,9 @@ class TrueKDR {
 		if(stats.length < 2) return;
  
 		const table = stats[1].querySelector("div.row.align-items-center.gy-2.mb-2:nth-of-type(2)");
-		const lambda = idx => parseInt(table.children[idx].children[0].innerText.replaceAll(',', ""));
-		let totalW = lambda(3) + lambda(7);
-		let totalL = lambda(5) + lambda(9);
+		const getNumberAtIndex = idx => parseInt(table.children[idx].children[0].innerText.replaceAll(',', ""));
+		let totalW = getNumberAtIndex(3) + getNumberAtIndex(7);
+		let totalL = getNumberAtIndex(5) + getNumberAtIndex(9);
  
         const descriptionText = document.createElement("div");
         descriptionText.className = "col-4";
@@ -2274,8 +2244,6 @@ class TrueKDR {
 	const itemCache = new ItemCache(darkMode, days);
 	const largerGymGraph = new LargerGymGraph();
 	const propertyPageAgentLink = new PropertyPageAgentLink();
-	const redLeaveCourseButton = new RedLeaveCourseButton();
-	const removeOwnStatus = new RemoveOwnStatus();
 	const roundedCards = new RoundedCards();
 	const scriptSettings = new ScriptSettings();
 	const statEstimate = new StatEstimate(darkMode, user_id, user_name);
@@ -2295,14 +2263,12 @@ class TrueKDR {
 	} else if(/^university\/?$/.test(URL)) {
 		// In the university main page
 		colorStats.inUniversity(URL);
-		redLeaveCourseButton.inUniversity();
 		addItemButtons.inUniversity(URL);
 		betterItemValues.inUniversity(URL);
 		estimatedIntGains.inUniversity(URL);
 	} else if(/^university\/[132]\/?$/.test(URL)) {
 		// In a university course pages
 		intPerWeek.inUniversityPage(URL);
-		redLeaveCourseButton.inUniversity();
 	} else if(/^jail\/?$/.test(URL)) {
 		// In the jail
 		addItemButtons.inJail(URL);
