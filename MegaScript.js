@@ -1440,11 +1440,14 @@ class BetterItemValues {
 					break;
 				}
 			}
+
+			// Apply only to standard jobs
+			const standardJobRepBonus = i < 4 ? GM_getValue('perks_Standard Job Rep') || 0 : 0;
 			if(this.jobValue[i] !== "???") {
 				const prestigeText = jobPanel.querySelector("p.prestigeText");
 				const incrReward = prestigeText !== null && /\+\d+%/.test(prestigeText.innerText) ? parseInt(prestigeText.innerText.match(/\+\d+%/)[0].slice(1, -1)) : 0;
 				this.jobValue[i] *= 1 + incrReward / 100;
-				this.jobRep[i] *= 1 + incrReward  / 100;
+				this.jobRep[i] *= (1 + incrReward + standardJobRepBonus)  / 100;
  
 				this.jobValue[i] *= this.jobProfitFactor;
 				this.jobValue[i] /= this.jobTimes[i];
@@ -1452,11 +1455,6 @@ class BetterItemValues {
 				this.minJobValue = Math.min(this.minJobValue, this.jobValue[i]);
 			}
 
-			const standardJobRepBonus = GM_getValue('perk_Standard Job Rep');
-			// Apply only to standard jobs
-			if (i <= 4) {
-				this.jobRep[i] * (1 + (standardJobRepBonus / 100));
-			}
 			this.maxJobRep = Math.max(this.maxJobRep, this.jobRep[i] / this.jobTimes[i]);
 			this.minJobRep = Math.min(this.minJobRep, this.jobRep[i] / this.jobTimes[i]);
 		}
