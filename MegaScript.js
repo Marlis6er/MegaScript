@@ -746,7 +746,7 @@ class TrueKDR {
 		// Viewing a trade
 		betterItemValues.inTradeView(URL);
 		//betterMoneyInputs.inTradeView(URL);
-	} else if(/^trade/.test(URL)) {
+	} else if(/^trade\/?$/.test(URL)) {
 		// In the trade list
 		colorChatNames.inTrade(URL);
 	} else if(/^trade\/additems/.test(URL)) {

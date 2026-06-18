@@ -8,54 +8,54 @@ class BetterItemValues {
 		this.pointName = "Supporter Points";
 
 		const values = GM_listValues().filter(name => name.startsWith("value_")); // Prefill values first use
+		this.defaultVals = {
+			"Walther P38": 2200,
+			"AK-47": 13000,
+			"M1911": 13000,
+			"M16A2 Rifle": 13000,
+			"S&W Magnum Revolver": 120000,
+			"MG34": 400000,
+			"Fragmentation Grenade": 24999,
+			"Stun Grenade": 18000,
+			"Illuminating Grenade": 9999,
+			"Flash Bang Grenade": 9999,
+			"Tear Gas Grenade": 18000,
+			"Covert Stab Vest": 75000,
+			"Tactical Plate Armour": 3000000,
+			"Personal Favour": 170000,
+			"Supporter Pack": 9500000,
+			"Corana Beer": 150000,
+			"Mexcal Beer": 438000,
+			"Blancoda Tequila": 847000,
+			"Repose Tequila": 1850000,
+			"Anejo Tequila": 1720000,
+			"Raicilla": 2000000,
+			"Bandage": 3999,
+			"Small Medical Kit": 6999,
+			"Tainted Cannabis": 9999,
+			"Large Medical Kit": 16000,
+			"Basic Trauma Kit": 25000,
+			"Large Trauma Kit": 40000,
+			"Tainted Cocaine": 15000,
+			"Cannabis": 24998,
+			"Cocaine": 610000,
+			"Bag of Fertiliser": 19000,
+			"Coca Paste": 26000,
+			"Agave Heart": 53000,
+			"Concrete Bags": 89000,
+			"Nails": 124900,
+			"Bricks": 99999,
+			"Steel": 94000,
+			"Dog Food": 7398,
+			"Supporter Points": 34899,
+			"El Chapo's Head": 10000000,
+			"Glock 18": 500000,
+			"Ballistic Vest": 100000,
+			"G36": 750000,
+			"Desert Eagle": 8000000
+		}; // Players should go to the market to load up-to-date values, these are presets probably over half a year old
 		if (values.length === 0) {
-			const defaultVals = {
-				"Walther P38": 2200,
-				"AK-47": 13000,
-				"M1911": 13000,
-				"M16A2 Rifle": 13000,
-				"S&W Magnum Revolver": 120000,
-				"MG34": 400000,
-				"Fragmentation Grenade": 24999,
-				"Stun Grenade": 18000,
-				"Illuminating Grenade": 9999,
-				"Flash Bang Grenade": 9999,
-				"Tear Gas Grenade": 18000,
-				"Covert Stab Vest": 75000,
-				"Tactical Plate Armour": 3000000,
-				"Personal Favour": 170000,
-				"Supporter Pack": 9500000,
-				"Corana Beer": 150000,
-				"Mexcal Beer": 438000,
-				"Blancoda Tequila": 847000,
-				"Repose Tequila": 1850000,
-				"Anejo Tequila": 1720000,
-				"Raicilla": 2000000,
-				"Bandage": 3999,
-				"Small Medical Kit": 6999,
-				"Tainted Cannabis": 9999,
-				"Large Medical Kit": 16000,
-				"Basic Trauma Kit": 25000,
-				"Large Trauma Kit": 40000,
-				"Tainted Cocaine": 15000,
-				"Cannabis": 24998,
-				"Cocaine": 610000,
-				"Bag of Fertiliser": 19000,
-				"Coca Paste": 26000,
-				"Agave Heart": 53000,
-				"Concrete Bags": 89000,
-				"Nails": 124900,
-				"Bricks": 99999,
-				"Steel": 94000,
-				"Dog Food": 7398,
-				"Supporter Points": 34899,
-				"El Chapo's Head": 10000000,
-				"Glock 18": 500000,
-				"Ballistic Vest": 100000,
-				"G36": 750000,
-				"Desert Eagle": 8000000
-			}; // Players should go to the market to load up-to-date values, these are presets probably over half a year old
-			for (var name in defaultVals)
+			for (var name in this.defaultVals)
 				this.setValue(name, defaultVals[name]);
 		}
 
@@ -154,7 +154,7 @@ class BetterItemValues {
 		this.maxPpht = 0;
 		this.minPpht = Infinity;
 
-		for (var item in this.energyItems) {
+		for (const item in this.energyItems) {
 			const price = this.getValue(item);
 			if (price === null) continue;
 
@@ -163,7 +163,7 @@ class BetterItemValues {
 			this.maxPpe = Math.max(this.maxPpe, ppe);
 			this.minPpe = Math.min(this.minPpe, ppe);
 		}
-		for (var item in this.hospitalItems) {
+		for (const item in this.hospitalItems) {
 			const price = this.getValue(item);
 			if (price === null) continue;
 
@@ -175,15 +175,39 @@ class BetterItemValues {
 			this.minPpht = Math.min(this.minPpht, ppht);
 		}
 		// NOTE: calculate job values inJob since it's only used there and we need prestige levels
+
+		const pointVal = this.getValue(this.pointName);
+		// To avoid multiplication with null
+		const calcPointVal = amount => pointVal !== null ? amount * pointVal : pointVal;
+
+		this.spinnerValues = new Map([
+			['nothing', 0],
+			['a Free Spin', 0],
+			['\u00a310,000', 10_000],
+			['\u00a350,000', 50_000],
+			['\u00a3100,000', 100_000],
+			['\u00a3250,000', 250_000],
+			['a Personal Favour', this.getValue('Personal Favor')],
+			['5 Points', calcPointVal(5)],
+			['25 Points', calcPointVal(25)],
+			['50 Points', calcPointVal(50)],
+			['a Supporter Pack', this.getValue('Supporter Pack')],
+			['500 Points', calcPointVal(500)]
+		]);
 	}
 	getValue(itemName) {
 		let formattedName = `value_${itemName.replaceAll(' ', '_')}`;
 		let val = GM_getValue(formattedName, null);
 
 		// Fallback to old format if new format returns null
-		if (val === null) {
+		if (val === null || val === NaN) {
 			formattedName = `value_${itemName}`; // Try without replacing spaces
 			val = GM_getValue(formattedName, null);
+		}
+
+		// Failsafe, because GM_getValue turns null into NaN
+		if (isNaN(val)) {
+			val = null;
 		}
 
 		console.debug(`Fetching value for: ${formattedName}, ItemName: ${itemName}, Result: ${val}`);
@@ -197,45 +221,52 @@ class BetterItemValues {
 	inMarket(url) {
 		const itemSelector = document.querySelector("#itemSelector");
 		if (itemSelector === null) return;
-		const options = itemSelector.options;
 
+		const options = itemSelector.options;
 		const pointPriceLabel = document.querySelector("#pricePerPointsLabel");
-		const pointCurrentBest = document.createElement("span");
-		pointCurrentBest.id = "pricePerPointsLabelCurrentBest";
-		pointCurrentBest.classList.add("text-muted");
-		let currentBest = this.getValue(this.pointName);
-		pointCurrentBest.innerText = `(\u00a3${currentBest === null ? "???" : currentBest.toLocaleString("en-US")})`;
-		pointPriceLabel.innerText += ' ';
+
+		let price = this.getValue(this.pointName);
+		const pointCurrentBest = createPointPriceContainer(price);
+
+		pointPriceLabel.textContent += ' ';
 		pointPriceLabel.appendChild(pointCurrentBest);
 
 		const pricePerLabel = document.querySelector("#pricePerLabel");
-		const priceCurrentBest = document.createElement("span");
-		priceCurrentBest.id = "pricePerLabelCurrentBest";
-		priceCurrentBest.classList.add("text-muted");
-		let itemName = options[0].innerText;
-		currentBest = this.getValue(itemName);
-		priceCurrentBest.value = itemName;
-		priceCurrentBest.innerText = `(\u00a3${currentBest === null ? "???" : currentBest.toLocaleString("en-US")})`;
-		pricePerLabel.innerText += ' ';
+
+		let itemName = options[0].textContent;
+		let currentBest = this.getValue(itemName);
+		const priceCurrentBest = createItemPriceContainer(itemName, currentBest);
+
+		pricePerLabel.textContent += ' ';
 		pricePerLabel.appendChild(priceCurrentBest);
 
 		itemSelector.addEventListener("change", e => {
-			for (var option of options) {
+			for (const option of options) {
 				if (option.value !== e.target.value) continue;
 
-				itemName = option.innerText.trim().replace(/\s+-\s+\d+(?:\.\d+)?%$/, "");
-				currentBest = this.getValue(itemName);
+				itemName = option.textContent.trim().replace(/\s+-\s+\d+(?:\.\d+)?%$/, "");
+				price = this.getValue(itemName);
 				priceCurrentBest.value = itemName;
-				priceCurrentBest.innerText = `(\u00a3${currentBest === null ? "???" : currentBest.toLocaleString("en-US")})`;
+				priceCurrentBest.textContent = `(\u00a3${price === null ? "???" : price.toLocaleString("en-US")})`;
 				break;
 			}
 		});
 
 		const container = document.querySelector("nav#itemMarketNav > div.tab-content");
 
+		// Initial run to process any already loaded items
+		processItems();
+
+		// Start observing for dynamic changes
+		observeMarketChanges();
+
+
+		// Handle event card updates (unchanged)
+		handleItemListing();
+
 		// Function to handle item processing
 		function processItems() {
-			const offerListWrappers = document.querySelectorAll(".offerListWrapper.mb-3");
+			const offerListWrappers = document.querySelectorAll("div.offerListWrapper");
 			console.info("Number of offerListWrappers found:", offerListWrappers.length);
 
 			offerListWrappers.forEach(wrapper => {
@@ -274,9 +305,9 @@ class BetterItemValues {
 
 				// Ensure pointName and priceCurrentBest are defined
 				if (typeof pointName !== 'undefined' && itemName === pointName) {
-					pointCurrentBest.innerText = `(\u00a3${itemPrice.toLocaleString("en-US")})`;
+					pointCurrentBest.textContent = `(\u00a3${itemPrice.toLocaleString("en-US")})`;
 				} else if (priceCurrentBest && priceCurrentBest.value === itemName) {
-					priceCurrentBest.innerText = `(\u00a3${itemPrice.toLocaleString("en-US")})`;
+					priceCurrentBest.textContent = `(\u00a3${itemPrice.toLocaleString("en-US")})`;
 				}
 			} catch (error) {
 				console.error(`Error processing card: ${error}`);
@@ -288,7 +319,7 @@ class BetterItemValues {
 			const targetNode = document.querySelector("#itemMarketNav"); // Adjust the selector as needed
 			if (!targetNode) return;
 
-			const observer = new MutationObserver((mutationsList) => {
+			observeDOM(targetNode, (mutationsList) => {
 				for (const mutation of mutationsList) {
 					if (mutation.type !== "childList" || mutation.addedNodes.length <= 0)
 						continue;
@@ -296,35 +327,46 @@ class BetterItemValues {
 					processItems(); // Re-run the script to process newly added items
 				}
 			});
-
-			// Observe the target node for changes in children
-			observer.observe(targetNode, { childList: true, subtree: true });
 		}
 
-		// Initial run to process any already loaded items
-		processItems();
+		function handleItemListing() {
+			const eventCard = document.querySelector("div.contentColumn p.card-text.fw-bold.text-white");
+			if (eventCard === null) return;
 
-		// Start observing for dynamic changes
-		observeMarketChanges();
+			const eventText = eventCard.textContent.split(" - ")[1];
+			const textSplit = eventText.split(' ');
+			if (textSplit[1] !== "listed") return;
 
+			let i = 3;
+			let itemName = textSplit[i];
+			while (textSplit[++i] !== "for") itemName += ` ${textSplit[i]}`;
 
-		// Handle event card updates (unchanged)
-		const eventCard = document.querySelector("div.contentColumn p.card-text.fw-bold.text-white");
-		if (eventCard === null) return;
+			const val = parseInt(textSplit.at(-1).slice(1).replace(',', ""));
+			const curVal = this.getValue(itemName);
 
-		const eventText = eventCard.innerText.split(" - ")[1];
-		const textSplit = eventText.split(' ');
+			if (curVal === null || val < curVal) this.setValue(itemName, val);
+		}
 
-		if (textSplit[1] !== "listed") return;
+		function createPointPriceContainer(price) {
+			const pointCurrentBest = document.createElement("span");
+			pointCurrentBest.id = "pricePerPointsLabelCurrentBest";
+			pointCurrentBest.classList.add("text-muted");
 
-		let i = 3;
-		itemName = textSplit[i];
-		while (textSplit[++i] !== "for") itemName += ` ${textSplit[i]}`;
+			pointCurrentBest.innerText = `(\u00a3${price === null ? "???" : price.toLocaleString("en-US")})`;
 
-		const val = parseInt(textSplit[textSplit.length - 1].slice(1).replace(',', ""));
-		const curVal = this.getValue(itemName);
+			return pointCurrentBest;
+		}
 
-		if (curVal === null || val < curVal) this.setValue(itemName, val);
+		function createItemPriceContainer(itemName, price) {
+			const priceCurrentBest = document.createElement("span");
+			priceCurrentBest.id = "pricePerLabelCurrentBest";
+			priceCurrentBest.classList.add("text-muted");
+			priceCurrentBest.value = itemName;
+
+			priceCurrentBest.innerText = `(\u00a3${price === null ? "???" : price.toLocaleString("en-US")})`;
+
+			return priceCurrentBest;
+		}
 
 	}
 	inSupporter(url) {
@@ -337,24 +379,27 @@ class BetterItemValues {
 	inEstateAgent(url) {
 		const buildReqs = document.querySelectorAll("div.row.pb-2");
 
-		for (var i = 0; i < buildReqs.length; i += 2) {
-			const buildReq = buildReqs[i];
-			const matList = buildReq.children[1].children[1];
-			const mats = matList.innerHTML.split("<br>");
-			let totalCost = 0;
-			for (let j = 0; j !== mats.length; ++j) {
-				const mat = mats[j];
-				const count = parseInt(mat.split(' ')[0].slice(1).replaceAll(',', ""));
-				const val = this.getValue(mat.split(' ').slice(1).join(' ').trim());
-				mats[j] = `${mat.trim()} <span class="text-muted">(\u00a3${val === null ? "???" : (count * val).toLocaleString("en-US")})</span>`;
+		for (const buildReq of buildReqs) {
+			const matList = buildReq.querySelector('div.col-6.d-flex.flex-column > p');
 
-				if (val === null) totalCost = "???";
-				else if (totalCost !== "???") totalCost += count * val;
-			}
-			matList.innerHTML = mats.join("<br>");
+			let totalCost = 0;
+			matList.innerHTML = matList
+				.innerHTML
+				.split("<br>")
+				.map(mat => {
+					const count = parseInt(mat.split(' ')[0].slice(1).replaceAll(',', ""));
+					const val = this.getValue(mat.split(' ').slice(1).join(' ').trim());
+
+					if (val === null) totalCost = "???";
+					else if (totalCost !== "???") totalCost += count * val;
+
+					return `${mat.trim()} <span class="text-muted">(\u00a3${val === null ? "???" : (count * val).toLocaleString("en-US")})</span>`;
+				})
+				.join('<br>');
+
 			if (totalCost !== "???") {
-				const cash = buildReq.children[2].children[1];
-				totalCost += parseInt(cash.innerText.slice(1).replaceAll(',', ""));
+				const cash = buildReq.querySelector('div:nth-child(2) > p.form-data-inset.p-2.mb-2.rounded');
+				totalCost += parseInt(cash.textContent.slice(1).replaceAll(',', ""));
 			}
 			buildReq.innerHTML += `<div class="col-6"><p class="fw-bold mb-0">Total Value:</p><p class="fw-bold text-muted">\u00a3${totalCost === "???" ? "???" : totalCost.toLocaleString("en-US")}</p></div>`;
 		}
@@ -363,17 +408,20 @@ class BetterItemValues {
 
 		observeDOM(buildModal, e => {
 			const modal = e[1].target;
-			const matList = modal.querySelectorAll("ul li");
+			const matList = modal.querySelectorAll("ul > li");
 
 			let changed = false;
 			let totalCost = 0;
-			for (var matDesc of matList) {
-				const mat = matDesc.innerText;
-				if (matDesc.children.length) continue;
-				else if (mat[0] === '\u00a3') {
+			for (const matDesc of matList) {
+				if (matDesc.children.length > 0) continue;
+
+				const mat = matDesc.textContent;
+				// Build cost
+				if (mat[0] === '\u00a3') {
 					totalCost += parseInt(mat.slice(1).replaceAll(',', ""));
 					continue;
 				}
+
 				changed = true;
 				const count = parseInt(mat.split(' ')[0].slice(0, -1).replaceAll(',', ""));
 				const matName = mat.split(' ').slice(1).join(' ').trim();
@@ -388,174 +436,194 @@ class BetterItemValues {
 		});
 	}
 	inTownStore(url) {
-		const itemLists = document.querySelectorAll("div.container.inventoryWrapper.mb-4");
+		const itemSelector = 'div.container.inventoryWrapper.mb-4 > div.inventoryItemWrapper';
+		const items = Array.from(document.querySelectorAll(itemSelector));
+		for (const item of items) {
+			if (item.children.length < 2) continue;
 
-		for (var il = 0; il !== itemLists.length; ++il) {
-			const itemList = itemLists[il];
-			for (var i = 1; i !== itemList.children.length; ++i) {
-				const item = itemList.children[i];
-				if (item.children.length < 2) continue;
-
-				let selling = false;
-				let itemName = "";
-				if (item.children[1].children.length) {
-					itemName = item.children[1].innerText.split(' ').slice(0, -1).join(' ');
-					selling = true;
-				}
-				else
-					itemName = item.children[1].innerText;
-
-				const currentBest = this.getValue(itemName);
-				if (currentBest === null) continue;
-
-				const currentVal = parseInt(item.children[4].innerText.slice(1).replaceAll(',', ""));
-				let shopHTML = item.children[4].innerHTML;
-				if (currentVal > currentBest)
-					shopHTML = `<span class="text-${selling ? "success" : "danger"}">${item.children[4].innerText}</span>`;
-				else if (currentVal === currentBest && selling)
-					shopHTML = `<span class="text-warning">${item.children[4].innerText}</span>`;
-				const marketHTML = `<br><span class="text-muted">(\u00a3${currentBest.toLocaleString("en-US")})</span>`;
-
-				item.children[4].innerHTML = shopHTML + marketHTML;
-				const otherValueText = item.children[6].querySelector("div.col-6");
-				otherValueText.innerHTML = `<div class="card-text"><div class="fw-bold">Value</div>${shopHTML}${marketHTML}</div>`;
+			let selling = false;
+			let itemName = "";
+			// Determine if we're in the sell or the buy section
+			if (item.children[1].children.length) {
+				itemName = item.children[1].textContent.split(' ').slice(0, -1).join(' ');
+				selling = true;
 			}
+			else itemName = item.children[1].textContent;
+
+			this.updateStoreUI(item, itemName, selling);
 		}
+	}
+	updateStoreUI(item, itemName, inSellingUI) {
+		const currentBest = this.getValue(itemName);
+		if (currentBest === null) return;
+
+		const priceElem = item.children[4];
+		const currentVal = parseInt(priceElem.textContent.slice(1).replaceAll(',', ""));
+
+		let shopHTML = priceElem.innerHTML;
+		if (currentVal > currentBest)
+			shopHTML = `<span class="text-${inSellingUI ? "success" : "danger"}">${priceElem.textContent}</span>`;
+		else if (currentVal === currentBest && inSellingUI)
+			shopHTML = `<span class="text-warning">${priceElem.textContent}</span>`;
+
+		const marketHTML = `<br><span class="text-muted">(\u00a3${currentBest.toLocaleString("en-US")})</span>`;
+
+		priceElem.innerHTML = shopHTML + marketHTML;
+		const otherValueText = item.children[6].querySelector("div.col-6");
+		otherValueText.innerHTML = `<div class="card-text"><div class="fw-bold">Value</div>${shopHTML}${marketHTML}</div>`;
 	}
 	inTradeView(url) {
 		const tradeTabs = document.querySelectorAll("div.card-body:not(.text-center)");
 		const totalVal = [0, 0];
 
-		for (var i = 0; i !== 2; ++i) {
-			const itemList = tradeTabs[i + 1].querySelector("div.table-responsive tbody");
+		for (let i = 0; i !== 2; ++i) {
+			const tradeTab = tradeTabs[i + 1];
+			const itemList = tradeTab.querySelector("div.table-responsive tbody");
 			if (itemList !== null) {
-				itemList.children[0].innerHTML += "<th>Value</th>";
-
-				const items = itemList.querySelectorAll("tr.align-middle");
-				for (var item of items) {
-					const itemName = item.children[0].innerText;
-					const val = this.getValue(itemName);
-					const itemCount = parseInt(item.children[1].innerText.replaceAll(',', ""));
-					item.innerHTML += `<td class="text-muted">\u00a3${val === null ? "???" : (val * itemCount).toLocaleString("en-US")}</td>`;
-					if (val === null) {
-						totalVal[i] = "???";
-						break;
-					}
-					totalVal[i] += val * itemCount;
-				}
-				if (totalVal[i] === "???") continue;
+				totalVal[i] += this.handleTradeItemList(itemList);
 			}
-			const inputs = tradeTabs[i + 1].querySelectorAll("input.form-control");
+
+			const inputs = tradeTab.querySelectorAll("input.form-control");
 			const pointVal = this.getValue(this.pointName);
+
+			// Cash in trade
+			totalVal[i] += parseInt(inputs[0].value.replaceAll(',', ""));
+
 			if (pointVal !== null) {
 				totalVal[i] += pointVal * parseInt(inputs[1].value.replaceAll(',', ""));
-				totalVal[i] += parseInt(inputs[0].value.replaceAll(',', ""));
 			} else {
 				totalVal[i] = "???";
 				continue;
 			}
-			const properties = tradeTabs[i + 1].querySelectorAll("div.card.equipmentModule");
-			for (var property of properties) {
+			const properties = tradeTab.querySelectorAll("div.card.equipmentModule");
+			for (const property of properties) {
 				const propertyVal = property.querySelector("div.card-text");
-				totalVal[i] += parseInt(propertyVal.innerText.slice(1).replaceAll(',', ""));
+				totalVal[i] += parseInt(propertyVal.textContent.slice(1).replaceAll(',', ""));
 			}
 		}
-		if (totalVal[0] === "???" || totalVal[1] === "???")
-			for (var i = 0; i !== 2; ++i) {
-				const nameHeader = tradeTabs[i + 1].parentNode.querySelector("h2");
-				nameHeader.outerHTML = `<h2 class="row"><div class="col">${nameHeader.innerText}</div><div class="col text-end text-muted">\u00a3${totalVal[i] === "???" ? "???" : totalVal[i].toLocaleString("en-US")}</div></h2>`;
+		this.updateTradeUI(tradeTabs, totalVal);
+	}
+	handleTradeItemList(itemList) {
+		itemList.children[0].innerHTML += "<th>Value</th>";
+
+		let value = 0;
+		const items = itemList.querySelectorAll("tr.align-middle");
+		for (const item of items) {
+			const itemName = item.children[0].textContent;
+			const val = this.getValue(itemName);
+			const itemCount = parseInt(item.children[1].textContent.replaceAll(',', ""));
+			item.innerHTML += `<td class="text-muted">\u00a3${val === null ? "???" : (val * itemCount).toLocaleString("en-US")}</td>`;
+			if (val === null) {
+				value = "???";
+				break;
 			}
-		else {
-			const totalValSum = totalVal[0] + totalVal[1];
-			for (var i = 0; i !== 2; ++i) {
-				const nameHeader = tradeTabs[i + 1].parentNode.querySelector("h2");
+			value += val * itemCount;
+		}
+		return value;
+	}
+	updateTradeUI(tradeTabs, totalVal) {
+		for (let i = 0; i !== 2; ++i) {
+			const nameHeader = tradeTabs[i + 1].parentNode.querySelector("h2");
+			const templateStart = `<h2 class="row"><div class="col">${nameHeader.textContent}</div><div class="col text-end`
+			let styles;
+			const templateEnd = `\u00a3${totalVal[i] === "???" ? "???" : totalVal[i].toLocaleString("en-US")}</div></h2>`;
+
+			if (totalVal[0] === "???" || totalVal[1] === "???") {
+				styles = ` text-muted">`;
+			} else {
+				const totalValSum = totalVal[0] + totalVal[1];
 				const colorVal = totalValSum === 0 ? 0.5 : totalVal[1 - i] / totalValSum;
-				nameHeader.outerHTML = `<h2 class="row"><div class="col">${nameHeader.innerText}</div><div class="col text-end" style="color: hsl(${colorVal * 120}, 67%, ${this.brightness}%)">\u00a3${totalVal[i].toLocaleString("en-US")}</div></h2>`;
+				styles = `" style="color: hsl(${colorVal * 120}, 67%, ${this.brightness}%)">`;
 			}
+			nameHeader.outerHTML = `${templateStart}${styles}${templateEnd}`;
 		}
 	}
 	inAddItems(url) {
 		let itemList = document.querySelector("div.container.inventoryWrapper");
 		if (itemList === null) return;
 
-		let buttonNode = itemList.parentNode.querySelector("div.contentColumn input.btn");
+		const buttonNode = itemList.parentNode.querySelector("div.contentColumn input.btn");
 		const buttonHTML = buttonNode.outerHTML;
-		let totalContainer = document.createElement("div");
+
+		const totalContainer = document.createElement("div");
 		totalContainer.classList.add("card-body", "mb-4");
 		totalContainer.innerHTML = `<p class="card-text">Total item value: <span id="totalValue" class="fw-bold">\u00a30</span>.${buttonHTML}</p>`;
 		buttonNode.remove();
 		itemList.parentNode.appendChild(totalContainer);
-		let totalText = itemList.parentNode.querySelector("span#totalValue");
-		let totalVals = {};
 
-		itemList = itemList.children;
-		for (var i = 1; i !== itemList.length; ++i) {
-			let item = itemList[i];
+		const totalText = itemList.parentNode.querySelector("span#totalValue");
+		const totalVals = {};
+
+		const items = itemList.querySelectorAll('div.inventoryItemWrapper');
+		for (const item of items) {
 			if (item.children.length < 2) continue;
 
-			const itemName = item.children[1].innerText.split(' ').slice(0, -1).join(' ');
+			const itemName = item.children[1].textContent.split(' ').slice(0, -1).join(' ');
 			const currentBest = this.getValue(itemName);
 
-			let value = document.createElement("span");
+			const value = document.createElement("span");
 			value.classList.add("itemValue", "text-muted", "float-end");
 			value.innerText = `(\u00a3${currentBest === null ? "???" : currentBest.toLocaleString("en-US")})`;
 			item.children[1].appendChild(value);
 
-			let input = item.querySelector("input.form-control");
+			const input = item.querySelector("input.form-control");
 			input.addEventListener("input", e => {
-				let value = e.target.parentNode.parentNode.querySelector("span.itemValue");
+				const value = e.target.parentNode.parentNode.querySelector("span.itemValue");
 				const currentBest = this.getValue(itemName);
 				const inputVal = e.target.value;
 				let totalValue = 0;
-				if (inputVal === "" || inputVal.trim()[0] === '-' || parseInt(inputVal) === 0) {
-					value.classList.remove("fw-bold");
-					value.classList.add("text-muted");
-					value.style.color = null;
-					value.innerText = `(\u00a3${currentBest === null ? "???" : currentBest.toLocaleString("en-US")})`;
-					if (currentBest === null) return;
 
-					totalVals[currentBest] = 0;
-					for (var val in totalVals)
-						totalValue += val * totalVals[val];
+				if (inputVal === "" || inputVal.trim()[0] === '-' || parseInt(inputVal) === 0) {
+					this.resetInputDisplay(value, currentBest, totalVals);
 				} else {
 					const count = parseInt(inputVal);
-					value.classList.remove("text-muted");
-					value.classList.add("fw-bold");
-					value.style.color = this.bestColor;
-					value.innerText = `(\u00a3${currentBest === null ? "???" : (currentBest * count).toLocaleString("en-US")})`;
-					if (!currentBest) return;
-
-					totalVals[currentBest] = count;
-					for (var val in totalVals)
-						totalValue += val * totalVals[val];
+					this.updateInputDisplay(value, currentBest, totalVals, count);
 				}
+				for (const val in totalVals)
+						totalValue += val * totalVals[val];
 				totalText.innerText = `\u00a3${totalValue.toLocaleString("en-US")}`;
 			});
 		}
 	}
+	resetInputDisplay(valueElem, currentBest, totalVals) {
+		valueElem.classList.remove("fw-bold");
+		valueElem.classList.add("text-muted");
+		valueElem.style.color = null;
+		valueElem.innerText = `(\u00a3${currentBest === null ? "???" : currentBest.toLocaleString("en-US")})`;
+		if (currentBest === null) return;
+
+		totalVals[currentBest] = 0;
+	}
+	updateInputDisplay(valueElem, currentBest, totalVals, count) {
+		valueElem.classList.remove("text-muted");
+		valueElem.classList.add("fw-bold");
+		valueElem.style.color = this.bestColor;
+		valueElem.innerText = `(\u00a3${currentBest === null ? "???" : (currentBest * count).toLocaleString("en-US")})`;
+		if (!currentBest) return;
+
+		totalVals[currentBest] = count;
+	}
 	inCartelArmory(url) {
-		const container = document.querySelector("div.contentColumn > div.col-12");
-
-
+		const container = document.querySelector("#mainBackground > div.container > div.row > div.col-12");
 		if (!container) {
 			console.error("Container not found");
 			return; // Exit the function early if the container doesn't exist
 		}
+
 		const cards = container.querySelectorAll("div.card.mb-4");
-		const itemList = container.querySelector("div.container.inventoryWrapper").children;
+		const itemList = container.querySelectorAll("div.container.inventoryWrapper > div.inventoryItemWrapper");
 		let totalVal = 0;
 		let haveAll = true;
 
-		for (var i = 2; i !== itemList.length; ++i) {
-			let item = itemList[i];
-			if (item.children.length < 2)
-				continue;
+		for (const item of itemList) {
+			if (item.children.length < 2) continue;
+
 			const itemText = item.children[1];
-			const itemName = itemText.innerText.split(' ').slice(0, -1).join(' ');
-			const countOf = parseInt(itemText.children[0].innerText.slice(2));
+			const itemName = itemText.textContent.split(' ').slice(0, -1).join(' ');
+			const countOf = parseInt(itemText.querySelector('span.itemQuantity').textContent);
 			const currentBest = this.getValue(itemName);
 
-			let value = document.createElement("span");
+			const value = document.createElement("span");
 			value.classList.add("itemValue", "text-muted", "float-end");
 			value.innerText = `(\u00a3${currentBest === null ? "???" : (currentBest * countOf).toLocaleString("en-US")})`;
 			itemText.appendChild(value);
@@ -563,15 +631,9 @@ class BetterItemValues {
 			if (currentBest === null) haveAll = false;
 			else totalVal += currentBest * countOf;
 
-			if (this.alwaysColorNames.includes(itemName))
-				item.children[1].style.color = this.bestColor;
-			else if (itemName in this.poundPerEnergy) {
-				if (this.poundPerEnergy[itemName] === this.minPpe)
-					item.children[1].style.color = this.bestColor;
-			} else if (itemName in this.poundPerHospitalTime)
-				if (this.poundPerHospitalTime[itemName] === this.minPpht)
-					item.children[1].style.color = this.bestColor;
+			this.colorArmoryItems(item, itemName);
 		}
+		
 		const pointVal = this.getValue(this.pointName);
 		if (pointVal !== null) {
 			const pointsText = cards[cards.length - 2].querySelector("div.header-section > h2");
@@ -585,71 +647,52 @@ class BetterItemValues {
 		totalValCard.innerHTML = `<div class="row mb-0"><div class="col-12"><div class="header-section"><h2>Total Armory Value</h2></div></div></div><div class="card-body"><p class="card-text">The value of this armory is ${haveAll ? "" : "at least "}<span class="fw-bold">\u00a3${totalVal.toLocaleString("en-US")}</span>.</p></div>`;
 		container.insertBefore(totalValCard, cards[cards.length - 2]);
 	}
+	colorArmoryItems(item, itemName) {
+		if (this.alwaysColorNames.includes(itemName)) {
+			item.children[1].style.color = this.bestColor;
+			return;
+		}
+		if (itemName in this.poundPerEnergy) {
+			if (this.poundPerEnergy[itemName] === this.minPpe)
+				item.children[1].style.color = this.bestColor;
+			return;
+		}
+		if (itemName in this.poundPerHospitalTime)
+			if (this.poundPerHospitalTime[itemName] === this.minPpht)
+				item.children[1].style.color = this.bestColor;
+	}
 	inEvents(url) {
 		const urlParams = new URLSearchParams(window.location.search);
 		const category = urlParams.get("filter");
 		if (!["All", "Production", "Jobs", "Casino", "Item Sending", "Expedition", "", null].includes(category))
 			return;
 
-		const eventList = document.querySelector("div.container.eventWrapper").children;
+		const eventList = document.querySelectorAll("div.container.eventWrapper > div.eventItemWrapper");
 
 		let profit = [];
 		let maxProfit = 0;
 		let minProfit = Infinity;
 
-		for (var i = 2; i !== eventList.length; ++i) {
-			const ev = eventList[i];
-			const eventType = ev.children[0].innerText;
-			const eventSplit = ev.children[1].innerText.split(' ');
+		for (const ev of eventList) {
+			const eventType = ev.children[0].textContent;
+			const eventDescription = ev.children[1].textContent;
+			const eventSplit = eventDescription.split(' ');
 
 			if (eventType === "Casino") {
-				const finalWord = eventSplit[eventSplit.length - 1];
-				let spinProfit = "---";
-				let haveAll = true;
-				if (finalWord === "nothing.")
-					spinProfit = 0;
-				else if (finalWord.endsWith("000."))
-					spinProfit = parseInt(finalWord.slice(1, -1).replaceAll(',', ""));
-				else if (finalWord === "Points.") {
-					const countOf = parseInt(eventSplit[eventSplit.length - 2]);
-					const pointVal = this.getValue(this.pointName);
-					if (pointVal === null)
-						haveAll = false;
+				const spinProfit = this.handleCasinoEvents(ev);
 
-					else
-						spinProfit = countOf * pointVal;
-				} else if (finalWord === "Pack.") {
-					const pointVal = this.getValue("Supporter Pack");
-					if (pointVal === null)
-						haveAll = false;
-
-					else
-						spinProfit = pointVal;
-				} else if (finalWord === "Favour.") {
-					const pointVal = this.getValue("Personal Favour");
-					if (pointVal === null)
-						haveAll = false;
-
-					else
-						spinProfit = pointVal;
-				}
-				profit.push(haveAll ? spinProfit : "???");
-				if (haveAll && spinProfit !== "---") {
+				if (spinProfit !== null) {
+					profit.push(spinProfit);
 					maxProfit = Math.max(maxProfit, spinProfit);
 					minProfit = Math.min(minProfit, spinProfit);
+				} else {
+					profit.push('???');
 				}
 				continue;
 			} else if (eventType === "Item Sending") {
-				let itemsVal = "???";
-				let j = eventSplit.length - 1;
-				let accumulate = eventSplit[j].replace(/('s)?\.$/, "");
-				while (!/\d$/.test(eventSplit[--j]))
-					accumulate = `${eventSplit[j]} ${accumulate}`;
-				const val = this.getValue(accumulate);
-				const countOf = parseInt(eventSplit[j].slice(1).replaceAll(',', ""));
-				if (val !== null)
-					itemsVal = countOf * val;
-				profit.push(itemsVal);
+				const itemSendingProfit = this.handleItemSendingEvents(eventDescription);
+
+				profit.push(itemSendingProfit || '???');
 				continue;
 			}
 
@@ -660,35 +703,99 @@ class BetterItemValues {
 			let haveAll = true;
 			let totalVal = 0;
 			let countOf = 0;
-			for (var j = 0; j < eventSplit.length; ++j) {
-				const word = eventSplit[j];
-				if (word.startsWith('\u00a3'))
-					totalVal += parseInt(word.slice(1).replaceAll(',', ""));
-				else if (eventType === "Expedition" ? word.endsWith('x') : word.startsWith('x')) {
-					countOf = parseInt((eventType === "Expedition" ? word.slice(0, -1) : word.slice(1)).replaceAll(',', ""));
-					let accumulate = eventSplit[++j];
-					while (++j < eventSplit.length && !accumulate.endsWith(',') && !accumulate.endsWith('.') && !accumulate.endsWith(" and"))
-						accumulate += ` ${eventSplit[j]}`;
-					--j;
-					if (accumulate.endsWith(',') || accumulate.endsWith('.'))
-						accumulate = accumulate.slice(0, -1);
-					else if (accumulate.endsWith(" and"))
-						accumulate = accumulate.slice(0, -4);
-					const val = this.getValue(accumulate);
-					if (val === null) {
-						haveAll = false;
-						break;
-					}
-					totalVal += countOf * val;
-				}
-			}
+
+			totalVal += this.getMoneyFromEvent(eventDescription) || 0;
+			const itemVal = this.getItemValFromEvent(eventDescription);
+
+			if (itemVal !== null) {
+				totalVal += itemVal;
+			} else haveAll = false;
+
 			profit.push(haveAll ? totalVal : "???");
 			if (haveAll) {
 				maxProfit = Math.max(maxProfit, totalVal);
 				minProfit = Math.min(minProfit, totalVal);
 			}
 		}
-		for (var i = 1; i !== eventList.length; ++i) {
+
+		const header = eventList[0].previousSibling;
+		this.adjustEventHeader(header);
+
+
+		this.updateEventUI(eventList, profit, minProfit, maxProfit, category);
+	}
+	handleCasinoEvents(evt) {
+		const evtDesc = evt.children[1].textContent;
+
+		const rewardRegex = new RegExp('(?:won )(?<reward>.*)(?:\.$)', 'g');
+		const reward = rewardRegex.exec(evtDesc).groups?.reward || '';
+
+		const spinProfit = this.spinnerValues.get(reward) || null;
+
+		return spinProfit;
+	}
+	handleItemSendingEvents(eventDescription) {
+		// NAME sent you x<amount> <item>('s. Message - ...)
+		// Only handles received items
+		const itemRegex = new RegExp(/^\w+ sent you x(?<amount>\d+) (?<item>[^'.]+)/, 'g');
+		const regexResult = itemRegex.exec(eventDescription);
+		const itemName = regexResult?.groups?.item;
+		const countOf = regexResult?.groups?.amount || 0;
+
+		return itemName ? this.getValue(itemName) * parseInt(countOf): null;
+	}
+	getMoneyFromEvent(eventDescription) {
+		const moneyRegex = new RegExp(/\u00a3\d+(,\d+)*/, 'g');
+		const moneyRegexResult = moneyRegex.exec(eventDescription);
+
+		if (!moneyRegexResult?.[0]) return null
+		return parseInt(moneyRegexResult?.[0].slice(1).replaceAll(',', ""));
+	}
+	getItemValFromEvent(eventDescription) {
+		const items = this.getItemsFromEvent(eventDescription);
+		let totalValue = 0;
+		for (const [item, amount] of items) {
+			const itemValue = this.getValue(item);
+			if (itemValue === null) return itemValue;
+
+			totalValue += amount * itemValue;
+		}
+		return totalValue;
+	}
+	getItemsFromEvent(eventDescription) {
+		const allItems = Object.keys(this.defaultVals);
+		const foundItems = [];
+
+		const amountRegex = new RegExp(/(?<amount>\d+)x? $/, 'g');
+
+		for (const item of allItems) {
+			const itemPosition = eventDescription.indexOf(item);
+			if (itemPosition === -1) continue;
+
+			const searchSpace = eventDescription.slice(0, itemPosition);
+			
+			const amtRegexRes = amountRegex.exec(searchSpace);
+			const amountCandidate = amtRegexRes?.groups?.amount;
+			if (amountCandidate === undefined) continue;
+
+			foundItems.push([item, parseInt(amountCandidate)]);
+		}
+		return foundItems;
+	}
+	adjustEventHeader(header) {
+		// Adjust width of log to fit the new column
+		header.children[0].classList = "col-2 col-lg-2 col-md-3 col-sm-2";
+		header.children[1].classList = "col-5 col-lg-6 col-md-6 col-sm-7";
+		header.children[2].classList = "col-3 col-lg-2 d-none d-lg-inline";
+
+		// Add new header element for value
+		let valueHeader = document.createElement("div");
+		valueHeader.classList = "col-2 col-lg-2 d-none d-lg-inline";
+		valueHeader.textContent = 'Value'
+		header.insertBefore(valueHeader, header.children[2]);
+	}
+	updateEventUI(eventList, profit, minProfit, maxProfit, category) {
+		for (let i = 0; i < eventList.length; i++) {
 			const ev = eventList[i];
 			ev.children[0].classList.value = "col-2 col-lg-2 col-md-3 col-sm-2"; //"col-2 col-lg-2 col-md-2 col-sm-2";
 			ev.children[1].classList.value = "col-5 col-lg-6 col-md-6 col-sm-7"; //"col-6 col-lg-7 col-md-6 col-sm-7";
@@ -698,20 +805,14 @@ class BetterItemValues {
 			valueCol.classList.value = "col-2 col-lg-2 d-none d-lg-inline"; //"col-1 col-lg-1 col-md-1 col-sm-1";
 			mergedCol.classList.value = "col-3 col-md-3 col-sm-3 d-lg-none"; // new
 
-			if (i === 1) {
-				valueCol.innerText = "Value";
-				mergedCol.innerText = "Date/Value";
-				ev.insertBefore(valueCol, ev.children[2]);
-				ev.appendChild(mergedCol);
-				continue;
-			}
-			const prof = profit[i - 2];
+			const prof = profit[i];
 			if (prof === "---") {
 				mergedCol.innerHTML = ev.children[2].innerHTML;
 				ev.insertBefore(valueCol, ev.children[2]);
 				ev.appendChild(mergedCol);
 				continue;
-			} else if (prof === "???")
+			}
+			if (prof === "???")
 				valueCol.innerHTML = `<span class="text-muted">\u00a3???</span>`;
 			else if (["Production", "Jobs", "Casino", "Expedition"].includes(category)) {
 				const colorVal = (prof - minProfit) / (maxProfit - minProfit);
@@ -736,8 +837,8 @@ class BetterItemValues {
 		console.debug("Found", containers.length, "production containers.");
 
 		const cokeVal = this.getValue("Cocaine");
-		let assigned = [];
-		let profit = [];
+		const assigned = [];
+		const profit = [];
 		let maxProfit = -Infinity;
 		let minProfit = Infinity;
 		for (let i = 0; i !== containers.length; ++i) {
@@ -748,8 +849,8 @@ class BetterItemValues {
 		}
 
 		for (let i = 0; i !== containers.length; ++i) {
-			let container = containers[i];
-			let expectedProfit = document.createElement("p");
+			const container = containers[i];
+			const expectedProfit = document.createElement("p");
 			expectedProfit.classList.add("card-text", "text-center");
 			if (profit[i] !== null) {
 				const colorVal = (profit[i] - minProfit) / (maxProfit - minProfit);
@@ -767,7 +868,7 @@ class BetterItemValues {
 
 		// Calculate Expected Daily Profit
 		const prodHeader = document.querySelector("#mainBackground > div > div > div.col-12 > div.productionsContainer.rounded > div.row.mb-0");
-		let dailyProfit = calcDailyProfit(profit, assigned, containers);
+		const dailyProfit = calcDailyProfit(profit, assigned, containers);
 
 		const flexContainer = constructProdHeader.call(this, dailyProfit, cokeVal);
 
@@ -775,28 +876,28 @@ class BetterItemValues {
 		prodHeader.parentNode.insertBefore(flexContainer, prodHeader);
 
 		for (let i = 2; i < containers.length; i++) { // Start from index 2 to skip the first two
-			let container = containers[i];
+			const container = containers[i];
 
 			// Get the "Narcos Assigned" input field
-			let narcoInput = container.querySelector("input.assignNarcoInput");
+			const narcoInput = container.querySelector("input.assignNarcoInput");
 			if (!narcoInput) {
 				console.warn(`No narco input found for container ${i}`);
 				continue;
 			}
 
 			// Get production ID if needed
-			let productionIdElement = container.querySelector(".productionId");
-			let productionId = productionIdElement ? productionIdElement.innerText.trim() : "Unknown";
+			const productionIdElement = container.querySelector(".productionId");
+			const productionId = productionIdElement ? productionIdElement.innerText.trim() : "Unknown";
 
 			// Get supply items
-			let requiredElement = container.querySelector("p.card-text.text-center.mb-0");
-			let ownedElement = container.querySelector("p.card-text.text-center.fst-italic");
+			const requiredElement = container.querySelector("p.card-text.text-center.mb-0");
+			const ownedElement = container.querySelector("p.card-text.text-center.fst-italic");
 
-			let requiredText = requiredElement ? requiredElement.innerText.replace(/\D/g, "") : "N/A"; // Extract numbers only
-			let ownedText = ownedElement ? ownedElement.innerText.replace(/\D/g, "") : "N/A"; // Extract numbers only
+			const requiredText = requiredElement ? requiredElement.innerText.replace(/\D/g, "") : "N/A"; // Extract numbers only
+			const ownedText = ownedElement ? ownedElement.innerText.replace(/\D/g, "") : "N/A"; // Extract numbers only
 
-			let required = parseInt(requiredText);
-			let owned = parseInt(ownedText);
+			const required = parseInt(requiredText);
+			const owned = parseInt(ownedText);
 
 			// Log extracted values
 			console.info(`Production ID: ${productionId}`);
@@ -805,13 +906,13 @@ class BetterItemValues {
 			console.info(`Assigned Narcos: ${narcoInput.value}`);
 
 			// Calculate days left
-			let daysLeftElement = document.createElement("p");
+			const daysLeftElement = document.createElement("p");
 			daysLeftElement.classList.add("card-text", "text-center");
 
 			if (!isNaN(required) && !isNaN(owned) && required > 0) {
-				let daysLeft = Math.floor(owned / required);
+				const daysLeft = Math.floor(owned / required);
 
-				let colorClass = "text-success";
+				const colorClass = "text-success";
 				if (daysLeft <= 3) colorClass = "text-danger";
 				else if (daysLeft <= 10) colorClass = "text-warning";
 
@@ -849,7 +950,7 @@ class BetterItemValues {
 		}
 
 		function calcProfit(id, container) {
-			let narcoInput = container.querySelector("input.assignNarcoInput");
+			const narcoInput = container.querySelector("input.assignNarcoInput");
 			assigned[id] = parseInt(narcoInput.value.replaceAll(',', ""));
 			if (assigned[id] === 0) return 0;
 
@@ -862,6 +963,7 @@ class BetterItemValues {
 			let profit = this.prodMoney[id] * profitBoost;
 			const itemProfit = calcItemProfits.call(this, id) * profitBoost;
 			if (itemProfit === null) return null;
+
 			profit += itemProfit;
 
 			let prodCount = getProdCount(container);
@@ -873,6 +975,7 @@ class BetterItemValues {
 
 			const supplyCost = calcSupplyCost.call(this, id, prodCount, container) * efficiency;
 			if (supplyCost === null) return null;
+
 			profit -= supplyCost;
 
 			profit *= this.prodProfitFactor;
@@ -890,7 +993,6 @@ class BetterItemValues {
 		function calcProfitScalar(id, prodCount) {
 			if (id === 4)
 				return this.prodCokeScaling[prodCount - 1]; // Coke has custom scaling
-
 			else
 				return Math.pow(1 - this.prodDepreciation / 100, prodCount - 1); // Maybe should instead be *= (1 - prodCount * this.prodDepreciation / 100)
 		}
@@ -921,17 +1023,19 @@ class BetterItemValues {
 
 		function assignedNarcosChange(e) {
 			assigned[parseInt(e.target.id.slice(8))] = parseInt(e.target.value.replaceAll(',', ""));
-			let dailyProfitText = document.querySelector("span#dailyProfit");
-			let dailyProfitCokeText = document.querySelector("span#dailyProfitMinusCoke");
-			let dailyProfit = calcDailyProfit(profit, assigned, containers);
+			const dailyProfitText = document.querySelector("span#dailyProfit");
+			const dailyProfitCokeText = document.querySelector("span#dailyProfitMinusCoke");
+			const dailyProfit = calcDailyProfit(profit, assigned, containers);
 
 			dailyProfitText.innerText = `\u00a3${dailyProfit === null ? "???" : Math.round(dailyProfit).toLocaleString("en-US")}`;
 			if (dailyProfit === null) return;
+
 			adjustColors(dailyProfitText, dailyProfit);
 
 			const dailyProfitCoke = dailyProfit - this.maxCokeDaily * cokeVal;
 			dailyProfitCokeText.innerText = `\u00a3${cokeVal === null ? "???" : Math.round(dailyProfitCoke).toLocaleString("en-US")}`;
 			if (cokeVal === null) return;
+
 			adjustColors(dailyProfitCokeText, dailyProfitCoke);
 		}
 
@@ -954,26 +1058,26 @@ class BetterItemValues {
 
 		function constructProdHeader(dailyProfit, cokeVal) {
 			// Create Expected Daily Profit card
-			let expectedProfit = document.createElement("div");
+			const expectedProfit = document.createElement("div");
 			expectedProfit.classList.add("mb-4", "card");
 			expectedProfit.innerHTML = `<div class="header-section"><h2>Expected Daily Profit</h2></div><div class="card-body"><p class="card-text text-center">Each day your narcos will produce roughly <span id="dailyProfit" class="fw-bold ${dailyProfit === null ? "text-muted" : dailyProfit > 0 ? "text-success" : dailyProfit < 0 ? "text-danger" : "text-warning"}">\u00a3${dailyProfit === null ? "???" : Math.round(dailyProfit).toLocaleString("en-US")}</span> in profit.<br>If you take ${this.maxCokeDaily} cocaine daily, your net profit is <span id="dailyProfitMinusCoke" class="fw-bold ${cokeVal === null || dailyProfit === null ? "text-muted" : dailyProfit - this.maxCokeDaily * cokeVal > 0 ? "text-success" : dailyProfit - this.maxCokeDaily * cokeVal < 0 ? "text-danger" : "text-warning"}">\u00a3${cokeVal === null || dailyProfit === null ? "???" : Math.round(dailyProfit - this.maxCokeDaily * cokeVal).toLocaleString("en-US")}</span> per day.</p></div>`;
 
 			// Create Buy Production card
-			let linkCard = document.createElement("div");
+			const linkCard = document.createElement("div");
 			linkCard.classList.add("mb-4", "card");
 			linkCard.innerHTML = `<div class="header-section"><h2>Buy Production</h2></div><div class="card-body"><p class="card-text">Go to the <a class="text-white" href="/market?p=Production">Item Market</a> to buy production.</p><p></p></div>`;
 
 			// Create a flex container to hold both cards
-			let flexContainer = document.createElement("div");
+			const flexContainer = document.createElement("div");
 			flexContainer.classList.add("d-flex", "align-items-stretch", "mb-4");
 			flexContainer.style.justifyContent = "space-between";
 
 			// Wrap each card with a flex item that can grow
-			let leftFlexItem = document.createElement("div");
+			const leftFlexItem = document.createElement("div");
 			leftFlexItem.classList.add("flex-grow-1", "me-2");
 			leftFlexItem.appendChild(linkCard);
 
-			let rightFlexItem = document.createElement("div");
+			const rightFlexItem = document.createElement("div");
 			rightFlexItem.classList.add("flex-grow-1", "ms-2");
 			rightFlexItem.appendChild(expectedProfit);
 
@@ -995,38 +1099,14 @@ class BetterItemValues {
 		this.jobValue = [];
 		this.maxJobValue = 0;
 		this.minJobValue = Infinity;
-		for (var i = 0; i !== this.jobMoney.length; ++i) {
+		for (let i = 0; i !== this.jobMoney.length; ++i) {
 			const jobPanel = jobPanels[i];
-			const jobTime = jobPanel.querySelector("p.card-text.fw-bold.text-muted");
-			const jobTimeSplit = jobTime.innerText.split(' ');
-			this.jobTimes[i] = parseFloat(jobTimeSplit[0].slice(1));
-			if (jobTimeSplit[1].startsWith("hour")) {
-				this.jobTimes[i] *= 60;
-				if (jobTimeSplit.length > 2)
-					this.jobTimes[i] += parseFloat(jobTimeSplit[2]);
-			}
+			this.setJobTime(jobPanel);
 
 			this.jobValue[i] = this.jobMoney[i];
-			for (var item in this.jobItems[i]) {
-				const price = this.getValue(item);
-				if (price !== null)
-					this.jobValue[i] += price * this.jobItems[i][item];
-				else {
-					this.jobValue[i] = "???";
-					break;
-				}
-			}
-			if (this.jobValue[i] !== "???") {
-				const prestigeText = jobPanel.querySelector("p.prestigeText");
-				const incrReward = prestigeText !== null && /\+\d+%/.test(prestigeText.innerText) ? parseInt(prestigeText.innerText.match(/\+\d+%/)[0].slice(1, -1)) : 0;
-				this.jobValue[i] *= 1 + incrReward / 100;
-				this.jobRep[i] *= 1 + incrReward / 100;
+			this.setJobBaseItemReward();
 
-				this.jobValue[i] *= this.jobProfitFactor;
-				this.jobValue[i] /= this.jobTimes[i];
-				this.maxJobValue = Math.max(this.maxJobValue, this.jobValue[i]);
-				this.minJobValue = Math.min(this.minJobValue, this.jobValue[i]);
-			}
+			if (this.jobValue[i] !== "???") this.setJobPrestigeReward(jobPanel);
 
 			const standardJobRepBonus = GM_getValue('perk_Standard Job Rep');
 			// Apply only to standard jobs
@@ -1035,9 +1115,11 @@ class BetterItemValues {
 			this.maxJobRep = Math.max(this.maxJobRep, this.jobRep[i] / this.jobTimes[i]);
 			this.minJobRep = Math.min(this.minJobRep, this.jobRep[i] / this.jobTimes[i]);
 		}
-
-		for (var i = 0; i !== this.jobValue.length; ++i) {
-			let jobPanel = jobPanels[i];
+		this.updateJobUI(jobPanels);
+	}
+	updateJobUI(jobPanels) {
+		for (let i = 0; i !== this.jobValue.length; ++i) {
+			const jobPanel = jobPanels[i];
 			let append = `<hr class="mt-4 w-75"><p class="text-center">`;
 			const gain = this.jobValue[i];
 			const repPerTime = this.jobRep[i] / this.jobTimes[i];
@@ -1049,75 +1131,105 @@ class BetterItemValues {
 			jobPanel.innerHTML += append;
 		}
 	}
+	setJobTime(jobPanel) {
+		const jobTime = jobPanel.querySelector("p.card-text.fw-bold.text-muted");
+		const jobTimeSplit = jobTime.textContent.split(' ');
+		this.jobTimes[i] = parseFloat(jobTimeSplit[0].slice(1));
+		if (jobTimeSplit[1].startsWith("hour")) {
+			this.jobTimes[i] *= 60;
+			if (jobTimeSplit.length > 2)
+				this.jobTimes[i] += parseFloat(jobTimeSplit[2]);
+		}
+	}
+	setJobBaseItemReward() {
+		for (const item in this.jobItems[i]) {
+			const price = this.getValue(item);
+			if (price !== null)
+				this.jobValue[i] += price * this.jobItems[i][item];
+			else {
+				this.jobValue[i] = "???";
+				break;
+			}
+		}
+	}
+	setJobPrestigeReward(jobPanel) {
+		const prestigeText = jobPanel.querySelector("p.prestigeText");
+		const incrReward = prestigeText !== null && /\+\d+%/.test(prestigeText.innerText) ? parseInt(prestigeText.innerText.match(/\+\d+%/)[0].slice(1, -1)) : 0;
+		this.jobValue[i] *= 1 + incrReward / 100;
+		this.jobRep[i] *= 1 + incrReward / 100;
+
+		this.jobValue[i] *= this.jobProfitFactor;
+		this.jobValue[i] /= this.jobTimes[i];
+		this.maxJobValue = Math.max(this.maxJobValue, this.jobValue[i]);
+		this.minJobValue = Math.min(this.minJobValue, this.jobValue[i]);
+	}
 	inInventory(url) {
 		const itemList = document.querySelector("div.container.inventoryWrapper.pt-2");
 		const header = itemList.querySelector("div.row.row-cols-3.row-header");
+		const items = itemList.querySelectorAll('div.inventoryItemWrapper');
 		let totalVal = 0;
 		let haveAll = true;
 
-		for (var i = 2; i < itemList.children.length; ++i) {
-			const item = itemList.children[i];
+		for (const item of items) {
 			if (item.children.length < 7) continue;
-			const nameSplit = item.children[1].innerText.split(' ');
-			const itemName = nameSplit.slice(0, -1).join(' ');
+			
+			const nameElem =  item.querySelector('div.inventoryItemWrapper > div:nth-of-type(2)');
+			const itemName = nameElem.children[0].childNodes[0].textContent.slice(0, -1);
 
 			if (this.alwaysColorNames.includes(itemName))
 				item.children[1].style.color = this.bestColor;
 
-			const countOf = parseInt(nameSplit[nameSplit.length - 1].slice(1).replaceAll(',', ""));
+			const countElem = nameElem.querySelector('span.itemQuantity');
+			const countOf = parseInt(countElem.textContent);
 			const currentBest = this.getValue(itemName);
-			if (currentBest !== null) {
-				let val = null;
-				let colorVal = null;
-				let append = null;
-				if (itemName in this.poundPerEnergy) {
-					val = this.poundPerEnergy[itemName];
-					colorVal = (1 - (val - this.minPpe) / (this.maxPpe - this.minPpe)) * 120;
-					append = 'E';
-					if (val === this.minPpe)
-						item.children[1].style.color = this.bestColor;
-				} else if (itemName in this.poundPerHospitalTime) {
-					val = this.poundPerHospitalTime[itemName];
-					colorVal = (1 - (val - this.minPpht) / (this.maxPpht - this.minPpht)) * 120;
-					append = "min";
-					if (val === this.minPpht)
-						item.children[1].style.color = this.bestColor;
-				}
-
-				const valueTexts = [item.children[3], item.children[6].querySelectorAll("div.card-text > div.card-text")[2]];
-				for (var valueText of valueTexts) {
-					valueText.innerHTML = this.strikethrough ? `<del>${valueText.innerText}</del><br><span class="fw-bold">` : "<span>";
-					valueText.innerHTML += `\u00a3${currentBest.toLocaleString("en-US")}</span>`;
-					if (val !== null)
-						valueText.innerHTML += ` <span style="color: hsl(${colorVal}, 67%, ${this.brightness}%)">(\u00a3${Math.round(val).toLocaleString("en-US")}/${append})</span>`;
-				}
-				totalVal += currentBest * countOf;
-			} else {
+			if (currentBest === null) {
 				totalVal += parseInt(item.children[3].innerText.slice(1).replaceAll(',', "")) * countOf;
 				haveAll = false;
+				continue;
 			}
+
+			let val = null;
+			let colorVal = null;
+			let append = null;
+			if (itemName in this.poundPerEnergy) {
+				val = this.poundPerEnergy[itemName];
+				colorVal = (1 - (val - this.minPpe) / (this.maxPpe - this.minPpe)) * 120;
+				append = 'E';
+				if (val === this.minPpe)
+					item.children[1].style.color = this.bestColor;
+			} else if (itemName in this.poundPerHospitalTime) {
+				val = this.poundPerHospitalTime[itemName];
+				colorVal = (1 - (val - this.minPpht) / (this.maxPpht - this.minPpht)) * 120;
+				append = "min";
+				if (val === this.minPpht)
+					item.children[1].style.color = this.bestColor;
+			}
+
+			const valueTexts = [item.children[3], item.children[6].querySelectorAll("div.card-text > div.card-text")[2]];
+			for (var valueText of valueTexts) {
+				valueText.innerHTML = this.strikethrough ? `<del>${valueText.innerText}</del><br><span class="fw-bold">` : "<span>";
+				valueText.innerHTML += `\u00a3${currentBest.toLocaleString("en-US")}</span>`;
+				if (val !== null)
+					valueText.innerHTML += ` <span style="color: hsl(${colorVal}, 67%, ${this.brightness}%)">(\u00a3${Math.round(val).toLocaleString("en-US")}/${append})</span>`;
+			}
+			totalVal += currentBest * countOf;
 		}
 
-		let totalValCard = document.createElement("div");
+		const totalValCard = document.createElement("div");
 		totalValCard.classList.add("card-body", "mb-2");
 		totalValCard.innerHTML = `<p class="card-text">The value of these items is ${haveAll ? "" : "roughly "}<span class="fw-bold">\u00a3${totalVal.toLocaleString("en-US")}</span>.</p>`;
 		itemList.insertBefore(totalValCard, header);
 	}
 	inGym(url) {
-		const item = document.getElementById(`item-${GM_getValue("itemID_Coke")}`);
-		if (item === null)
-			return;
-		const val = this.poundPerEnergy["Cocaine"];
-		const colorVal = (1 - (val - this.minPpe) / (this.maxPpe - this.minPpe)) * 120;
-		const valueTexts = [item.children[3], item.children[5].querySelectorAll("div.card-text > div.card-text")[2]];
-		for (var valueText of valueTexts)
-			if (valueText !== undefined && valueText !== null)
-				valueText.innerHTML = `<span>${valueText.innerText}</span> <span style="color: hsl(${colorVal}, 67%, ${this.brightness}%)">(\u00a3${Math.round(val).toLocaleString("en-US")}/E)</span>`;
+		this.updateCokeDisplay();
 	}
 	inUniversity(url) {
-		const item = document.getElementById(`item-${GM_getValue("itemID_Coke")}`);
-		if (item === null)
-			return;
+		this.updateCokeDisplay();
+	}
+	updateCokeDisplay() {
+		const item = document.getElementById(`item-${GM_getValue("itemID_Cocaine")}`);
+		if (item === null) return;
+
 		const val = this.poundPerEnergy["Cocaine"];
 		const colorVal = (1 - (val - this.minPpe) / (this.maxPpe - this.minPpe)) * 120;
 		const valueTexts = [item.children[3], item.children[5].querySelectorAll("div.card-text > div.card-text")[2]];
