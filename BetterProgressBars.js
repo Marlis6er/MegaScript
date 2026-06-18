@@ -27,41 +27,40 @@ class BetterProgressBars {
 
 	inJobs(url) {
 		const bars = document.querySelectorAll("div.equipmentModule .progress-bar");
-		for (var bar of bars) {
+		for (const bar of bars) {
 			const val = parseFloat(bar.getAttribute("aria-valuenow"));
 			bar.classList.remove("bg-success");
 			bar.classList.add("progress-bar-striped");
 			bar.style.backgroundColor = `hsl(${val / 100 * 120}, 67%, 30%)`;
 		}
 		const buttons = document.querySelectorAll("div.equipmentModule form > .btn.w-100:not(#upgradeTimeButton):not(#upgradeRewardButton)");
-		if (buttons.length === 1) {
-			let bar = buttons[0].parentNode.parentNode.querySelector(".progress-bar");
-			bar.classList.add("progress-bar-animated");
-		}
+		if (buttons.length !== 1) return;
+
+		const bar = buttons[0].parentNode.parentNode.querySelector(".progress-bar");
+		bar.classList.add("progress-bar-animated");
 	}
 
 	inBarPage(url) {
 		const bars = document.querySelectorAll(".progress-bar.bg-dark");
-		for (var bar of bars) {
+		for (const bar of bars) {
 			bar.classList.remove("bg-dark");
 			bar.classList.add("fs-6");
 		}
 	}
 
 	inAnywhere() {
-		const healthTimer = document.getElementById("lifeCountdown");
-		const energyTimer = document.getElementById("energyCountdown");
+		const healthTimer = document.getElementById("lifeProgressBar");
+		const energyTimer = document.getElementById("energyProgressBar");
 
-		let healthBar = document.getElementById("lifeProgress");
+		const healthBar = document.getElementById("lifeProgress");
 		healthBar.classList.add("progress-bar-striped");
-		let energyBar = document.getElementById("energyProgress");
+		const energyBar = document.getElementById("energyProgress");
 		energyBar.classList.add("progress-bar-striped");
 
 		observeDOM(healthTimer, e => {
 			const text = e[0].addedNodes[0];
 			if (text === "")
 				healthBar.classList.remove("progress-bar-animated");
-
 			else
 				healthBar.classList.add("progress-bar-animated");
 		});
