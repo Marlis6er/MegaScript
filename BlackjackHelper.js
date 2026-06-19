@@ -80,7 +80,6 @@ class BlackjackHelper {
 		this.setMoneyStat("Profit", setTo);
 		if (val > 0)
 			this.setMoneyStat("Gain", this.getMoneyStat("Gain") + val);
-
 		else
 			this.setMoneyStat("Loss", this.getMoneyStat("Loss") - val);
 
@@ -89,18 +88,20 @@ class BlackjackHelper {
 		if (setTo > 0) {
 			profitText.classList.remove("text-warning", "text-danger");
 			profitText.classList.add("text-success");
-		} else if (setTo < 0) {
+			return;
+		}
+		if (setTo < 0) {
 			profitText.classList.remove("text-warning", "text-success");
 			profitText.classList.add("text-danger");
-		} else {
-			profitText.classList.remove("text-success", "text-danger");
-			profitText.classList.add("text-warning");
+			return;
 		}
+		profitText.classList.remove("text-success", "text-danger");
+		profitText.classList.add("text-warning");
 	}
 	addStat(gameType) {
 		if (!this.statIndexes.includes(gameType)) return;
 
-		let curStats = this.getStats();
+		const curStats = this.getStats();
 		curStats[this.statIndexes.indexOf(gameType)] += 1;
 		this.setStats(curStats);
 	}
@@ -108,14 +109,14 @@ class BlackjackHelper {
 		GM_addStyle(".click-this { background-color: #0d6efd !important; border: var(--bs-btn-border-width) solid #0d6efd !important }");
 
 		const container = document.querySelector("#mainBackground > div > div > div.col-12");
-		let ellen = container.querySelector("div.card.mb-3");
-		if (ellen === null)
-			return;
+		const ellen = container.querySelector("div.card.mb-3");
+		if (ellen === null) return;
+
 		ellen.classList.remove("mb-3");
 		ellen.outerHTML = `<div class="row"><div class="col-xl-9 col-12 mb-4">${ellen.outerHTML}</div><div class="col-xl-3 col-12 mb-4"><div class="card h-100"><div class="row mb-0"><div class="col-12"><div class="header-section"><h2>Total Profit</h2></div></div></div><div class="card-body"><p class="card-text text-center">Total running profit: <span id="${this.id}" class="fw-bold text-warning">\u00a3???</span>.</p><p class="card-text text-center"><span class="fs-2 text-${this.houseOdds > 0 ? "danger" : this.houseOdds < 0 ? "success" : "warning"}">${this.houseOdds.toFixed(2)}%</span> house odds</p></div></div></div></div>`;
 		this.addProfit(0);
 
-		let statsLink = document.createElement("a");
+		const statsLink = document.createElement("a");
 		statsLink.href = this.statsLink;
 		statsLink.innerHTML = `<button class="btn btn-sm btn-dark">Stats</button>`;
 		const linkContainer = container.querySelector("div.gap-2.flex-wrap");
@@ -124,20 +125,20 @@ class BlackjackHelper {
 
 		const dealButton = container.querySelector("button#deal");
 		const betAmountInput = container.querySelector("input#betAmountInput");
-		let hitButton = container.querySelector("button#hit");
-		if (hitButton === null)
-			return;
-		let standButton = container.querySelector("button#stand");
-		let doubleButton = container.querySelector("button#double");
-		let splitButton = container.querySelector("button#split");
-		let surrenderButton = container.querySelector("button#surrender");
+		const hitButton = container.querySelector("button#hit");
+		if (hitButton === null) return;
+
+		const standButton = container.querySelector("button#stand");
+		const doubleButton = container.querySelector("button#double");
+		const splitButton = container.querySelector("button#split");
+		const surrenderButton = container.querySelector("button#surrender");
 		const result = container.querySelector("div#result");
 		const bjGame = container.querySelector("div#blackjackGame");
 		const dealerCards = bjGame.querySelector("div#dealerCards");
 		const playerCards = bjGame.querySelector("div#playerCards");
 
 		const removeHighlights = () => {
-			for (var button of [hitButton, standButton, doubleButton, splitButton, surrenderButton])
+			for (const button of [hitButton, standButton, doubleButton, splitButton, surrenderButton])
 				button.classList.remove("click-this");
 		};
 
@@ -147,54 +148,45 @@ class BlackjackHelper {
 			if (dealerCardText.length !== 1) return;
 
 			const dealerVal = this.cardVals.indexOf(dealerCardText) + 2;
-			let playerCardText = playerCards.innerText.replace(/\s+/g, '').replace(/10|J|Q/g, "K");
+			const playerCardText = playerCards.innerText.replace(/\s+/g, '').replace(/10|J|Q/g, "K");
 			if (playerCardText.length < 2) return;
 
 			let playerVal = 0;
-			for (var l of playerCardText)
+			for (const l of playerCardText)
 				playerVal += this.cardVals.indexOf(l) + 2;
 
-			let move = "";
-			if (playerCardText.length === 2) {
-				if (playerCardText[0] === playerCardText[1]) {
-					if (!splitButton.disabled)
-						move = this.splitTable[playerVal / 2 - 2][dealerVal - 2];
-				} else if (playerCardText[0] === 'A' || playerCardText[1] === 'A') {
-					if (playerVal === 21) {
-						if (!standButton.disabled) move = 'S';
-					}
-					else
-						move = this.softTable[playerVal - 11 - 2][dealerVal - 2];
-				}
-			}
-			if (move === "" && playerCardText.includes('A') && playerVal <= 21)
-				move = this.softTable[playerVal - 11 - 2][dealerVal - 2];
-			if (move === "") {
-				while (playerCardText.includes('A') && playerVal > 21) {
-					playerVal -= 10;
-					playerCardText.replace('A', 'a');
-				}
-				playerCardText.replaceAll('a', 'A');
-				move = this.normalTable[Math.min(11, Math.max(0, playerVal - 7))][dealerVal - 2];
-			}
+			const move = this.determineNextMove(playerCardText, playerVal, dealerVal, splitButton, standButton);
 
 			const hl = button => button.classList.add("click-this");
-			if (move === 'H')
-				hl(hitButton);
-			else if (move === 'J')
-				hl(playerCardText.length === 2 ? hitButton : standButton);
-			else if (move === 'S')
-				hl(standButton);
-			else if (move === 'D')
-				hl(doubleButton.disabled ? hitButton : doubleButton);
-			else if (move === 'E')
-				hl(doubleButton.disabled ? standButton : doubleButton);
-			else if (move === 'P')
-				hl(splitButton);
-			else if (move === 'R')
-				hl(surrenderButton.disabled ? hitButton : surrenderButton);
-			else if (move === 'Q')
-				hl(surrenderButton.disabled ? standButton : surrenderButton);
+
+			switch (move) {
+				case 'H':
+					hl(hitButton);
+					return;
+				case 'J':
+					hl(playerCardText.length === 2 ? hitButton : standButton);
+					return;
+				case 'S':
+					hl(standButton);
+					return;
+				case 'D':
+					hl(doubleButton.disabled ? hitButton : doubleButton);
+					return;
+				case 'E':
+					hl(doubleButton.disabled ? standButton : doubleButton);
+					return;
+				case 'P':
+					hl(splitButton);
+					return;
+				case 'R':
+					hl(surrenderButton.disabled ? hitButton : surrenderButton);
+					return;
+				case 'Q':
+					hl(surrenderButton.disabled ? standButton : surrenderButton);
+					return;
+				default:
+					console.warn('Invalid move');
+			}
 		});
 
 		let doubled = false;
@@ -219,31 +211,62 @@ class BlackjackHelper {
 			let betAmount = parseInt(betAmountInput.value.replaceAll(',', ""));
 			if (doubled) betAmount *= 2;
 
+			doubled = false;
+			this.addStat(val.split(' ')[0].replace('!', ""));
+
 			if (val.startsWith("Win") || val.startsWith("Blackjack")) {
 				e[0].target.classList.add("text-success");
 				e[0].target.classList.remove("text-warning", "text-danger");
 				const textSplit = val.split(' ');
 				const won = parseInt(textSplit[textSplit.length - 1].slice(1).replaceAll(',', ""));
 				this.addProfit(betAmount + won);
-			} else if (val === "Push") {
+				return;
+			}
+			if (val === "Push") {
 				e[0].target.classList.add("text-warning");
 				e[0].target.classList.remove("text-success", "text-danger");
 				this.addProfit(betAmount);
-			} else if (val === "Surrendered") {
+				return;
+			}
+			if (val === "Surrendered") {
 				e[0].target.classList.add("text-warning");
 				e[0].target.classList.remove("text-success", "text-danger");
 				this.addProfit(Math.floor(betAmount / 2));
-			} else {
-				e[0].target.classList.add("text-danger");
-				e[0].target.classList.remove("text-warning", "text-success");
+				return;
 			}
-			doubled = false;
-			this.addStat(val.split(' ')[0].replace('!', ""));
+			e[0].target.classList.add("text-danger");
+			e[0].target.classList.remove("text-warning", "text-success");
 		});
+	}
+	determineNextMove(playerCardText, playerVal, dealerVal, splitButton, standButton) {
+		let move = '';
+		if (playerCardText.length === 2) {
+			if (playerCardText[0] === playerCardText[1]) {
+				if (!splitButton.disabled)
+					move = this.splitTable[playerVal / 2 - 2][dealerVal - 2];
+			} else if (playerCardText[0] === 'A' || playerCardText[1] === 'A') {
+				if (playerVal === 21) {
+					if (!standButton.disabled) move = 'S';
+				}
+				else
+					move = this.softTable[playerVal - 11 - 2][dealerVal - 2];
+			}
+		}
+		if (move === "" && playerCardText.includes('A') && playerVal <= 21)
+			move = this.softTable[playerVal - 11 - 2][dealerVal - 2];
+		if (move === "") {
+			while (playerCardText.includes('A') && playerVal > 21) {
+				playerVal -= 10;
+				playerCardText.replace('A', 'a');
+			}
+			playerCardText.replaceAll('a', 'A');
+			move = this.normalTable[Math.min(11, Math.max(0, playerVal - 7))][dealerVal - 2];
+		}
+		return move;
 	}
 	inBlackjackStats(url) {
 		document.title = "Blackjack Stats | Cartel Empire";
-		let container = document.querySelector("div.content-container.contentColumn");
+		const container = document.querySelector("div.content-container.contentColumn");
 		let insertHTML = "";
 
 		const urlParams = new URLSearchParams(window.location.search);
@@ -265,8 +288,8 @@ class BlackjackHelper {
 		}
 		const curStats = this.getStats();
 		let totalGames = 0;
-		for (var gameCount of curStats) totalGames += gameCount;
-		for (var i = 0; i !== curStats.length; ++i)
+		for (const gameCount of curStats) totalGames += gameCount;
+		for (let i = 0; i !== curStats.length; ++i)
 			insertHTML += `<tr class="align-middle"><td>${this.statIndexes[i]}</td><td>${curStats[i]}</td><td>${(curStats[i] / totalGames * 100).toFixed(2)}%</td></tr>`;
 		insertHTML += `<tr class="align-middle"><td>Hands played</td><td>${totalGames}</td><td></td></tr><tr class="align-middle"><td>Total gain</td><td>\u00a3${curGain !== null ? curGain.toLocaleString("en-US") : 0}</td><td></td></tr><tr class="align-middle"><td>Total loss</td><td>\u00a3${curLoss !== null ? curLoss.toLocaleString("en-US") : 0}</td><td></td></tr><tr class="align-middle"><th>Net total profit</th><th class="${colorClass}">\u00a3${curProfit ? curProfit.toLocaleString("en-US") : 0}</th><td></td></tr><tr class="align-middle"><td>Reset money stats</td><td></td><td><button onclick="window.location.href += '?resetMoney=true'" title="Reset" aria-label="Reset money stats" class="btn btn-danger action-btn fw-normal">Reset</button></td></tr>`;
 
