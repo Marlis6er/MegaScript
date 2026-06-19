@@ -25,10 +25,10 @@ class CartelMemberRep {
 		return rep;
 	}
 	processLogs(rows) {
-		for (var row of rows) {
-			let [date, data] = row.children;
+		for (const row of rows) {
+			const [date, data] = row.children;
 			const ID = parseInt(data.children[2].href.match(/\d+/)[0]);
-			if (!/\(\+\d+\)/.test(data.innerText)) {
+			if (!/\(\+\d+\)/.test(data.textContent)) {
 				date.classList.add("text-muted"); // Doesn't need to be done
 				continue;
 			} else if (this.attackList.includes(ID)) {
@@ -45,39 +45,39 @@ class CartelMemberRep {
 		}
 	}
 	inAttackLog(url) {
-		let rows = document.querySelectorAll("table#eventsTable tbody tr");
+		const rows = document.querySelectorAll("table#eventsTable tbody tr");
 		this.processLogs(rows);
 	}
 	inCartelHomepage(url) {
 		const attackTable = document.querySelectorAll("table#eventsTable tbody")[1];
-		let rows = attackTable.querySelectorAll("tr");
+		const rows = attackTable.querySelectorAll("tr");
 		this.processLogs(rows);
 
 		const table = document.querySelector("div.card-body > div.container-fluid");
 		if (table === null) return;
 
 		const tableHead = table.querySelector(".row-header");
-		let levelCol = tableHead.querySelectorAll(".col")[2]; // Already reduced to col-xl-1 by stat estimate
-		let roleCol = tableHead.querySelectorAll(".col")[3];
+		let levelCol = tableHead.querySelectorAll(".col")[1]; // Already reduced to col-xl-1 by stat estimate
+		let roleCol = tableHead.querySelectorAll(".col-3")[0];
+		let daysCol = tableHead.querySelectorAll('.col')[3];
 		let repCol = document.createElement("div");
 		repCol.classList.add("col", "col-xl-1");
 		repCol.innerText = "Added Rep";
 		tableHead.insertBefore(repCol, levelCol);
-		roleCol.classList.remove("col-xl-2");
-		roleCol.classList.add("col-xl-1");
+		roleCol.classList = 'col-3 col-xl-2';
+		daysCol.classList = 'col col-xl-1';
 
-		let entries = table.querySelectorAll(".row.align-middle");
-		for (var i = 0; i !== entries.length; ++i) {
-			let entry = entries[i];
+		const entries = table.querySelectorAll(".row.align-middle");
+		for (const entry of entries) {
 			const cols = entry.querySelectorAll(".col");
-			levelCol = cols[2];
+			levelCol = cols[0];
 			roleCol = cols[3];
 			repCol = document.createElement("div");
 			repCol.classList.add("col", "col-xl-1");
 			roleCol.classList.remove("col-xl-2");
 			roleCol.classList.add("col-xl-1");
 
-			const userLink = cols[0].children[1];
+			const userLink = entry.querySelector('div.d-none > a');
 			const userID = userLink.href.match(/\d+$/)[0];
 
 			const rep = this.getMemberRep(userID);
