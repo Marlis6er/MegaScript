@@ -81,7 +81,7 @@ class DisplayTownCaches {
 		const curCache = this.getCache("Pets");
 		const now = Date.now() - this.hoursLate * 1000 * 60 * 60;
 		if (curCache === null || this.timeFunc(now) !== this.timeFunc(curCache[0])) // New day
-			this.setCache("Pets", [now, rarities[0].innerText, rarities[1].innerText, rarities[2].innerText]);
+			this.setCache("Pets", [now, rarities[0].textContent, rarities[1].textContent, rarities[2].textContent]);
 	}
 	inSicarios(url) {
 		const curCache = this.getCache("Sicarios");
@@ -91,13 +91,13 @@ class DisplayTownCaches {
 	}
 	inCasinoSpinner(url) {
 		const spinsLeft = document.querySelector("span#tokenCount");
-		const spinsLeftNum = parseInt(spinsLeft.innerText);
+		const spinsLeftNum = parseInt(spinsLeft.textContent);
 		const curCache = this.getCache("Spins");
 		const now = Date.now() - this.hoursLate * 1000 * 60 * 60;
 		if (curCache === null || parseInt(spinsLeftNum) !== curCache[1] || this.timeFunc(now) !== this.timeFunc(curCache[0])) // New day
 			this.setCache("Spins", [now, spinsLeftNum]);
 		observeDOM(spinsLeft, e => {
-			const spinsLeftNum = parseInt(e[0].target.innerText);
+			const spinsLeftNum = parseInt(e[0].target.textContent);
 			const now = Date.now();
 			this.setCache("Spins", [now, spinsLeftNum]);
 		});
@@ -113,7 +113,7 @@ class DisplayTownCaches {
 	}
 	inMateos(url) {
 		const headerSections = document.querySelectorAll('.header-section');
-		const pointsHeader = headerSections[2].querySelector('h2').innerText;
+		const pointsHeader = headerSections[2].querySelector('h2').textContent;
 		const pointsDepleted = pointsHeader.includes("(0/25)");
 		console.debug(pointsHeader);
 		console.debug(pointsDepleted);
@@ -134,37 +134,32 @@ class DisplayTownCaches {
 		const curPetsCache = this.getCache("Pets");
 		let button = petShop.querySelector("a.btn.btn-block");
 
-		let hrBreak = document.createElement("hr");
+		const hrBreak = document.createElement("hr");
 		hrBreak.classList.add("w-75");
-		petShop.insertBefore(hrBreak, button);
-		let cacheText = document.createElement("p");
+		petShop.insertBefore(hrBreak.cloneNode(), button);
+
+		const cacheText = document.createElement("p");
 		cacheText.classList.add("text-center");
+
 		if (curPetsCache !== null && this.timeFunc(now) === this.timeFunc(curPetsCache[0]))
 			cacheText.innerHTML = `(Today: <span class="${curPetsCache[1]}">${this.petAbbrevs[curPetsCache[1]]}</span>, <span class="${curPetsCache[2]}">${this.petAbbrevs[curPetsCache[2]]}</span>, <span class="${curPetsCache[3]}">${this.petAbbrevs[curPetsCache[3]]}</span>)`;
-
 		else
 			cacheText.innerHTML = `(Today: <span class="text-muted">???</span>)`;
-		petShop.insertBefore(cacheText, button);
+		petShop.insertBefore(cacheText.cloneNode(true), button);
 
 		const casino = places[this.casinoIdx].children[0];
 		const curSpinsCache = this.getCache("Spins");
 		button = casino.querySelector("a.btn.btn-block");
 
-		hrBreak = document.createElement("hr");
-		hrBreak.classList.add("w-75");
-		casino.insertBefore(hrBreak, button);
-		cacheText = document.createElement("p");
-		cacheText.classList.add("text-center");
+		casino.insertBefore(hrBreak.cloneNode(), button);
 		if (curSpinsCache !== null && this.timeFunc(now) === this.timeFunc(curSpinsCache[0])) {
 			if (curSpinsCache[1] === 0)
 				cacheText.innerHTML = `(Today: <span class="text-muted">done</span>)`;
-
 			else
 				cacheText.innerHTML = `(Today: <span class="fw-bold text-warning">${curSpinsCache[1]} left</span>)`;
-		}
-		else
+		} else
 			cacheText.innerHTML = `(Today: <span class="fw-bold text-warning">2 left</span>)`;
-		casino.insertBefore(cacheText, button);
+		casino.insertBefore(cacheText.cloneNode(true), button);
 	}
 	inCasino(url) {
 		const places = document.querySelectorAll("div.card-group div.card");
@@ -176,15 +171,15 @@ class DisplayTownCaches {
 		const curSpinsCache = this.getCache("Spins");
 		const button = spins.querySelector("a.btn.btn-block");
 
-		let hrBreak = document.createElement("hr");
+		const hrBreak = document.createElement("hr");
 		hrBreak.classList.add("w-75");
 		spins.insertBefore(hrBreak, button);
-		let cacheText = document.createElement("p");
+
+		const cacheText = document.createElement("p");
 		cacheText.classList.add("text-center");
 		if (curSpinsCache !== null && this.timeFunc(now) === this.timeFunc(curSpinsCache[0])) {
 			if (curSpinsCache[1] === 0)
 				cacheText.innerHTML = `(Today: <span class="text-muted">done</span>)`;
-
 			else
 				cacheText.innerHTML = `(Today: <span class="fw-bold text-warning">${curSpinsCache[1]} left</span>)`;
 		}
@@ -208,31 +203,28 @@ class DisplayTownCaches {
 			curMateosCache && this.timeFunc(now) === this.timeFunc(curMateosCache[0]) && curMateosCache[1]
 		];
 
-		let mobileMenu = document.querySelector("ul#menu");
-		let desktopMenu = document.querySelector("ul#desktopMenu");
+		const mobileMenu = document.querySelector("ul#menu");
+		const desktopMenu = document.querySelector("ul#desktopMenu");
 
 		for (let i = 0; i < this.links.length; ++i) {
 			const linkObj = this.links[i];
-			if (!done[i]) {
-				let listItem = document.createElement("li");
-				listItem.innerHTML = `
-        <a class="nav-link d-flex flex-column align-items-center px-md-0 px-2 leftNavLink" href="${linkObj.link}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                 fill="hsl(60, 67%, ${this.brightness}%)"
-                 viewBox="0 0 ${linkObj.viewBox} ${linkObj.viewBox}">
-                ${linkObj.path}
-            </svg>
-            <span class="text-warning mt-1">${linkObj.name}</span>
-        </a>
-    `;
-
-				if (mobileMenu) {
-					mobileMenu.appendChild(listItem.cloneNode(true));
-				}
-				if (desktopMenu) {
-					desktopMenu.appendChild(listItem);
-				}
-			}
+			if (done[i]) continue;
+			
+			const listItem = document.createElement("li");
+			listItem.innerHTML = `
+	<a class="nav-link d-flex flex-column align-items-center px-md-0 px-2 leftNavLink" href="${linkObj.link}">
+		<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+				fill="hsl(60, 67%, ${this.brightness}%)"
+				viewBox="0 0 ${linkObj.viewBox} ${linkObj.viewBox}">
+			${linkObj.path}
+		</svg>
+		<span class="text-warning mt-1">${linkObj.name}</span>
+	</a>
+`;
+			if (mobileMenu)
+				mobileMenu.appendChild(listItem.cloneNode(true));
+			if (desktopMenu)
+				desktopMenu.appendChild(listItem);
 		}
 	}
 }
