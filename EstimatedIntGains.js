@@ -14,7 +14,6 @@ class EstimatedIntGains {
 	calcGain(energy, currentInt) {
 		if (this.improperWay)
 			return Math.min(this.maxInt - currentInt, currentInt * (this.base - 1) * energy * this.extraGainsFactor);
-
 		else
 			return Math.min(this.maxInt - currentInt, currentInt * (Math.pow(this.base, energy * this.extraGainsFactor) - 1));
 	}
@@ -40,7 +39,7 @@ class EstimatedIntGains {
 		let currentIntVal = 0;
 		const currentInt = container.querySelector("p.card-text.fw-bold.text-muted");
 		if (currentInt !== null) {
-			currentIntVal = parseFloat(currentInt.innerText.split(' ')[0].slice(1));
+			currentIntVal = parseFloat(currentInt.textContent.split(' ')[0].slice(1));
 		} else return; // Exit if currentInt is not found
 
 		let energy = 50;
@@ -50,7 +49,7 @@ class EstimatedIntGains {
 
 			let value = this.calcGain(energy, currentIntVal);
 
-			let expectedIntGains = document.createElement("p");
+			const expectedIntGains = document.createElement("p");
 			expectedIntGains.id = this.ID;
 			expectedIntGains.classList.add("card-text", "mt-2");
 			expectedIntGains.innerHTML = this.genText(value, currentIntVal);
@@ -60,6 +59,7 @@ class EstimatedIntGains {
 
 			// Add event listener for energy input changes
 			if (energyInput === null) return;
+
 			energyInput.addEventListener("input", e => {
 				const energyText = e.target.value;
 				if (energyText === "" || energyText.trim()[0] === '-') return;
@@ -71,7 +71,7 @@ class EstimatedIntGains {
 		}
 
 		// Always create and insert the "energy until maximum" element
-		let eToMaxText = document.createElement("p");
+		const eToMaxText = document.createElement("p");
 		eToMaxText.classList.add("card-text", "mb-0");
 		eToMaxText.innerHTML = this.genToMaxText(currentIntVal);
 
