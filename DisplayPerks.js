@@ -24,9 +24,9 @@ class DisplayPerks {
 	}
 	changeHospitalTime(texts) {
 		const effectText = texts[texts.length - 1];
-		if (effectText === undefined || !effectText.innerText.includes("Hospital timer"))
+		if (effectText === undefined || !effectText.textContent.includes("Hospital timer"))
 			return;
-		const textSplit = effectText.innerText.split(' ');
+		const textSplit = effectText.textContent.split(' ');
 
 		let lifePercent = parseInt(textSplit[1].slice(0, -1));
 		lifePercent *= 1 + this.getPerk(this.medEffectiveness) / 100;
@@ -75,9 +75,9 @@ Hospital timer by ${hospTimeText} ${this.getPerk(this.medEffectiveness) === 0 ? 
 		let medEffectiveness = 0;
 		let prodEffectiveness = 0;
 
-		for (let perk of perks) {
-			const perkName = perk.querySelector(".perkTitle").innerText; // Get perk name
-			const perkDesc = perk.querySelector(".perkDescription").innerText; // Get perk description
+		for (const perk of perks) {
+			const perkName = perk.querySelector(".perkTitle").textContent; // Get perk name
+			const perkDesc = perk.querySelector(".perkDescription").textContent; // Get perk description
 
 			const textSplit = perkDesc.split(' '); // Split description into words
 
@@ -110,9 +110,9 @@ Hospital timer by ${hospTimeText} ${this.getPerk(this.medEffectiveness) === 0 ? 
 		}
 
 		// Update stat gains after processing perks
-		let statGains = [allStats, allStats, allStats, allStats];
-		for (let perk of perks) {
-			const perkDesc = perk.querySelector(".perkDescription").innerText;
+		const statGains = [allStats, allStats, allStats, allStats];
+		for (const perk of perks) {
+			const perkDesc = perk.querySelector(".perkDescription").textContent;
 			for (let i = 0; i < this.statGains.length; ++i) {
 				// Dynamically check if a perk description ends with one of the stat gain descriptions
 				if (perkDesc.endsWith(`increase to ${this.statGains[i]} gains`))
@@ -135,11 +135,12 @@ Hospital timer by ${hospTimeText} ${this.getPerk(this.medEffectiveness) === 0 ? 
 
 		statCols = statCols.children;
 
-		for (var col of statCols) {
-			const perkGainText = `${col.children[0].children[0].innerText}Gain`;
+		for (const col of statCols) {
+			const perkGainText = `${col.children[0].children[0].textContent}Gain`;
 			const perkGain = this.getPerk(perkGainText);
-			if (perkGain !== null) continue;
-			let extraGains = document.createElement("p");
+			if (perkGain === null) continue;
+
+			const extraGains = document.createElement("p");
 			extraGains.classList.add("extraGains", "card-text");
 			extraGains.innerHTML = `(+${perkGain}% gains)`;
 
@@ -148,10 +149,10 @@ Hospital timer by ${hospTimeText} ${this.getPerk(this.medEffectiveness) === 0 ? 
 	}
 	inInventory(url) {
 		if (!this.getPerk(this.medEffectiveness)) return;
-		const itemList = document.querySelector("div.container.inventoryWrapper.pt-2");
 
-		for (var i = 2; i < itemList.children.length; ++i) {
-			const item = itemList.children[i];
+		const itemList = document.querySelectorAll("div.container.inventoryWrapper.pt-2 > div.inventoryItemWrapper");
+
+		for (const item of itemList) {
 			const texts = item.querySelectorAll("div.card-text > div.card-text");
 			this.changeHospitalTime(texts);
 		}
@@ -159,14 +160,14 @@ Hospital timer by ${hospTimeText} ${this.getPerk(this.medEffectiveness) === 0 ? 
 	inMarket(url) {
 		const medItems = document.querySelector("div#content-medical");
 		observeDOM(medItems, e => {
-			const list = e[1].addedNodes[0];
-			if (list.classList === undefined || !list.classList.contains("offerListWrapper"))
+			const list = e[0]?.addedNodes[2];
+			if (list?.classList === undefined || !list.classList.contains("offerListWrapper"))
 				return;
 
 			let doit = false;
-			for (var itemNum = 1; itemNum < list.children.length; ++itemNum) {
+			for (let itemNum = 1; itemNum < list.children.length; ++itemNum) {
 				const listing = list.children[itemNum];
-				const listingName = listing.children[1].innerText;
+				const listingName = listing.children[1].textContent;
 				if (itemNum % 2)
 					doit = ["Bandage", "Small Medical Kit", "Large Medical Kit", "Basic Trauma Kit", "Large Trauma Kit"].includes(listingName);
 				else if (doit) {
@@ -177,15 +178,11 @@ Hospital timer by ${hospTimeText} ${this.getPerk(this.medEffectiveness) === 0 ? 
 		});
 	}
 	inPharmacy(url) {
-		const itemLists = document.querySelectorAll("div.container.inventoryWrapper.mb-4");
+		const itemList = document.querySelectorAll("div.container.inventoryWrapper.mb-4 > div.inventoryItemWrapper");
 
-		for (var il = 0; il !== itemLists.length; ++il) {
-			const itemList = itemLists[il];
-			for (var i = 1; i !== itemList.children.length; ++i) {
-				const item = itemList.children[i];
-				const texts = item.querySelectorAll("div.card-text > div.card-text");
-				this.changeHospitalTime(texts);
-			}
+		for (const item of itemList) {
+			const texts = item.querySelectorAll('div.col-xl-4.col-lg-6.col-12.mb-3 > div > p');
+			this.changeHospitalTime(texts);
 		}
 	}
 }
