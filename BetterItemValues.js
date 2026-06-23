@@ -763,24 +763,22 @@ class BetterItemValues {
 		return totalValue;
 	}
 	getItemsFromEvent(eventDescription) {
-		const allItems = Object.keys(this.defaultVals);
+		const allItems = Object
+		  	.keys(this.defaultVals)
+		  	.map(item => RegExp.escape(item))
+			.join('|');
 		const foundItems = [];
 
-		const amountRegex = new RegExp(/(?<amount>\d+)x? $/, 'g');
+		const amountRegex = new RegExp('(?<amount>\\d+)x? (?<item>' + allItems + ')', 'g');
 
-		for (const item of allItems) {
-			const itemPosition = eventDescription.indexOf(item);
-			if (itemPosition === -1) continue;
+		return eventDescription.matchAll(amountRegex).map(result => {
+			const groups = result?.groups;
+			if (!(groups?.item || groups?.amount)) return;
 
-			const searchSpace = eventDescription.slice(0, itemPosition);
-			
-			const amtRegexRes = amountRegex.exec(searchSpace);
-			const amountCandidate = amtRegexRes?.groups?.amount;
-			if (amountCandidate === undefined) continue;
-
-			foundItems.push([item, parseInt(amountCandidate)]);
-		}
-		return foundItems;
+			const item = groups.item;
+			const amount = parseInt(groups.amount);
+			return [item, amount];
+		});
 	}
 	adjustEventHeader(header) {
 		// Adjust width of log to fit the new column
