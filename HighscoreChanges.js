@@ -2,20 +2,20 @@ class HighscoreChanges {
 	constructor() {
 		this.hoursLate = 2;
 		this.height = 16.75;
-		if (this.getCache("Battlestats_self") === null)
-			this.setCache("Battlestats_self", [null, null]);
-		if (this.getCache("Networth_self") === null)
-			this.setCache("Networth_self", [null, null]);
-		if (this.getCache("Reputation") === null)
-			this.setCache("Reputation", [null, null]);
-		if (this.getCache("Cartel Reputation") === null)
-			this.setCache("Cartel Reputation", [null, null]);
-		if (this.getCache("Attacks Won") === null)
-			this.setCache("Attacks Won", [null, null]);
-		if (this.getCache("Level") === null)
-			this.setCache("Level", [null, null]);
-		if (this.getCache("Revives") === null)
-			this.setCache("Revives", [null, null]);
+		this.cacheNames = [
+			'Battlestats_self',
+			'Networth_self',
+			'Reputation',
+			'Cartel Reputation',
+			'Attacks Won',
+			'Level',
+			'Revives'
+		];
+		this.cacheNames.forEach(cacheName => {
+			if (this.getCache(cacheName) === null)
+				this.setCache(cacheName, [null, null]);
+		});
+
 		this.hoverColor = "rgba(var(--bs-emphasis-color-rgb), 0)";
 	}
 	getCache(type) {
@@ -44,7 +44,7 @@ class HighscoreChanges {
 		if (ownStats === null) return;
 
 		const timeNow = this.timeFunc(Date.now());
-		let curCache = this.getCache(`${type}_self`);
+		const curCache = this.getCache(`${type}_self`);
 		const ownRank = ownStats.children[0];
 		const newVal = parseInt(ownRank.innerText.replaceAll(',', ""));
 		if (curCache[1] === null) curCache[1] = [timeNow, newVal];
@@ -63,23 +63,23 @@ class HighscoreChanges {
 	change(content, type) {
 		const rows = content.querySelectorAll("tbody tr");
 		const timeNow = this.timeFunc(Date.now());
-		let curCache = this.getCache(type);
+		const curCache = this.getCache(type);
 		let newRanks = {};
 		if (curCache[1] !== null && curCache[1][0] === timeNow)
 			newRanks = curCache[1][1];
-		for (var row of rows) {
+		for (const row of rows) {
 			let user = row.children[1];
 			const userID = user.children.length ? parseInt(user.children[0].href.match(/\d+$/)[0]) : "self";
-			newRanks[userID] = parseInt(row.children[0].innerText.replaceAll(',', ""));
+			newRanks[userID] = parseInt(row.children[0].textContent.replaceAll(',', ""));
 		}
 		if (curCache[1] === null) curCache[1] = [timeNow, newRanks];
 		else if (curCache[1][0] !== timeNow) {
 			curCache[0] = curCache[1];
 			curCache[1] = [timeNow, newRanks];
 		}
-		if (curCache[0] !== null && curCache[1] !== null)
-			for (var row of rows) {
-				let user = row.children[1];
+		if (curCache[0] !== null && curCache[1] !== null) {
+			for (const row of rows) {
+				const user = row.children[1];
 				const userID = user.children.length ? parseInt(user.children[0].href.match(/\d+$/)[0]) : "self";
 				if (!(userID in curCache[0][1] && userID in curCache[1][1])) return;
 
@@ -88,10 +88,10 @@ class HighscoreChanges {
 					row.children[0].innerHTML += this.up(diff);
 				else if (diff < 0)
 					row.children[0].innerHTML += this.down(diff);
-
 				else
 					row.children[0].innerHTML += this.same(diff);
 			}
+		}
 		this.setCache(type, curCache);
 	}
 	inHighscores(url) {
