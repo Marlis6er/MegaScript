@@ -34,39 +34,37 @@ class ColorStats {
 		return Math.min(1, 1 - qualChance / 100); // Reaches max at top 0%, min at top 100%
 	}
 	poz(z) {
-		var y, x, w;
-		if (z == 0.0) {
-			x = 0.0;
+		let y, x, w;
+		if (z == 0.0) return 0.5;
+
+		y = 0.5 * Math.abs(z);
+		if (y > (4 * 0.5)) { // Was previously 6 * 0.5
+			x = 1.0;
+		} else if (y < 1.0) {
+			w = y * y;
+			x = ((((((((0.000124818987 * w
+				- 0.001075204047) * w + 0.005198775019) * w
+				- 0.019198292004) * w + 0.059054035642) * w
+				- 0.151968751364) * w + 0.319152932694) * w
+				- 0.531923007300) * w + 0.797884560593) * y * 2.0;
 		} else {
-			y = 0.5 * Math.abs(z);
-			if (y > (4 * 0.5)) { // Was previously 6 * 0.5
-				x = 1.0;
-			} else if (y < 1.0) {
-				w = y * y;
-				x = ((((((((0.000124818987 * w
-					- 0.001075204047) * w + 0.005198775019) * w
-					- 0.019198292004) * w + 0.059054035642) * w
-					- 0.151968751364) * w + 0.319152932694) * w
-					- 0.531923007300) * w + 0.797884560593) * y * 2.0;
-			} else {
-				y -= 2.0;
-				x = (((((((((((((-0.000045255659 * y
-					+ 0.000152529290) * y - 0.000019538132) * y
-					- 0.000676904986) * y + 0.001390604284) * y
-					- 0.000794620820) * y - 0.002034254874) * y
-					+ 0.006549791214) * y - 0.010557625006) * y
-					+ 0.011630447319) * y - 0.009279453341) * y
-					+ 0.005353579108) * y - 0.002141268741) * y
-					+ 0.000535310849) * y + 0.999936657524;
-			}
+			y -= 2.0;
+			x = (((((((((((((-0.000045255659 * y
+				+ 0.000152529290) * y - 0.000019538132) * y
+				- 0.000676904986) * y + 0.001390604284) * y
+				- 0.000794620820) * y - 0.002034254874) * y
+				+ 0.006549791214) * y - 0.010557625006) * y
+				+ 0.011630447319) * y - 0.009279453341) * y
+				+ 0.005353579108) * y - 0.002141268741) * y
+				+ 0.000535310849) * y + 0.999936657524;
 		}
 		return z > 0.0 ? ((x + 1.0) * 0.5) : ((1.0 - x) * 0.5);
 	}
 	changeQuality(elem) {
 		if (elem === null) return;
 
-		const percent = elem.innerText.replace(/^\s+\w+\s+/, "");
-		if (percent !== elem.innerText && elem.innerText.trim().split(/\s/)[0] !== "Quality")
+		const percent = elem.textContent.replace(/^\s+\w+\s+/, "");
+		if (percent !== elem.textContent && elem.textContent.trim().split(/\s/)[0] !== "Quality")
 			return;
 		if (percent === "" || percent === "N/A") return;
 
@@ -79,20 +77,20 @@ class ColorStats {
 	}
 	changeHsThing(content, selector, lambda, valFunc, calcFunc) {
 		const rows = content.querySelectorAll(selector);
-		for (var row of rows) {
-			let thing = row.children[2];
-			const val = parseFloat(lambda(thing.innerText));
+		for (const row of rows) {
+			const thing = row.children[2];
+			const val = parseFloat(lambda(thing.textContent));
 			thing.style.color = `hsl(${calcFunc(valFunc(val)) * 120}, 67%, ${this.brightness}%)`;
 		}
 	}
 	changePsThing(elem, lambda, valFunc, calcFunc) {
-		const val = parseFloat(lambda(elem.innerText));
-		elem.innerHTML = `<span style="color: hsl(${calcFunc(valFunc(val)) * 120}, 67%, ${this.brightness}%)">${elem.innerText}</span>`;
+		const val = parseFloat(lambda(elem.textContent));
+		elem.innerHTML = `<span style="color: hsl(${calcFunc(valFunc(val)) * 120}, 67%, ${this.brightness}%)">${elem.textContent}</span>`;
 	}
 	inForumPost(url) {
 		const respects = document.querySelectorAll(".mb-2 p.card-text");
-		for (var respText of respects) {
-			const resp = parseInt(respText.innerText.split(' ')[0].replaceAll(',', ""));
+		for (const respText of respects) {
+			const resp = parseInt(respText.textContent.split(' ')[0].replaceAll(',', ""));
 			const colorVal = this.calcRespect(resp);
 			respText.innerHTML = `<span style="color: rgba(${resp < 0 ? 222 : colorVal}, ${resp < 0 ? colorVal : 226}, ${colorVal}, 0.75)">${resp.toLocaleString("en-US")}</span> Respect`;
 		}
@@ -137,9 +135,9 @@ class ColorStats {
 		if (stats.length < 2) return;
 
 		const leftStats = stats[0].querySelectorAll(".form-data-inset.p-2.mb-0.rounded");
-		for (var i = 0; i !== 2; ++i) {
-			let theStat = leftStats[i === 0 ? 2 : 6];
-			const text = theStat.innerText;
+		for (let i = 0; i !== 2; ++i) {
+			const theStat = leftStats[i === 0 ? 2 : 6];
+			const text = theStat.textContent;
 			const val = parseFloat(text.replaceAll(',', ""));
 			theStat.innerHTML = `<span style="color: hsl(${(i === 0 ? this.calcRep(val) : this.calcInt(val)) * 120}, 67%, ${this.brightness}%)">${text}</span>`;
 		}
@@ -147,9 +145,9 @@ class ColorStats {
 		const trs = stats[1].querySelectorAll(".form-data-inset.p-2.mb-0.rounded");
 		if (trs.length < 5) return;
 
-		for (var i = 0; i !== 5; ++i) {
-			let td = trs[i];
-			const valText = td.innerText.match(/^[\d\.,]+/)[0];
+		for (let i = 0; i !== 5; ++i) {
+			const td = trs[i];
+			const valText = td.textContent.match(/^[\d\.,]+/)[0];
 			const val = parseFloat(valText.replaceAll(',', ""));
 			const colorVal = i === 4 ? this.calcGym(val / 4) : this.calcGym(val);
 			const effectiveStats = td.children[0];
@@ -164,14 +162,14 @@ class ColorStats {
 
 		statCols = statCols.children;
 
-		let totalStats = document.querySelector("p.card-text.fw-bold.text-muted"); // Is the first one
-		const textSplit = totalStats.innerText.split(' ');
+		const totalStats = document.querySelector("p.card-text.fw-bold.text-muted"); // Is the first one
+		const textSplit = totalStats.textContent.split(' ');
 		const totalStatVal = parseFloat(textSplit[0].slice(1).replaceAll(',', ""));
 		totalStats.innerHTML = `(<span style="color: hsl(${this.calcGym(totalStatVal / 4) * 120}, 67%, ${this.brightness}%)">${textSplit[0].slice(1)}</span> ${textSplit.slice(1).join(' ')}`;
 
-		for (var col of statCols) {
-			let stat = col.children[0].children[2];
-			const textSplit = stat.innerText.split(' ');
+		for (const col of statCols) {
+			const stat = col.children[0].children[2];
+			const textSplit = stat.textContent.split(' ');
 			const statVal = parseFloat(textSplit[0].slice(1).replaceAll(',', ""));
 			stat.innerHTML = `(<span style="color: hsl(${this.calcGym(statVal) * 120}, 67%, ${this.brightness}%)">${textSplit[0].slice(1)}</span> ${textSplit[1].slice(0, -1)}: ${(statVal / totalStatVal * 100).toFixed(1)}%)`;
 		}
@@ -180,39 +178,38 @@ class ColorStats {
 		const container = document.querySelector("div.text-center.d-flex.flex-column.align-items-center");
 		if (container === null) return;
 
-		let currentInt = container.querySelector("p.card-text.fw-bold.text-muted");
+		const currentInt = container.querySelector("p.card-text.fw-bold.text-muted");
 
-		const textSplit = currentInt.innerText.split(' ');
+		const textSplit = currentInt.textContent.split(' ');
 		const currentIntVal = parseFloat(textSplit[0].slice(1));
 		currentInt.innerHTML = `(<span style="color: hsl(${this.calcInt(currentIntVal) * 120}, 67%, ${this.brightness}%)">${textSplit[0].slice(1)}</span> ${textSplit.slice(1).join(' ')}`;
 	}
 	inPersonalStats(url) {
-		let stats = document.querySelectorAll(".list-group .list-group-item ~ .list-group-item .col-4 ~ .col-4");
+		const stats = document.querySelectorAll(".list-group .list-group-item ~ .list-group-item .col-4 ~ .col-4");
 		if (stats.length === 0) return;
 
 		const noCommas = text => text.replaceAll(',', "");
-		for (var i = 0; i < 2; ++i) {
+		for (let i = 0; i < 2; ++i) {
 			this.changePsThing(stats[i], noCommas, val => val, this.calcRep.bind(this));
 			this.changePsThing(stats[i + 2], noCommas, val => val, this.calcInt.bind(this));
 			this.changePsThing(stats[i + 12], noCommas, val => val / 4, this.calcGym.bind(this));
-			const resp = parseInt(noCommas(stats[i + 14].innerText));
+			const resp = parseInt(noCommas(stats[i + 14].textContent));
 			const colorVal = this.calcRespect(resp);
 			stats[i + 14].innerHTML = `<span style="color: rgba(${resp < 0 ? 222 : colorVal}, ${resp < 0 ? colorVal : 226}, ${colorVal}, 0.75)">${resp.toLocaleString("en-US")}</span>`;
 		}
-		for (var i = 0; i < 8; ++i) {
+		for (let i = 0; i < 8; ++i) {
 			this.changePsThing(stats[i + 4], noCommas, val => val, this.calcGym.bind(this));
 		}
 	}
 	inInventory(url) {
-		const itemList = document.querySelector("div.container.inventoryWrapper");
+		const itemList = document.querySelectorAll("div.container.inventoryWrapper > div.inventoryItemWrapper");
 		if (itemList === null) return;
 
-		for (var i = 2; i < itemList.children.length; ++i) {
-			const item = itemList.children[i];
+		for (const item of itemList) {
 			if (item.children.length < 7) continue;
 
 			this.changeQuality(item.children[4]);
-			let otherElem = item.children[6].querySelector(".align-items-center .col-xl-2");
+			const otherElem = item.children[6].querySelector(".align-items-center .col-xl-2");
 			this.changeQuality(otherElem);
 		}
 	}
@@ -220,27 +217,27 @@ class ColorStats {
 		const container = document.querySelector("nav#itemMarketNav > div.tab-content");
 		if (container === null) return;
 
-		for (var section of container.children)
+		for (const section of container.children)
 			observeDOM(section, e => {
-				const list = e[1]?.addedNodes[0];
+				const list = e[0]?.addedNodes[2];
 				if (!list || list.classList === undefined || !list.classList.contains("offerListWrapper"))
 					return;
 
 				const listings = list.querySelectorAll(".offerItemWrapper");
-				for (var listing of listings) {
-					let qualElem = listing.children[3];
-					if (qualElem.innerText.slice(-1) !== "%") continue;
+				for (const listing of listings) {
+					const qualElem = listing.children[3];
+					if (qualElem.textContent.slice(-1) !== "%") continue;
 
 					this.changeQuality(qualElem);
 				}
 				const collapsed = list.querySelectorAll(".collapse, .collapsing");
-				for (var listing of collapsed) {
+				for (const listing of collapsed) {
 					this.changeQuality(listing.querySelector(".col-xl-2"));
 				}
 			});
 
 		const ownOffers = document.querySelectorAll(".card-body > .offerListWrapper .inventoryItemWrapper");
-		for (var offer of ownOffers) {
+		for (const offer of ownOffers) {
 			this.changeQuality(offer.children[3]);
 		}
 	}
