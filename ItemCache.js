@@ -96,6 +96,7 @@ class ItemCache {
 	}
 	inJobs(url) {
 		const jobPanels = document.querySelectorAll("div.equipmentModule div.flex-column");
+		if (!jobPanels) return;
 
 		for (let i = 4; i !== 8; ++i) {
 			const jobPanel = jobPanels[i];
