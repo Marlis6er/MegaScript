@@ -15,8 +15,8 @@ class PropertyPageAgentLink {
 
 	inProperty(url) {
 		// Find the correct container for the tabs and content
-		let container = document.querySelector("#cartelPerksNav");
-		console.info("Container element found:", container);
+		const container = document.querySelector("#cartelPerksNav");
+		console.debug("Container element found:", container);
 
 		if (!container) {
 			console.error("Container not found!");
@@ -44,12 +44,12 @@ class PropertyPageAgentLink {
 		console.info("Tab contents found:", tabContents.length);
 
 		// Create the estate agent section
-		let agentSection = document.createElement("div");
+		const agentSection = document.createElement("div");
 		agentSection.classList.add("mb-4", "card");
 		agentSection.innerHTML = this.add;
 
 		// Create the combined card with all content
-		let combinedCard = document.createElement("div");
+		const combinedCard = document.createElement("div");
 		combinedCard.id = "combined-content"; // Add an ID for easier reference
 		combinedCard.classList.add("mb-4", "card");
 		combinedCard.innerHTML = `
@@ -88,7 +88,7 @@ class PropertyPageAgentLink {
 		});
 
 		// Check if there is any element with the class 'mb-4 card border-success'
-		var successCard = container.querySelector('.mb-4.card.border-success');
+		const successCard = container.querySelector('.mb-4.card.border-success');
 		console.debug("Success card found:", successCard);
 
 		if (!successCard) {
