@@ -41,7 +41,7 @@ class ItemCache {
 
 			const amount = parseInt(textSplit[2].slice(1).replace(',', ""));
 			this.setCache(itemName, curVal - amount);
-		} else if (textSplit[0] === "bought") {
+		} else if (textSplit[0] === "bought") { // TODO: Fix this. Page no longer reloads when buying items
 			let i = 2;
 			let itemName = textSplit[i];
 			while (textSplit[++i] !== "for") itemName += ` ${textSplit[i]}`;
@@ -56,48 +56,49 @@ class ItemCache {
 		}
 	}
 	inInventory(url) {
-		let itemList = document.querySelector("div.container.inventoryWrapper.pt-2");
+		let itemList = document.querySelectorAll("div.container.inventoryWrapper.pt-2 > div.inventoryItemWrapper");
 		if (itemList === null) return;
 
-		itemList = itemList.children;
 		let done = [];
 
-		for (var i = 2; i !== itemList.length; ++i) {
-			const item = itemList[i];
+		for (const item of itemList) {
 			if (item.children.length < 2) continue;
 
 			const itemName = item.children[1].innerText.split(' ').slice(0, -1).join(' ');
 			if (!this.itemNames.includes(itemName)) continue;
 
-			const itemCount = parseInt(item.querySelector("span.itemQuantity").innerText.replace(",", ""));
+			const itemCount = parseInt(item.querySelector("span.itemQuantity").textContent.replace(",", ""));
 			this.setCache(itemName, itemCount);
 			done.push(itemName);
 		}
-		for (var itemName of this.itemNames) {
+		for (const itemName of this.itemNames) {
 			if (!done.includes(itemName)) this.setCache(itemName, 0);
 		}
 	}
+	// TODO: Adjust to account for prestiges
 	inProduction(url) {
-		const containers = document.querySelectorAll("div.prodContainer div.equipmentModule div.row.flex-column");
+		const containers = document
+			.querySelectorAll("div.prodContainer div.equipmentModule div.row.flex-column")
+			.values()
+			.toArray()
+			.slice(2);
 		if (containers === null) return;
 
 		const narcosPerProd = [25, 10, 60];
 		const prodReqs = [10, 5, 35];
-		for (var i = 2; i < containers.length; ++i) {
+		for (let i = 0; i < containers.length; ++i) {
 			const container = containers[i];
 			const assignedText = container.querySelector("input.assignNarcoInput");
 			const assigned = parseInt(assignedText.value);
-			const prodReq = Math.ceil(assigned / narcosPerProd[i - 2]) * prodReqs[i - 2];
-			this.setReq(this.prodItemNames[i - 2], prodReq);
+			const prodReq = Math.ceil(assigned / narcosPerProd[i]) * prodReqs[i];
+			this.setReq(this.prodItemNames[i], prodReq);
 		}
 	}
 	inJobs(url) {
 		const jobPanels = document.querySelectorAll("div.equipmentModule div.flex-column");
-		const buttons = document.querySelectorAll("div.equipmentModule form > .btn.w-100:not(#upgradeTimeButton):not(#upgradeRewardButton)");
-		if (jobPanels === null || buttons.length <= 1) return;
 
-		for (var i = 4; i !== 8; ++i) {
-			let jobPanel = jobPanels[i];
+		for (let i = 4; i !== 8; ++i) {
+			const jobPanel = jobPanels[i];
 			let append = `<hr class="w-75"><p class="text-center">`;
 			if (i !== 7) {
 				const have = this.getCache(this.prodItemNames[i - 4]);

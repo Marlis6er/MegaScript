@@ -910,7 +910,7 @@ class BetterItemValues {
 			if (!isNaN(required) && !isNaN(owned) && required > 0) {
 				const daysLeft = Math.floor(owned / required);
 
-				const colorClass = "text-success";
+				let colorClass = "text-success";
 				if (daysLeft <= 3) colorClass = "text-danger";
 				else if (daysLeft <= 10) colorClass = "text-warning";
 
