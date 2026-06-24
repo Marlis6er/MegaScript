@@ -118,7 +118,7 @@ class StatEstimate {
 			$("#stats").on("input", () => validateSend());
 		});
 		function validateSend() {
-			var allValid = true;
+			let allValid = true;
 
 			if ((typeof $("#userName").attr("value")) === "undefined") {
 				allValid = false;
@@ -148,11 +148,11 @@ class StatEstimate {
 		document.title = "Stat Estimates | Cartel Empire";
 		const ownName = user_name;
 		if (!this.ownStats) {
-			let errorText = document.querySelector("div.content-container.contentColumn strong");
+			const errorText = document.querySelector("div.content-container.contentColumn strong");
 			errorText.innerHTML = `You haven't set your own stats yet! Visit <a class="text-white" href="/Gym">the gym</a> or <a class="text-white" href="/user">the homepage</a>`;
 			return;
 		}
-		let container = document.querySelector("div.content-container.contentColumn");
+		const container = document.querySelector("div.content-container.contentColumn");
 
 		const urlParams = new URLSearchParams(window.location.search);
 		const userID = urlParams.get("userId");
@@ -177,10 +177,10 @@ class StatEstimate {
 			window.history.replaceState({}, document.title, this.statEstimateLink); // remove params from URL
 		} else container.innerHTML = "";
 
-		let extractedData = [];
+		const extractedData = [];
 		const ownData = [ownName, "self", '~', this.ownStats, "---", 0];
 		extractedData.push(ownData);
-		for (var ID of this.currentList) {
+		for (const ID of this.currentList) {
 			const estimate = this.getEst(ID);
 			if (estimate === null) {
 				this.currentList = this.currentList.filter(estID => estID !== ID);
@@ -206,7 +206,7 @@ class StatEstimate {
 		let insert = "";
 		let muted = false;
 		let added = false;
-		for (var i = (pageNum - 1) * this.perPage; i >= 0 && i < extractedData.length && i !== pageNum * this.perPage; ++i) {
+		for (let i = (pageNum - 1) * this.perPage; i >= 0 && i < extractedData.length && i !== pageNum * this.perPage; ++i) {
 			added = true;
 			const data = extractedData[i];
 			if (!muted && data[3] < this.ownStats * (this.maxFF - 1) / this.constant)
@@ -218,7 +218,6 @@ class StatEstimate {
 				const dateStr = new Date(data[4]).toLocaleDateString("en-GB", { timeZone: "Europe/London" });
 				if (data[5] === 0)
 					insert += `<td><span style="color: rgba(var(--bs-link-color-rgb), var(--bs-link-opacity, 1))">${dateStr}</span></td>`;
-
 				else
 					insert += `<td><a href="/Fight/${data[5]}">${dateStr}</a></td>`;
 				insert += `<td><button onclick="window.location.href += '?delete=${data[1]}'" title="Delete" aria-label="Delete stat estimate for ${data[0]}" class="btn btn-sm btn-outline-dark action-btn fw-normal p-0"><svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" height="20" width="20"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path></svg></button></td></tr>`;
@@ -232,7 +231,7 @@ class StatEstimate {
 			navHTML = `<nav aria-label="Stat Estimates Page"><ul class="pagination justify-content-center"><li class="page-item${pageNum === 1 ? " active" : ""} pageNav"> <a class="page-link" href="${this.statEstimateLink}/1" data-page="1">1</a></li>`;
 			if (pageNum >= 5)
 				navHTML += `<li class="page-item pageNav"><a class="page-link" href="${this.statEstimateLink}/${pageNum - 1}" data-page="${pageNum - 1}">&lt;- </a></li>`;
-			for (var i = Math.max(2, pageNum - 2); i <= Math.min(lastPageNum - 1, pageNum + 2); ++i)
+			for (let i = Math.max(2, pageNum - 2); i <= Math.min(lastPageNum - 1, pageNum + 2); ++i)
 				navHTML += `<li class="page-item${pageNum === i ? " active" : ""} pageNav"> <a class="page-link" href="${this.statEstimateLink}/${i}" data-page="${i}">${i}</a></li>`;
 			if (pageNum <= lastPageNum - 4)
 				navHTML += `<li class="page-item pageNav"><a class="page-link" href="${this.statEstimateLink}/${pageNum + 1}" data-page="${pageNum + 1}">-&gt; </a></li>`;
@@ -241,12 +240,12 @@ class StatEstimate {
 			navHTML += `</ul></nav>`;
 		}
 
-		let script = document.createElement("script");
+		const script = document.createElement("script");
 		script.type = "text/javascript";
 		script.innerHTML = this.scriptFunc.toString().replace(/^[^{]*{/, "").replace(/}[^}]*$/, "");
 		document.head.appendChild(script);
 
-		let fileInput = document.createElement("input");
+		const fileInput = document.createElement("input");
 		fileInput.id = "fileInput";
 		fileInput.type = "file";
 		fileInput.classList.add("d-none");
@@ -256,9 +255,7 @@ class StatEstimate {
 
 			const contentText = await file.text();
 			const content = JSON.parse(contentText);
-			for (var entry of content) {
-				const userName = entry[0];
-				const userID = entry[1];
+			for (const [userName, userID] of content) {
 				if (userID == this.ownID) continue;
 
 				if (userName !== "???" && userName !== this.getName(userID))
@@ -294,7 +291,7 @@ class StatEstimate {
 		tableHeadTr.insertBefore(statEstCol, ageCol);
 
 		const entries = table.querySelectorAll("tbody tr");
-		for (var entry of entries) {
+		for (const entry of entries) {
 			ageCol = entry.querySelectorAll("td")[1];
 			statEstCol = document.createElement("td");
 
@@ -307,14 +304,14 @@ class StatEstimate {
 				const theirStats = parseInt(theirStatsText.slice(1).replaceAll(',', ""));
 				statEstCol.innerHTML = `<a href="${this.statEstimateLink}" style="color: hsl(${this.colorVal(this.ownStats, theirStats) * 120}, 67%, ${this.brightness}%); text-decoration: none">${theirStatsText.replace('>', "&gt;").replace('<', "&lt;")}</a>`;
 
-				const userName = userLink.innerText; // Don't really need username of everyone
+				const userName = userLink.textContent; // Don't really need username of everyone
 				if (userName !== this.getName(userID))
 					this.setName(userID, userName);
 			} else if (userID === this.ownID && this.ownStats)
 				statEstCol.innerHTML = `<a href="${this.statEstimateLink}" style="color: hsl(60, 67%, ${this.brightness}%); text-decoration: none">${this.ownStats.toLocaleString("en-US")}</a>`;
 			else {
 				statEstCol.classList.add("text-muted");
-				statEstCol.innerText = "---";
+				statEstCol.textContent = "---";
 			}
 			entry.insertBefore(statEstCol, ageCol);
 		}
@@ -342,13 +339,13 @@ class StatEstimate {
 			start = 1;
 			linkIdx = 0;
 		}
-		for (var i = start; i !== entries.length; ++i) {
-			let entry = entries[i];
+		for (let i = start; i !== entries.length; ++i) {
+			const entry = entries[i];
 			const tds = entry.querySelectorAll("td");
 			levelCol = tds[1];
 			statEstCol = document.createElement("td");
 
-			const userLink = tds[0].children[linkIdx];
+			const userLink = tds[0].querySelector('a');
 			const userID = userLink.href.match(/\d+$/)[0];
 
 			const statEst = this.getEst(userID);
@@ -357,7 +354,7 @@ class StatEstimate {
 				const theirStats = parseInt(theirStatsText.slice(1).replaceAll(',', ""));
 				statEstCol.innerHTML = `<a href="${this.statEstimateLink}" style="color: hsl(${this.colorVal(this.ownStats, theirStats) * 120}, 67%, ${this.brightness}%); text-decoration: none">${theirStatsText.replace('>', "&gt;").replace('<', "&lt;")}</a>`;
 
-				const userName = userLink.innerText; // Don't really need username of everyone
+				const userName = userLink.textContent; // Don't really need username of everyone
 				if (userName !== this.getName(userID))
 					this.setName(userID, userName);
 			} else if (userID === this.ownID && this.ownStats)
@@ -376,30 +373,30 @@ class StatEstimate {
 		const tableHead = table.querySelector(".row-header");
 		let levelCol = tableHead.querySelectorAll(".col")[1];
 		let roleCol;
-		let daysCol = tableHead.querySelectorAll(".col")[3];
+		let daysCol = tableHead.querySelectorAll(".col")[2];
+
 		let statEstCol = document.createElement("div");
-		statEstCol.classList.add("col", "col-xl-2");
+		statEstCol.classList.add("col", "col-xl-1");
 		statEstCol.innerText = "Stat Estimate";
 		tableHead.insertBefore(statEstCol, levelCol);
+
 		levelCol.classList.remove("col-xl-2");
 		levelCol.classList.add("col-xl-1");
 		daysCol.classList.remove("col-xl-2");
 		daysCol.classList.add("col-xl-1");
 
-		let entries = table.querySelectorAll(".row.align-middle");
-		for (var i = 0; i !== entries.length; ++i) {
-			let entry = entries[i];
+		const entries = table.querySelectorAll(".row.align-middle");
+		for (const entry of entries) {
 			const cols = entry.querySelectorAll(".col");
-			const headerCols = entry.querySelectorAll(".col-3.fw-bold");
-			levelCol = cols[1];
-			roleCol = cols[2];
-			daysCol = cols[3];
-			let levelHeaderCol = headerCols[0];
-			let roleHeaderCol = headerCols[1];
-			let daysHeaderCol = headerCols[2];
+
+			levelCol = cols[0];
+			roleCol = cols[1];
+			daysCol = cols[2];
+
 			statEstCol = document.createElement("div");
-			let statEstColHeader = document.createElement("div");
-			statEstCol.classList.add("col", "col-3", "col-xl-2");
+			const statEstColHeader = document.createElement("div");
+			statEstCol.classList.add("col", "col-3", "col-xl-1");
+
 			statEstColHeader.classList.add("col-3", "d-xl-none", "fw-bold");
 			levelCol.classList.remove("col-xl-2", "col-3");
 			levelCol.classList.add("col-xl-1", "col-2");
@@ -407,15 +404,10 @@ class StatEstimate {
 			daysCol.classList.add("col-xl-1", "col-2");
 			roleCol.classList.remove("col-3");
 			roleCol.classList.add("col-2");
-			levelHeaderCol.classList.remove("col-3");
-			levelHeaderCol.classList.add("col-2");
-			roleHeaderCol.classList.remove("col-3");
-			roleHeaderCol.classList.add("col-2");
-			daysHeaderCol.classList.remove("col-3");
-			daysHeaderCol.classList.add("col-2");
+			
 			statEstColHeader.innerText = "Stat Estimate";
 
-			const userLink = cols[0].children[1];
+			const userLink = entry.querySelector('a');
 			const userID = userLink.href.match(/\d+$/)[0];
 
 			const statEst = this.getEst(userID);
@@ -434,7 +426,6 @@ class StatEstimate {
 				statEstCol.innerText = "---";
 			}
 			entry.insertBefore(statEstCol, levelCol);
-			entry.insertBefore(statEstColHeader, levelHeaderCol);
 		}
 	}
 	inCartelWar(url) {
@@ -448,29 +439,30 @@ class StatEstimate {
 		const theirTable = cols[0].querySelector("table.table");
 		const tableHeadTr = theirTable.querySelector("thead tr");
 		let levelCol = tableHeadTr.querySelectorAll("th")[1];
+
 		let statEstCol = document.createElement("th");
 		statEstCol.setAttribute("scope", "col");
 		statEstCol.innerText = "Stat Estimate";
 		tableHeadTr.insertBefore(statEstCol, levelCol);
+
 		const tableBody = theirTable.querySelector("tbody");
 
 		observeDOM(theirTable, e => {
 			if (e[0].target !== tableBody) return;
 
-			let trs = tableBody.querySelectorAll("tr");
-			for (var tr of trs) {
+			const trs = tableBody.querySelectorAll("tr");
+			for (const tr of trs) {
 				const tds = tr.querySelectorAll("td");
 				levelCol = tds[1];
 				statEstCol = document.createElement("td");
 
-				let statusCol = tds[2];
+				const statusCol = tds[2];
 				if (statusCol.innerText === "Active") // Highlight actives in war
 					statusCol.classList.add("fw-bold");
-
 				else
 					statusCol.classList.add("text-muted");
 
-				const userLink = tds[0].children[0];
+				const userLink = tds[0].querySelector('a');
 				const userID = userLink.href.match(/\d+$/)[0];
 
 				const statEst = this.getEst(userID);
@@ -514,12 +506,11 @@ class StatEstimate {
 			console.error("Error in inHomepage:", error);
 		}
 	}
-
 	inGym(url) {
 		const totalStats = document.querySelector("p.card-text.fw-bold.text-muted"); // Total is the first one
 		if (totalStats === null) return;
 
-		const totalStatsVal = parseInt(totalStats.innerText.split(' ')[0].slice(1).replaceAll(',', ""));
+		const totalStatsVal = parseInt(totalStats.textContent.split(' ')[0].slice(1).replaceAll(',', ""));
 
 		if (this.ownStats !== totalStatsVal) this.setEst("self", totalStatsVal);
 	}
@@ -551,25 +542,25 @@ class StatEstimate {
 		};
 
 		const firstRow = document.querySelector("div.fightTable tbody tr td");
-		const youAttacked = firstRow.innerText.startsWith("You ");
-		const attackedYou = firstRow.innerText.endsWith(" you");
+		const youAttacked = firstRow.textContent.startsWith("You ");
+		const attackedYou = firstRow.textContent.endsWith(" you");
 		const estimate = youAttacked ? this.estimateYouAttacked.bind(this) : attackedYou ? this.estimateAttackedYou.bind(this) : this.AattackedB.bind(this);
 
 		const headers = document.querySelectorAll("div.card-body p.card-text.fw-bold");
-		if (!this.ownStats || headers.length < 3 || (headers[0].innerText.split(' ')[2] === "Loss" && !attackedYou)) {
+		if (!this.ownStats || headers.length < 3 || (headers[0].textContent.split(' ')[2] === "Loss" && !attackedYou)) {
 			if (firstRow.children.length === 1) {
 				const other = firstRow.children[0];
-				showEsts("You", other.innerText, "self", other.href.match(/\d+$/)[0]);
+				showEsts("You", other.textContent, "self", other.href.match(/\d+$/)[0]);
 			} else {
 				const userA = firstRow.children[0];
 				const userB = firstRow.children[1];
-				showEsts(userA.innerText, userB.innerText, userA.href.match(/\d+$/)[0], userB.href.match(/\d+$/)[0]);
+				showEsts(userA.textContent, userB.textContent, userA.href.match(/\d+$/)[0], userB.href.match(/\d+$/)[0]);
 			}
 			return;
 		}
 		const fairFightText = headers[1];
-		const fairFight = parseFloat(fairFightText.children[0].innerText.slice(1));
-		const dateText = headers[headers.length - 1].innerText.slice(7).split(/[ :\/]/g);
+		const fairFight = parseFloat(fairFightText.children[0].textContent.slice(1));
+		const dateText = headers[headers.length - 1].textContent.slice(7).split(/[ :\/]/g);
 		const fightDate = Date.UTC(dateText[5], parseInt(dateText[4]) - 1, dateText[3], dateText[0], dateText[1], dateText[2]);
 
 		let fightID = url.replace('#', "").match(/\d+\/?$/)[0];
@@ -581,7 +572,7 @@ class StatEstimate {
 			const againstID = userLink.href.match(/\d+$/)[0];
 			const currentEstimate = this.getEst(againstID);
 
-			const userName = userLink.innerText;
+			const userName = userLink.textContent;
 			if (userName !== this.getName(againstID))
 				this.setName(againstID, userName);
 
@@ -615,20 +606,20 @@ class StatEstimate {
 				const Adate = parseInt(Astats.split(' ')[1]);
 				const Bdate = parseInt(Bstats.split(' ')[1]);
 				if (Adate === Bdate || fightDate <= Adate || fightDate <= Bdate) {
-					showEsts(userA.innerText, userB.innerText, A_ID, B_ID);
+					showEsts(userA.textContent, userB.textContent, A_ID, B_ID);
 					return;
 				}
 
 				const newerStats = Adate > Bdate ? Astats : Bstats;
 				const otherEst = estimate(newerStats, fairFight, Adate > Bdate);
 				if (otherEst.length === 0) {
-					showEsts(userA.innerText, userB.innerText, A_ID, B_ID);
+					showEsts(userA.textContent, userB.textContent, A_ID, B_ID);
 					return;
 				}
 				const oldEst = Adate > Bdate ? Bstats : Astats;
 				console.info(parseInt(oldEst.split(' ')[0].slice(1).replaceAll(',', "")), parseInt(otherEst[1].replaceAll(',', "")), oldEst[0], otherEst[0]);
 				if (this.dontOverride(parseInt(oldEst.split(' ')[0].slice(1).replaceAll(',', "")), parseInt(otherEst[1].replaceAll(',', "")), oldEst[0], otherEst[0])) {
-					showEsts(userA.innerText, userB.innerText, A_ID, B_ID);
+					showEsts(userA.textContent, userB.textContent, A_ID, B_ID);
 					return;
 				}
 				const otherID = Adate > Bdate ? B_ID : A_ID;
@@ -637,18 +628,18 @@ class StatEstimate {
 					this.currentList.push(parseInt(otherID));
 					this.setList(this.currentList);
 				}
-				showEsts(userA.innerText, userB.innerText, A_ID, B_ID, Adate <= Bdate, Adate > Bdate);
+				showEsts(userA.textContent, userB.textContent, A_ID, B_ID, Adate <= Bdate, Adate > Bdate);
 			} else if ((Astats !== null && Bstats === null) || (Astats === null && Bstats !== null)) {
 				const knownStats = Astats !== null ? Astats : Bstats;
 				const knownDate = parseInt(knownStats.split(' ')[1]);
 				if (fightDate <= knownDate) {
-					showEsts(userA.innerText, userB.innerText, A_ID, B_ID);
+					showEsts(userA.textContent, userB.textContent, A_ID, B_ID);
 					return;
 				}
 
 				const otherEst = estimate(knownStats, fairFight, Astats !== null);
 				if (otherEst.length === 0) {
-					showEsts(userA.innerText, userB.innerText, A_ID, B_ID);
+					showEsts(userA.textContent, userB.textContent, A_ID, B_ID);
 					return;
 				}
 				const otherID = Astats !== null ? B_ID : A_ID;
@@ -657,14 +648,14 @@ class StatEstimate {
 					this.currentList.push(parseInt(otherID));
 					this.setList(this.currentList);
 				}
-				showEsts(userA.innerText, userB.innerText, A_ID, B_ID, Astats === null, Astats !== null);
+				showEsts(userA.textContent, userB.textContent, A_ID, B_ID, Astats === null, Astats !== null);
 				const otherUser = Astats !== null ? userB : userA;
-				const userName = otherUser.innerText;
+				const userName = otherUser.textContent;
 				if (userName !== this.getName(otherID))
 					this.setName(otherID, userName);
 			}
 			else
-				showEsts(userA.innerText, userB.innerText, A_ID, B_ID);
+				showEsts(userA.textContent, userB.textContent, A_ID, B_ID);
 		}
 	}
 	inUserProfile(url) {
@@ -672,11 +663,11 @@ class StatEstimate {
 		if (userID.endsWith('/')) userID = userID.slice(0, -1);
 		if (userID === this.ownID) return;
 
-		let statsTable = document.querySelector("div.card-body tbody");
+		const statsTable = document.querySelector("div.card-body tbody");
 		const estimate = this.getEst(userID);
 
 		const attackText = document.querySelector("div#attackConfirmModal p.card-text");
-		const level = parseInt(statsTable.children[4].children[1].innerText);
+		const level = parseInt(statsTable.children[4].children[1].textContent);
 		const repMultipliers = {
 			Attack: 1,
 			Mug: this.multMug,
@@ -702,7 +693,7 @@ class StatEstimate {
 			append = " with 3x fair fight modifier";
 		}
 		observeDOM(attackText, e => {
-			const textSplit = e[0].target.innerText.split(' ');
+			const textSplit = e[0].target.textContent.split(' ');
 			let attackType = textSplit[textSplit.length - 2];
 			attackType = attackType.charAt(0).toUpperCase() + attackType.slice(1);
 			if (!["Attack", "Mug", "Hospitalise"].includes(attackType))
@@ -710,7 +701,7 @@ class StatEstimate {
 			e[0].target.innerHTML += `<br>Expected rep gain: <span class="fw-bold">${prefix.replace('>', "&gt;").replace('<', "&lt;")}${expectedRep === "???" ? "???" : Math.round(expectedRep * repMultipliers[attackType])}</span>${append}`;
 		});
 
-		const userName = document.querySelector("div.header-section > .profileNameTitle").innerText;
+		const userName = document.querySelector("div.header-section > .profileNameTitle").textContent;
 		if (userName !== this.getName(userID)) this.setName(userID, userName);
 	}
 	inEvents(url) {
@@ -719,19 +710,20 @@ class StatEstimate {
 		if (category !== "Attack") return;
 
 		const eventList = document.querySelector("div.container.eventWrapper").children;
-		for (var i = 1; i !== eventList.length; ++i) {
+		for (let i = 2; i !== eventList.length; ++i) {
 			const ev = eventList[i];
 			ev.children[0].classList.value = "col-2 col-lg-2 col-md-2 col-sm-2"; //"col-2 col-lg-2 col-md-2 col-sm-2";
 			ev.children[1].classList.value = "col-5 col-lg-6 col-md-7 col-sm-7"; //"col-5 col-lg-6 col-md-5 col-sm-6";
 			ev.children[2].classList.value = "col-3 col-lg-2 d-none d-lg-inline"; //"col-3 col-lg-2 col-md-3 col-sm-2";
-			let estCol = document.createElement("div");
-			let mergedCol = document.createElement("div");
+
+			const estCol = document.createElement("div");
+			const mergedCol = document.createElement("div");
 			estCol.classList.value = "col-2 col-lg-2 d-none d-lg-inline"; //"col-2 col-lg-2 col-md-2 col-sm-2";
 			mergedCol.classList.value = "col-3 col-md-3 col-sm-3 d-lg-none"; // new
 
-			if (i === 1) {
-				estCol.innerText = "Stat Estimate";
-				mergedCol.innerText = "Date/Est";
+			if (i === 2) {
+				estCol.textContent = "Stat Estimate";
+				mergedCol.textContent = "Date/Est";
 				ev.insertBefore(estCol, ev.children[2]);
 				ev.appendChild(mergedCol);
 				continue;
@@ -740,12 +732,12 @@ class StatEstimate {
 			const theirStats = this.getEst(userID);
 			if (theirStats !== null) {
 				estCol.style.color = `hsl(${this.colorVal(this.ownStats, parseInt(theirStats.split(' ')[0].slice(1).replaceAll(',', ""))) * 120}, 67%, ${this.brightness}%)`;
-				estCol.innerText = theirStats.split(' ')[0];
-				mergedCol.innerHTML = `${ev.children[2].innerText}<br><span style="color: ${estCol.style.color}">${estCol.innerText}</span>`;
+				estCol.textContent = theirStats.split(' ')[0];
+				mergedCol.innerHTML = `${ev.children[2].textContent}<br><span style="color: ${estCol.style.color}">${estCol.innerText}</span>`;
 			} else {
 				estCol.classList.add("text-muted");
-				estCol.innerText = "???";
-				mergedCol.innerHTML = `${ev.children[2].innerText}<br><span class="text-muted">${estCol.innerText}</span>`;
+				estCol.textContent = "???";
+				mergedCol.innerHTML = `${ev.children[2].textContent}<br><span class="text-muted">${estCol.textContent}</span>`;
 			}
 			ev.insertBefore(estCol, ev.children[2]);
 			ev.appendChild(mergedCol);
