@@ -514,8 +514,8 @@ class BetterItemValues {
 			"Desert Eagle": 8000000
 		}; // Players should go to the market to load up-to-date values, these are presets probably over half a year old
 		if (values.length === 0) {
-			for (var name in this.defaultVals)
-				this.setValue(name, defaultVals[name]);
+			for (const name in this.defaultVals)
+				this.setValue(name, this.defaultVals[name]);
 		}
 
 		this.maxCokeDaily = 8;
