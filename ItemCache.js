@@ -98,9 +98,15 @@ class ItemCache {
 		const jobPanels = document.querySelectorAll("div.equipmentModule div.flex-column");
 		if (!jobPanels) return;
 
+		const hrLine = document.createElement('hr');
+		hrLine.classList = 'w-75';
+
+		const prodMats = document.createElement('p');
+		prodMats.classList = 'text-center';
+
 		for (let i = 4; i !== 8; ++i) {
 			const jobPanel = jobPanels[i];
-			let append = `<hr class="w-75"><p class="text-center">`;
+			let append = '';
 			if (i !== 7) {
 				const have = this.getCache(this.prodItemNames[i - 4]);
 				const prodReq = this.getReq(this.prodItemNames[i - 4]);
@@ -110,12 +116,14 @@ class ItemCache {
 					append += "None needed";
 				else if (have === null)
 					append += `Have <span class="text-muted">???/${prodReq}</span>`;
-
 				else
 					append += `Have <span class="fw-bold" style="color: hsl(${prodReq === 0 ? 120 : Math.min(have / (prodReq * this.days), 1) * 120}, 67%, ${this.brightness}%)">${have.toLocaleString("en-US")}/${prodReq}</span>`;
 			} else append += "None needed";
-			append += " for production</p>";
-			jobPanel.innerHTML += append;
+			append += " for production";
+			prodMats.innerHTML = append;
+
+			jobPanel.appendChild(hrLine.cloneNode());
+			jobPanel.appendChild(prodMats.cloneNode(true));
 		}
 	}
 }
