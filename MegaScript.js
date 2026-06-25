@@ -1558,7 +1558,7 @@ class BetterItemValues {
 		this.minJobValue = Infinity;
 		for (let i = 0; i !== this.jobMoney.length; ++i) {
 			const jobPanel = jobPanels[i];
-			this.setJobTime(jobPanel);
+			this.setJobTime(jobPanel, i);
 
 			this.jobValue[i] = this.jobMoney[i];
 			this.setJobBaseItemReward();
@@ -1588,14 +1588,14 @@ class BetterItemValues {
 			jobPanel.innerHTML += append;
 		}
 	}
-	setJobTime(jobPanel) {
+	setJobTime(jobPanel, index) {
 		const jobTime = jobPanel.querySelector("p.card-text.fw-bold.text-muted");
 		const jobTimeSplit = jobTime.textContent.split(' ');
-		this.jobTimes[i] = parseFloat(jobTimeSplit[0].slice(1));
+		this.jobTimes[index] = parseFloat(jobTimeSplit[0].slice(1));
 		if (jobTimeSplit[1].startsWith("hour")) {
-			this.jobTimes[i] *= 60;
+			this.jobTimes[index] *= 60;
 			if (jobTimeSplit.length > 2)
-				this.jobTimes[i] += parseFloat(jobTimeSplit[2]);
+				this.jobTimes[index] += parseFloat(jobTimeSplit[2]);
 		}
 	}
 	setJobBaseItemReward() {
