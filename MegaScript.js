@@ -721,7 +721,7 @@ class BetterItemValues {
 
 
 		// Handle event card updates (unchanged)
-		handleItemListing();
+		this.handleItemListing();
 
 		// Function to handle item processing
 		function processItems() {
@@ -788,24 +788,6 @@ class BetterItemValues {
 			});
 		}
 
-		function handleItemListing() {
-			const eventCard = document.querySelector("div.contentColumn p.card-text.fw-bold.text-white");
-			if (eventCard === null) return;
-
-			const eventText = eventCard.textContent.split(" - ")[1];
-			const textSplit = eventText.split(' ');
-			if (textSplit[1] !== "listed") return;
-
-			let i = 3;
-			let itemName = textSplit[i];
-			while (textSplit[++i] !== "for") itemName += ` ${textSplit[i]}`;
-
-			const val = parseInt(textSplit.at(-1).slice(1).replace(',', ""));
-			const curVal = this.getValue(itemName);
-
-			if (curVal === null || val < curVal) this.setValue(itemName, val);
-		}
-
 		function createPointPriceContainer(price) {
 			const pointCurrentBest = document.createElement("span");
 			pointCurrentBest.id = "pricePerPointsLabelCurrentBest";
@@ -827,6 +809,23 @@ class BetterItemValues {
 			return priceCurrentBest;
 		}
 
+	}
+	handleItemListing() {
+		const eventCard = document.querySelector("div.contentColumn p.card-text.fw-bold.text-white");
+		if (eventCard === null) return;
+
+		const eventText = eventCard.textContent.split(" - ")[1];
+		const textSplit = eventText.split(' ');
+		if (textSplit[1] !== "listed") return;
+
+		let i = 3;
+		let itemName = textSplit[i];
+		while (textSplit[++i] !== "for") itemName += ` ${textSplit[i]}`;
+
+		const val = parseInt(textSplit.at(-1).slice(1).replace(',', ""));
+		const curVal = this.getValue(itemName);
+
+		if (curVal === null || val < curVal) this.setValue(itemName, val);
 	}
 	inSupporter(url) {
 		const refillText = document.querySelector("div.card-body p.card-text:not(.fw-bold)");
