@@ -3480,6 +3480,9 @@ class HighscoreChanges {
 	}
 	change(content, type) {
 		const rows = content.querySelectorAll("tbody tr");
+		// Only trigger when table changes
+		if (rows.length === 0) return;
+
 		const timeNow = this.timeFunc(Date.now());
 		const curCache = this.getCache(type);
 		let newRanks = {};
@@ -3490,7 +3493,9 @@ class HighscoreChanges {
 			const userID = user.children.length ? parseInt(user.children[0].href.match(/\d+$/)[0]) : "self";
 			newRanks[userID] = parseInt(row.children[0].textContent.replaceAll(',', ""));
 		}
+		// Init newest cache
 		if (curCache[1] === null) curCache[1] = [timeNow, newRanks];
+		// New day -> update latest cache
 		else if (curCache[1][0] !== timeNow) {
 			curCache[0] = curCache[1];
 			curCache[1] = [timeNow, newRanks];
@@ -3499,7 +3504,7 @@ class HighscoreChanges {
 			for (const row of rows) {
 				const user = row.children[1];
 				const userID = user.children.length ? parseInt(user.children[0].href.match(/\d+$/)[0]) : "self";
-				if (!(userID in curCache[0][1] && userID in curCache[1][1])) return;
+				if (!(userID in curCache[0][1] && userID in curCache[1][1])) continue;
 
 				const diff = curCache[0][1][userID] - curCache[1][1][userID];
 				if (diff > 0)
@@ -3536,6 +3541,10 @@ class HighscoreChanges {
 		const levelContainer = document.querySelector("div#v-content-level");
 		this.change(levelContainer, "Level");
 		observeDOM(levelContainer, e => this.change(e[0].target, "Level"));
+
+		const revivesContainer = document.querySelector("div#v-content-revives");
+		this.change(revivesContainer, "Revives");
+		observeDOM(revivesContainer, e => this.change(e[0].target, "Revives"));
 
 		GM_addStyle(`#highscoresTable tr:hover td > span { background-color: ${this.hoverColor} !important }`);
 	}
