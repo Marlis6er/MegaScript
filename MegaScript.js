@@ -1565,9 +1565,9 @@ class BetterItemValues {
 			this.setJobTime(jobPanel, i);
 
 			this.jobValue[i] = this.jobMoney[i];
-			this.setJobBaseItemReward();
+			this.setJobBaseItemReward(i);
 
-			if (this.jobValue[i] !== "???") this.setJobPrestigeReward(jobPanel);
+			if (this.jobValue[i] !== "???") this.setJobPrestigeReward(jobPanel, i);
 
 			const standardJobRepBonus = GM_getValue('perk_Standard Job Rep');
 			// Apply only to standard jobs
@@ -1602,27 +1602,27 @@ class BetterItemValues {
 				this.jobTimes[index] += parseFloat(jobTimeSplit[2]);
 		}
 	}
-	setJobBaseItemReward() {
-		for (const item in this.jobItems[i]) {
+	setJobBaseItemReward(index) {
+		for (const item in this.jobItems[index]) {
 			const price = this.getValue(item);
 			if (price !== null)
-				this.jobValue[i] += price * this.jobItems[i][item];
+				this.jobValue[index] += price * this.jobItems[index][item];
 			else {
-				this.jobValue[i] = "???";
+				this.jobValue[index] = "???";
 				break;
 			}
 		}
 	}
-	setJobPrestigeReward(jobPanel) {
+	setJobPrestigeReward(jobPanel, index) {
 		const prestigeText = jobPanel.querySelector("p.prestigeText");
 		const incrReward = prestigeText !== null && /\+\d+%/.test(prestigeText.innerText) ? parseInt(prestigeText.innerText.match(/\+\d+%/)[0].slice(1, -1)) : 0;
-		this.jobValue[i] *= 1 + incrReward / 100;
-		this.jobRep[i] *= 1 + incrReward / 100;
+		this.jobValue[index] *= 1 + incrReward / 100;
+		this.jobRep[index] *= 1 + incrReward / 100;
 
-		this.jobValue[i] *= this.jobProfitFactor;
-		this.jobValue[i] /= this.jobTimes[i];
-		this.maxJobValue = Math.max(this.maxJobValue, this.jobValue[i]);
-		this.minJobValue = Math.min(this.minJobValue, this.jobValue[i]);
+		this.jobValue[index] *= this.jobProfitFactor;
+		this.jobValue[index] /= this.jobTimes[index];
+		this.maxJobValue = Math.max(this.maxJobValue, this.jobValue[index]);
+		this.minJobValue = Math.min(this.minJobValue, this.jobValue[index]);
 	}
 	inInventory(url) {
 		const itemList = document.querySelector("div.container.inventoryWrapper.pt-2");
