@@ -938,7 +938,12 @@ class BetterItemValues {
 			const tradeTab = tradeTabs[i + 1];
 			const itemList = tradeTab.querySelector("div.table-responsive tbody");
 			if (itemList !== null) {
-				totalVal[i] += this.handleTradeItemList(itemList);
+				const itemValue = this.handleTradeItemList(itemList);
+				if (itemValue === '???') {
+					totalVal[i] = '???';
+					continue;
+				}
+				totalVal[i] += itemValue;
 			}
 
 			const inputs = tradeTab.querySelectorAll("input.form-control");
