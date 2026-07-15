@@ -4,7 +4,7 @@ class ItemCache {
 		this.days = days;
 
 		this.prodItemNames = ["Bag of Fertiliser", "Agave Heart", "Coca Paste"];
-		this.itemNames = [...this.prodItemNames, "Cocaine", "Personal Favour"]; // Also cache these for other scripts
+		this.itemNames = [...this.prodItemNames, "Cocaine", "Personal Favour", 'Corana Beer']; // Also cache these for other scripts
 	}
 	getCache(type) {
 		const cache = GM_getValue(`itemCache_${type}`);
