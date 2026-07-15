@@ -999,7 +999,7 @@ class BetterItemValues {
 			let itemProfit = 0;
 			for (const itemName of Object.keys(this.itemCounts[id])) {
 				const itemVal = this.getValue(itemName);
-				if (itemVal === null) return null;
+				if (itemVal === null) continue;
 				itemProfit += itemVal * this.itemCounts[id][itemName];
 			}
 			return itemProfit;
