@@ -46,6 +46,8 @@ class CartelMemberRep {
 	}
 	inAttackLog(url) {
 		const rows = document.querySelectorAll("table#eventsTable tbody tr");
+		if (rows?.length <= 0) return;
+		
 		this.processLogs(rows);
 	}
 	inCartelHomepage(url) {

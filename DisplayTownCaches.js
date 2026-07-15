@@ -91,6 +91,8 @@ class DisplayTownCaches {
 	}
 	inCasinoSpinner(url) {
 		const spinsLeft = document.querySelector("span#tokenCount");
+		if (!spinsLeft) return;
+
 		const spinsLeftNum = parseInt(spinsLeft.textContent);
 		const curCache = this.getCache("Spins");
 		const now = Date.now() - this.hoursLate * 1000 * 60 * 60;
@@ -104,6 +106,8 @@ class DisplayTownCaches {
 	}
 	inSupporter(url) {
 		const refillButton = document.querySelector("a#refillEnergy");
+		if (!refillButton) return;
+
 		const refillDone = refillButton.classList.contains("disabled");
 
 		const curCache = this.getCache("EnergyRefill");
@@ -113,6 +117,8 @@ class DisplayTownCaches {
 	}
 	inMateos(url) {
 		const headerSections = document.querySelectorAll('.header-section');
+		if (headerSections?.length < 2) return;
+		
 		const pointsHeader = headerSections[2].querySelector('h2').textContent;
 		const pointsDepleted = pointsHeader.includes("(0/25)");
 		console.debug(pointsHeader);
@@ -212,15 +218,15 @@ class DisplayTownCaches {
 			
 			const listItem = document.createElement("li");
 			listItem.innerHTML = `
-	<a class="nav-link d-flex flex-column align-items-center px-md-0 px-2 leftNavLink" href="${linkObj.link}">
-		<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-				fill="hsl(60, 67%, ${this.brightness}%)"
-				viewBox="0 0 ${linkObj.viewBox} ${linkObj.viewBox}">
-			${linkObj.path}
-		</svg>
-		<span class="text-warning mt-1">${linkObj.name}</span>
-	</a>
-`;
+				<a class="nav-link d-flex flex-column align-items-center px-md-0 px-2 leftNavLink" href="${linkObj.link}">
+					<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+							fill="hsl(60, 67%, ${this.brightness}%)"
+							viewBox="0 0 ${linkObj.viewBox} ${linkObj.viewBox}">
+						${linkObj.path}
+					</svg>
+					<span class="text-warning mt-1">${linkObj.name}</span>
+				</a>
+			`;
 			if (mobileMenu)
 				mobileMenu.appendChild(listItem.cloneNode(true));
 			if (desktopMenu)

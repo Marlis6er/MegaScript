@@ -63,6 +63,7 @@ Hospital timer by ${hospTimeText} ${this.getPerk(this.medEffectiveness) === 0 ? 
 	inHomepage(url) {
 		// Grab the perk items from the updated structure
 		const perks = document.querySelectorAll(".col-12.d-flex.align-items-stretch.col-xxl-4 .perk-item");
+		if (perks?.length <= 0) return;
 
 		const museumVals = {
 			"Small": 50,
@@ -159,6 +160,8 @@ Hospital timer by ${hospTimeText} ${this.getPerk(this.medEffectiveness) === 0 ? 
 	}
 	inMarket(url) {
 		const medItems = document.querySelector("div#content-medical");
+		if (!medItems) return;
+		
 		observeDOM(medItems, e => {
 			const list = e[0]?.addedNodes[2];
 			if (list?.classList === undefined || !list.classList.contains("offerListWrapper"))

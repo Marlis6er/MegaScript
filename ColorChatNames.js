@@ -15,9 +15,11 @@ class ColorChatNames {
 		return list;
 	}
 	inConnections(url) {
-		const [friendList, enemyList] = document.querySelectorAll("div.card-body  div.tab-content");
-		const friends = friendList.querySelectorAll("a.fw-bold");
-		const enemies = enemyList.querySelectorAll("a.fw-bold");
+		const lists = document.querySelectorAll("div.card-body  div.tab-content");
+		if (lists.length < 2) return;
+
+		const friends = lists[0].querySelectorAll("a.fw-bold");
+		const enemies = lists[1].querySelectorAll("a.fw-bold");
 		let list = [];
 		for (const user of friends) {
 			list.push(user.href.match(/\d+$/)[0]);

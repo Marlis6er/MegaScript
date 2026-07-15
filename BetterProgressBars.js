@@ -22,7 +22,7 @@ class BetterProgressBars {
 
 	inExpeditions(url) {
 		const bars = document.querySelectorAll(".progress-bar-striped");
-		for (var bar of bars) bar.classList.remove("bg-success");
+		for (const bar of bars) bar.classList.remove("bg-success");
 	}
 
 	inJobs(url) {

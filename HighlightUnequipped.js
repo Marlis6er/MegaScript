@@ -11,6 +11,7 @@ class HighlightUnequipped {
 	inProduction(url) {
 		const idle = document.querySelector("p.idleNarcos");
 		if (idle === null) return;
+		
 		const setColor = text => {
 			if (text === "0") idle.classList.remove("fw-bold", "text-danger");
 			else idle.classList.add("fw-bold", "text-danger");

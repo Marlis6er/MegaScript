@@ -203,7 +203,7 @@ class ColorStats {
 	}
 	inInventory(url) {
 		const itemList = document.querySelectorAll("div.container.inventoryWrapper > div.inventoryItemWrapper");
-		if (itemList === null) return;
+		if (itemList?.length <= 0) return;
 
 		for (const item of itemList) {
 			if (item.children.length < 7) continue;

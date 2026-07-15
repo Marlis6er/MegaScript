@@ -1,7 +1,8 @@
 class DPEnergyRefillReminder {
 	constructor() { }
 	inSupporter(url) {
-		let modalText = document.querySelector("#useRefillConfirm p.card-text.modal-bodyText");
+		const modalText = document.querySelector("#useRefillConfirm p.card-text.modal-bodyText");
+		if (!modalText) return;
 
 		const modalObserver = e => {
 			const textSplit = e[0].target.innerText.split(' ');

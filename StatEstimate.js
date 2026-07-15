@@ -430,6 +430,8 @@ class StatEstimate {
 	}
 	inCartelWar(url) {
 		const war = document.querySelector("div#warReportModule");
+		if (!war) return;
+
 		let cols = war.querySelectorAll("div.col-12.col-lg-6");
 		cols[0].classList.remove("col-lg-6");
 		cols[0].classList.add("col-lg-7");
@@ -542,6 +544,8 @@ class StatEstimate {
 		};
 
 		const firstRow = document.querySelector("div.fightTable tbody tr td");
+		if (!firstRow) return;
+		
 		const youAttacked = firstRow.textContent.startsWith("You ");
 		const attackedYou = firstRow.textContent.endsWith(" you");
 		const estimate = youAttacked ? this.estimateYouAttacked.bind(this) : attackedYou ? this.estimateAttackedYou.bind(this) : this.AattackedB.bind(this);

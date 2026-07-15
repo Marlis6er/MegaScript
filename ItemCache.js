@@ -96,7 +96,7 @@ class ItemCache {
 	}
 	inJobs(url) {
 		const jobPanels = document.querySelectorAll("div.equipmentModule div.flex-column");
-		if (!jobPanels) return;
+		if (jobPanels?.length <= 0) return;
 
 		const hrLine = document.createElement('hr');
 		hrLine.classList = 'w-75';

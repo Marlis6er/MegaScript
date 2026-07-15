@@ -6,6 +6,8 @@ class IntPerWeek {
 	}
 	inUniversityPage(url) {
 		const courses = document.querySelectorAll("div#classAccordion div.accordion-item");
+		if (courses?.length <= 0) return;
+		
 		let intPerDay = [];
 		let maxIpd = 0;
 		let minIpd = Infinity;

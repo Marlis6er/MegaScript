@@ -5,6 +5,8 @@ class HighlightInactives {
 	}
 	inCartel(url) {
 		const table = document.querySelector("div.card-body > div.container-fluid");
+		if (!table) return;
+		
 		const rows = table.querySelectorAll(".row.align-middle");
 
 		for (const row of rows) {

@@ -2,6 +2,7 @@ class ExpeditionChances {
 	constructor() { }
 	inExpeditions(URL) {
 		const teamStats = this.getTeamStats();
+		if (!teamStats) return;
 
 		const expeds = document.querySelectorAll(".expeditionButton");
 		for (const exped of expeds) {

@@ -372,12 +372,13 @@ class BetterItemValues {
 	inSupporter(url) {
 		const refillText = document.querySelector("div.card-body p.card-text:not(.fw-bold)");
 		const pointPrice = this.getValue(this.pointName);
-		if (pointPrice === null) return;
+		if (pointPrice === null || refillText === null) return;
 
 		refillText.innerHTML = `${refillText.innerText.slice(0, -1)} <span class="text-muted">(\u00a3${(pointPrice * 25).toLocaleString("en-US")})</span>.`;
 	}
 	inEstateAgent(url) {
 		const buildReqs = document.querySelectorAll("div.row.pb-2");
+		if (buildReqs?.length <= 0) return;
 
 		for (const buildReq of buildReqs) {
 			const matList = buildReq.querySelector('div.col-6.d-flex.flex-column > p');
@@ -405,6 +406,7 @@ class BetterItemValues {
 		}
 
 		const buildModal = document.querySelector("div#buildModal");
+		if (!buildModal) return;
 
 		observeDOM(buildModal, e => {
 			const modal = e[1].target;
@@ -474,6 +476,8 @@ class BetterItemValues {
 	}
 	inTradeView(url) {
 		const tradeTabs = document.querySelectorAll("div.card-body:not(.text-center)");
+		if (tradeTabs?.length <= 0) return;
+
 		const totalVal = [0, 0];
 
 		for (let i = 0; i !== 2; ++i) {
@@ -539,7 +543,7 @@ class BetterItemValues {
 		}
 	}
 	inAddItems(url) {
-		let itemList = document.querySelector("div.container.inventoryWrapper");
+		const itemList = document.querySelector("div.container.inventoryWrapper");
 		if (itemList === null) return;
 
 		const buttonNode = itemList.parentNode.querySelector("div.contentColumn input.btn");
@@ -668,6 +672,7 @@ class BetterItemValues {
 			return;
 
 		const eventList = document.querySelectorAll("div.container.eventWrapper > div.eventItemWrapper");
+		if (eventList?.length <= 0) return;
 
 		let profit = [];
 		let maxProfit = 0;

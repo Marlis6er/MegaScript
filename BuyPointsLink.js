@@ -6,7 +6,7 @@ class BuyPointsLink {
 	inSupporter(url) {
 		// Find the container (updated from the previous class names)
 		let container = document.querySelector("div.col-12"); // Adjust this selector if needed
-
+		if (!container) return;
 
 		// Find the cards in the container (adjust this according to the new structure of your cards)
 		const cards = container.querySelectorAll("div.card.mb-4");
