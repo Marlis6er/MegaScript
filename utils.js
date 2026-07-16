@@ -1,3 +1,6 @@
+// constants used in all modules
+const POUND = '\u00a3';
+
 // Used for seeing when elements update, for some reason there's no neat standard way to do that
 const observeDOM = (function() {
 	const MutationObserver = window.MutationObserver

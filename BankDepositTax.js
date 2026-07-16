@@ -4,7 +4,7 @@ class BankDepositTax {
 		this.ID = "taxOnDeposit";
 	}
 	calc(val) {
-		return `Deposit tax: \u00a3${Math.round(val / 100 * this.taxRate).toLocaleString("en-US")}`;
+		return `Deposit tax: ${POUND}${Math.round(val / 100 * this.taxRate).toLocaleString("en-US")}`;
 	}
 	inBank(url) {
 		const container = document.querySelector("div.text-center.d-flex.flex-column.align-items-center");

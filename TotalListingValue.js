@@ -11,7 +11,7 @@ class TotalListingValue {
 
 		const totalValCard = document.createElement("div");
 		totalValCard.classList.add("card-body", "mb-2");
-		totalValCard.innerHTML = `<p class="card-text">The total value of your listings is <span class="fw-bold">\u00a3${totalVal.toLocaleString("en-US")}</span>.</p>`;
+		totalValCard.innerHTML = `<p class="card-text">The total value of your listings is <span class="fw-bold">${POUND}${totalVal.toLocaleString("en-US")}</span>.</p>`;
 		ownOffers.insertBefore(totalValCard, header);
 	}
 	getTotalValue(offerItems) {

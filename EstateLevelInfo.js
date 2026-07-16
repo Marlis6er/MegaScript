@@ -2,7 +2,7 @@ class EstateLevelInfo {
 	constructor(darkMode) {
 		this.brightness = darkMode ? 50 : 45;
 
-		this.prefixes = ["", "", '\u00a3', '-', '+', '+', '+'];
+		this.prefixes = ["", "", '${POUND}', '-', '+', '+', '+'];
 		this.postfixes = ["", "", 'M', '%', '%', " INT", '%'];
 		this.values = [
 			[], // Plot cost, nothing to process here

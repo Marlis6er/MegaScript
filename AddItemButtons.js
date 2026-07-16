@@ -262,7 +262,7 @@ class AddItemButtons {
 				${itemName === 'Cocaine' ? "Drug" : "Special"}
 			</div>
 			<div class="col col-2 col-xl-2 d-none d-xl-inline">
-				<span></span>\u00a3${value.toLocaleString("en-US")} 
+				<span></span>${POUND}${value.toLocaleString("en-US")} 
 			</div>
 			<div class="col col-12 col-sm-3 pe-2 d-none d-sm-inline">
 				<button class="btn btn-sm btn-outline-dark action-btn ms-1 float-end" href="#" data-bs-toggle="modal" data-bs-target="#throwItemModal" data-bs-itemname="${itemName}" data-bs-itemid="${ID}" title="Throw Away" aria-label="Throw Away ${itemName}" disabled="">
@@ -331,7 +331,7 @@ class AddItemButtons {
 								Value
 							</div>
 							<div class="card-text">
-								<span></span>\u00a3${value.toLocaleString("en-US")} 
+								<span></span>${POUND}${value.toLocaleString("en-US")} 
 							</div>
 						</div>
 					</div>
