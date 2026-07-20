@@ -1,4 +1,9 @@
 class BetterItemValues {
+	// Container for the best point price in market
+	pointCurrentBest;
+	// Container for the best item price in market
+	priceCurrentBest;
+
 	constructor(darkMode, strikethrough, alwaysColorNames) {
 		this.brightness = darkMode ? 50 : 45;
 		this.bestColor = `hsl(60, 100%, ${darkMode ? 70 : 40}%)`;
@@ -15,17 +20,17 @@ class BetterItemValues {
 			'G36': 375_000,
 			'L86 LSW': 1_000_000,
 			'Steyr AUG': 2_250_000,
-			'SIG SG 550': 11_250_000, // TODO: Update this price
-			'MG5': 4_500_000, // TODO: Update this price
-			'FN SCAR-H': 18_750_000, // TODO: Update this price
-			'Bazooka': 37_500_000, // TODO: Update this price
+			'SIG SG 550': 3_750_000,
+			'MG5': 4_500_000,
+			'FN SCAR-H': 6_250_000, 
+			'Bazooka': 12_500_000,
 
 			// Secondary Weapons
 			'Baseball Bat': 125,
 			'Walther P38': 1_000,
 			'M16A2 Rifle': 6_250,
 			'M1911': 6_250,
-			'S&W Magnum Revolver': 125_000, // TODO: Update this price
+			'S&W Magnum Revolver': 50_000,
 			'Glock 18': 250_000,
 			'Desert Eagle': 12_000_000, // TODO: Update this price
 
@@ -159,7 +164,7 @@ class BetterItemValues {
 			'Leadership Specialist Contact': 0,
 		}; // Players should go to the market to load up-to-date values, these are presets probably over half a year old
 		if (values.length === 0) {
-			for (var name in this.defaultVals)
+			for (const name in this.defaultVals)
 				this.setValue(name, defaultVals[name]);
 		}
 
@@ -172,8 +177,8 @@ class BetterItemValues {
 			'Blancoda Tequila': 15,
 			'Repose Tequila': 20,
 			'Anejo Tequila': 25,
-			Raicilla: 30,
-			Cocaine: 50 * (1 - this.cokeODChance / 100),
+			"Raicilla": 30,
+			"Cocaine": 50 * (1 - this.cokeODChance / 100),
 			'Glittering Gift': 100
 		};
 		this.hospitalItems = {
@@ -202,14 +207,14 @@ class BetterItemValues {
 		this.itemCounts = [
 			{},
 			{
-				Bandage: this.doctorsOfficePerProd * 50 / 100,
+				"Bandage": this.doctorsOfficePerProd * 50 / 100,
 				"Small Medical Kit": this.doctorsOfficePerProd * 30 / 100,
 				"Large Medical Kit": this.doctorsOfficePerProd * 12.5 / 100,
 				"Basic Trauma Kit": this.doctorsOfficePerProd * 5 / 100,
 				"Large Trauma Kit": this.doctorsOfficePerProd * 2.5 / 100
 			},
 			{
-				Cannabis: this.maxCannabis / 2 * (1 - this.taintedChance[0] / 100),
+				"Cannabis": this.maxCannabis / 2 * (1 - this.taintedChance[0] / 100),
 				"Tainted Cannabis": this.maxCannabis / 2 * this.taintedChance[0] / 100
 			},
 			{
@@ -218,10 +223,10 @@ class BetterItemValues {
 				"Blancoda Tequila": this.alcoholPerProd * 30.3 / 100,
 				"Repose Tequila": this.alcoholPerProd * 14.1 / 100,
 				"Anejo Tequila": this.alcoholPerProd * 9.5 / 100,
-				Raicilla: this.alcoholPerProd * 3.1 / 100
+				"Raicilla": this.alcoholPerProd * 3.1 / 100
 			},
 			{
-				Cocaine: this.maxCoke / 2 * (1 - this.taintedChance[1] / 100),
+				"Cocaine": this.maxCoke / 2 * (1 - this.taintedChance[1] / 100),
 				"Tainted Cocaine": this.maxCoke / 2 * this.taintedChance[1] / 100
 			}
 		];
@@ -298,6 +303,9 @@ class BetterItemValues {
 			['a Supporter Pack', this.getValue('Supporter Pack')],
 			['500 Points', calcPointVal(500)]
 		]);
+
+		// Production-related values
+		this.assigned = [];
 	}
 	getValue(itemName) {
 		let formattedName = `value_${itemName.replaceAll(' ', '_')}`;
@@ -330,19 +338,19 @@ class BetterItemValues {
 		const pointPriceLabel = document.querySelector("#pricePerPointsLabel");
 
 		let price = this.getValue(this.pointName);
-		const pointCurrentBest = createPointPriceContainer(price);
+		this.pointCurrentBest = this._createPointPriceContainer(price);
 
 		pointPriceLabel.textContent += ' ';
-		pointPriceLabel.appendChild(pointCurrentBest);
+		pointPriceLabel.appendChild(this.pointCurrentBest);
 
 		const pricePerLabel = document.querySelector("#pricePerLabel");
 
 		let itemName = options[0].textContent;
 		let currentBest = this.getValue(itemName);
-		const priceCurrentBest = createItemPriceContainer(itemName, currentBest);
+		this.priceCurrentBest = this._createItemPriceContainer(itemName, currentBest);
 
 		pricePerLabel.textContent += ' ';
-		pricePerLabel.appendChild(priceCurrentBest);
+		pricePerLabel.appendChild(this.priceCurrentBest);
 
 		itemSelector.addEventListener("change", e => {
 			for (const option of options) {
@@ -350,8 +358,8 @@ class BetterItemValues {
 
 				itemName = option.textContent.trim().replace(/\s+-\s+\d+(?:\.\d+)?%$/, "");
 				price = this.getValue(itemName);
-				priceCurrentBest.value = itemName;
-				priceCurrentBest.textContent = `(${POUND}${price === null ? "???" : price.toLocaleString("en-US")})`;
+				this.priceCurrentBest.value = itemName;
+				this.priceCurrentBest.textContent = `(${POUND}${price === null ? "???" : price.toLocaleString("en-US")})`;
 				break;
 			}
 		});
@@ -359,119 +367,103 @@ class BetterItemValues {
 		const container = document.querySelector("nav#itemMarketNav > div.tab-content");
 
 		// Initial run to process any already loaded items
-		processItems();
+		this._processItems();
 
 		// Start observing for dynamic changes
-		observeMarketChanges();
+		this._observeMarketChanges();
 
 
 		// Handle event card updates (unchanged)
-		handleItemListing();
+		this._handleItemListing();
 
-		// Function to handle item processing
-		function processItems() {
-			const offerListWrappers = document.querySelectorAll("div.offerListWrapper");
-			console.info("Number of offerListWrappers found:", offerListWrappers.length);
+	}
+	_processItems() {
+		const offerListWrappers = document.querySelectorAll("div.offerListWrapper");
 
-			offerListWrappers.forEach(wrapper => {
-				const itemCards = wrapper.querySelectorAll("div.col-xl-2.col-md-3.col-sm-4.col-6");
-				console.info("Number of item cards in wrapper:", itemCards.length);
+		offerListWrappers.forEach(wrapper => {
+			const itemCards = wrapper.querySelectorAll("div.col-xl-2.col-md-3.col-sm-4.col-6");
 
-				itemCards.forEach(handleItemCard);
-			});
-		}
+			itemCards.forEach(card => this._handleItemCard(card));
+		});
+	}
+	_observeMarketChanges() {
+		const targetNode = document.querySelector("#itemMarketNav"); // Adjust the selector as needed
+		if (!targetNode) return;
 
-		function handleItemCard(card) {
-			try {
-				const itemName = card.querySelector("h5.card-title").textContent.trim();
-				console.debug(`Found item: ${itemName}`); // Debugging log
-
-				const itemPriceText = card.querySelector("p.card-text.fst-italic").textContent.trim();
-				const itemPrice = parseInt(itemPriceText.slice(1).split(' ')[0].replaceAll(',', ""));
-
-				// Format key to match required format
-				const key = `value_${itemName.replace(/\s+/g, '_')}`;
-
-				// Use GM_getValue to retrieve the current best value
-				const currentBest = GM_getValue(key, null);
-				console.debug(`Current stored value for ${itemName}: ${currentBest}`); // Debugging log
-
-				if (currentBest === itemPrice) {
-					console.debug(`No update needed for ${itemName}. Current: £${currentBest}, New: £${itemPrice}`); // Debugging log
-					return;
-				}
-
-				console.debug(`Updating value for ${itemName} from ${currentBest} to ${itemPrice}`); // Debugging log
-				GM_setValue(key, itemPrice); // Store value with formatted key
-				const newStoredValue = GM_getValue(key);
-				console.debug(`New stored value for ${itemName}: ${newStoredValue}`); // Debugging log
-
-
-				// Ensure pointName and priceCurrentBest are defined
-				if (typeof pointName !== 'undefined' && itemName === pointName) {
-					pointCurrentBest.textContent = `(${POUND}${itemPrice.toLocaleString("en-US")})`;
-				} else if (priceCurrentBest && priceCurrentBest.value === itemName) {
-					priceCurrentBest.textContent = `(${POUND}${itemPrice.toLocaleString("en-US")})`;
-				}
-			} catch (error) {
-				console.error(`Error processing card: ${error}`);
+		observeDOM(targetNode, (mutationsList) => {
+			for (const mutation of mutationsList) {
+				if (mutation.type !== "childList" || mutation.addedNodes.length <= 0)
+					continue;
+				console.info("Detected new nodes in market area, re-running item processing...");
+				this._processItems(); // Re-run the script to process newly added items
 			}
+		});
+	}
+	_handleItemCard(card) {
+		const itemName = card.querySelector("h5.card-title")?.textContent.trim();
+		if (!itemName) {
+			console.warn('No itemname found in ', card);
+			return;
 		}
 
-		// Observer to watch for changes in the market area and re-run the script
-		function observeMarketChanges() {
-			const targetNode = document.querySelector("#itemMarketNav"); // Adjust the selector as needed
-			if (!targetNode) return;
+		const itemPriceText = card.querySelector("p.card-text.fst-italic").textContent.trim();
+		const itemPrice = parseInt(itemPriceText.slice(1).split(' ')[0].replaceAll(',', ""));
 
-			observeDOM(targetNode, (mutationsList) => {
-				for (const mutation of mutationsList) {
-					if (mutation.type !== "childList" || mutation.addedNodes.length <= 0)
-						continue;
-					console.info("Detected new nodes in market area, re-running item processing...");
-					processItems(); // Re-run the script to process newly added items
-				}
-			});
+		// Format key to match required format
+		const key = `value_${itemName.replace(/\s+/g, '_')}`;
+
+		// Use GM_getValue to retrieve the current best value
+		const currentBest = GM_getValue(key, null);
+
+		if (currentBest === itemPrice) return;
+
+		console.debug(`Updating value for ${itemName} from ${currentBest} to ${itemPrice}`); // Debugging log
+		GM_setValue(key, itemPrice); // Store value with formatted key
+		const newStoredValue = GM_getValue(key);
+
+
+		// Ensure pointName and priceCurrentBest are defined
+		if (typeof this.pointName !== 'undefined' && itemName === this.pointName) {
+			this.pointCurrentBest.textContent = `(${POUND}${itemPrice.toLocaleString("en-US")})`;
+		} else if (this.priceCurrentBest && this.priceCurrentBest.value === itemName) {
+			this.priceCurrentBest.textContent = `(${POUND}${itemPrice.toLocaleString("en-US")})`;
 		}
+	}
+	_handleItemListing() {
+		const eventCard = document.querySelector("div.contentColumn p.card-text.fw-bold.text-white");
+		if (eventCard === null) return;
 
-		function handleItemListing() {
-			const eventCard = document.querySelector("div.contentColumn p.card-text.fw-bold.text-white");
-			if (eventCard === null) return;
+		const eventText = eventCard.textContent.split(" - ")[1];
+		const textSplit = eventText.split(' ');
+		if (textSplit[1] !== "listed") return;
 
-			const eventText = eventCard.textContent.split(" - ")[1];
-			const textSplit = eventText.split(' ');
-			if (textSplit[1] !== "listed") return;
+		let i = 3;
+		let itemName = textSplit[i];
+		while (textSplit[++i] !== "for") itemName += ` ${textSplit[i]}`;
 
-			let i = 3;
-			let itemName = textSplit[i];
-			while (textSplit[++i] !== "for") itemName += ` ${textSplit[i]}`;
+		const val = parseInt(textSplit.at(-1).slice(1).replace(',', ""));
+		const curVal = this.getValue(itemName);
 
-			const val = parseInt(textSplit.at(-1).slice(1).replace(',', ""));
-			const curVal = this.getValue(itemName);
+		if (curVal === null || val < curVal) this.setValue(itemName, val);
+	}
+	_createPointPriceContainer(price) {
+		const pointCurrentBest = document.createElement("span");
+		pointCurrentBest.id = "pricePerPointsLabelCurrentBest";
+		pointCurrentBest.classList.add("text-muted");
 
-			if (curVal === null || val < curVal) this.setValue(itemName, val);
-		}
+		pointCurrentBest.innerText = `(${POUND}${price === null ? "???" : price.toLocaleString("en-US")})`;
 
-		function createPointPriceContainer(price) {
-			const pointCurrentBest = document.createElement("span");
-			pointCurrentBest.id = "pricePerPointsLabelCurrentBest";
-			pointCurrentBest.classList.add("text-muted");
+		return pointCurrentBest;
+	}
+	_createItemPriceContainer(itemName, price) {
+		const priceCurrentBest = document.createElement("span");
+		priceCurrentBest.id = "pricePerLabelCurrentBest";
+		priceCurrentBest.classList.add("text-muted");
+		priceCurrentBest.value = itemName;
 
-			pointCurrentBest.innerText = `(${POUND}${price === null ? "???" : price.toLocaleString("en-US")})`;
+		priceCurrentBest.innerText = `(${POUND}${price === null ? "???" : price.toLocaleString("en-US")})`;
 
-			return pointCurrentBest;
-		}
-
-		function createItemPriceContainer(itemName, price) {
-			const priceCurrentBest = document.createElement("span");
-			priceCurrentBest.id = "pricePerLabelCurrentBest";
-			priceCurrentBest.classList.add("text-muted");
-			priceCurrentBest.value = itemName;
-
-			priceCurrentBest.innerText = `(${POUND}${price === null ? "???" : price.toLocaleString("en-US")})`;
-
-			return priceCurrentBest;
-		}
-
+		return priceCurrentBest;
 	}
 	inSupporter(url) {
 		const refillText = document.querySelector("div.card-body p.card-text:not(.fw-bold)");
@@ -556,10 +548,10 @@ class BetterItemValues {
 			}
 			else itemName = item.children[1].textContent;
 
-			this.updateStoreUI(item, itemName, selling);
+			this._updateStoreUI(item, itemName, selling);
 		}
 	}
-	updateStoreUI(item, itemName, inSellingUI) {
+	_updateStoreUI(item, itemName, inSellingUI) {
 		const currentBest = this.getValue(itemName);
 		if (currentBest === null) return;
 
@@ -588,7 +580,7 @@ class BetterItemValues {
 			const tradeTab = tradeTabs[i + 1];
 			const itemList = tradeTab.querySelector("div.table-responsive tbody");
 			if (itemList !== null) {
-				totalVal[i] += this.handleTradeItemList(itemList);
+				totalVal[i] += this._handleTradeItemList(itemList);
 			}
 
 			const inputs = tradeTab.querySelectorAll("input.form-control");
@@ -609,9 +601,9 @@ class BetterItemValues {
 				totalVal[i] += parseInt(propertyVal.textContent.slice(1).replaceAll(',', ""));
 			}
 		}
-		this.updateTradeUI(tradeTabs, totalVal);
+		this._updateTradeUI(tradeTabs, totalVal);
 	}
-	handleTradeItemList(itemList) {
+	_handleTradeItemList(itemList) {
 		itemList.children[0].innerHTML += "<th>Value</th>";
 
 		let value = 0;
@@ -629,7 +621,7 @@ class BetterItemValues {
 		}
 		return value;
 	}
-	updateTradeUI(tradeTabs, totalVal) {
+	_updateTradeUI(tradeTabs, totalVal) {
 		for (let i = 0; i !== 2; ++i) {
 			const nameHeader = tradeTabs[i + 1].parentNode.querySelector("h2");
 			const templateStart = `<h2 class="row"><div class="col">${nameHeader.textContent}</div><div class="col text-end`
@@ -682,10 +674,10 @@ class BetterItemValues {
 				let totalValue = 0;
 
 				if (inputVal === "" || inputVal.trim()[0] === '-' || parseInt(inputVal) === 0) {
-					this.resetInputDisplay(value, currentBest, totalVals);
+					this._resetInputDisplay(value, currentBest, totalVals);
 				} else {
 					const count = parseInt(inputVal);
-					this.updateInputDisplay(value, currentBest, totalVals, count);
+					this._updateInputDisplay(value, currentBest, totalVals, count);
 				}
 				for (const val in totalVals)
 						totalValue += val * totalVals[val];
@@ -693,7 +685,7 @@ class BetterItemValues {
 			});
 		}
 	}
-	resetInputDisplay(valueElem, currentBest, totalVals) {
+	_resetInputDisplay(valueElem, currentBest, totalVals) {
 		valueElem.classList.remove("fw-bold");
 		valueElem.classList.add("text-muted");
 		valueElem.style.color = null;
@@ -702,7 +694,7 @@ class BetterItemValues {
 
 		totalVals[currentBest] = 0;
 	}
-	updateInputDisplay(valueElem, currentBest, totalVals, count) {
+	_updateInputDisplay(valueElem, currentBest, totalVals, count) {
 		valueElem.classList.remove("text-muted");
 		valueElem.classList.add("fw-bold");
 		valueElem.style.color = this.bestColor;
@@ -739,7 +731,7 @@ class BetterItemValues {
 			if (currentBest === null) haveAll = false;
 			else totalVal += currentBest * countOf;
 
-			this.colorArmoryItems(item, itemName);
+			this._colorArmoryItems(item, itemName);
 		}
 		
 		const pointVal = this.getValue(this.pointName);
@@ -755,7 +747,7 @@ class BetterItemValues {
 		totalValCard.innerHTML = `<div class="row mb-0"><div class="col-12"><div class="header-section"><h2>Total Armory Value</h2></div></div></div><div class="card-body"><p class="card-text">The value of this armory is ${haveAll ? "" : "at least "}<span class="fw-bold">${POUND}${totalVal.toLocaleString("en-US")}</span>.</p></div>`;
 		container.insertBefore(totalValCard, cards[cards.length - 2]);
 	}
-	colorArmoryItems(item, itemName) {
+	_colorArmoryItems(item, itemName) {
 		if (this.alwaysColorNames.includes(itemName)) {
 			item.children[1].style.color = this.bestColor;
 			return;
@@ -788,7 +780,7 @@ class BetterItemValues {
 			const eventSplit = eventDescription.split(' ');
 
 			if (eventType === "Casino") {
-				const spinProfit = this.handleCasinoEvents(ev);
+				const spinProfit = this._handleCasinoEvents(ev);
 
 				if (spinProfit !== null) {
 					profit.push(spinProfit);
@@ -799,7 +791,7 @@ class BetterItemValues {
 				}
 				continue;
 			} else if (eventType === "Item Sending") {
-				const itemSendingProfit = this.handleItemSendingEvents(eventDescription);
+				const itemSendingProfit = this._handleItemSendingEvents(eventDescription);
 
 				profit.push(itemSendingProfit || '???');
 				continue;
@@ -813,8 +805,8 @@ class BetterItemValues {
 			let totalVal = 0;
 			let countOf = 0;
 
-			totalVal += this.getMoneyFromEvent(eventDescription) || 0;
-			const itemVal = this.getItemValFromEvent(eventDescription);
+			totalVal += this._getMoneyFromEvent(eventDescription) || 0;
+			const itemVal = this._getItemValFromEvent(eventDescription);
 
 			if (itemVal !== null) {
 				totalVal += itemVal;
@@ -828,12 +820,12 @@ class BetterItemValues {
 		}
 
 		const header = eventList[0].previousSibling;
-		this.adjustEventHeader(header);
+		this._adjustEventHeader(header);
 
 
-		this.updateEventUI(eventList, profit, minProfit, maxProfit, category);
+		this._updateEventUI(eventList, profit, minProfit, maxProfit, category);
 	}
-	handleCasinoEvents(evt) {
+	_handleCasinoEvents(evt) {
 		const evtDesc = evt.children[1].textContent;
 
 		const rewardRegex = new RegExp('(?:won )(?<reward>.*)(?:\.$)', 'g');
@@ -843,7 +835,7 @@ class BetterItemValues {
 
 		return spinProfit;
 	}
-	handleItemSendingEvents(eventDescription) {
+	_handleItemSendingEvents(eventDescription) {
 		// NAME sent you x<amount> <item>('s. Message - ...)
 		// Only handles received items
 		const itemRegex = new RegExp(/^\w+ sent you x(?<amount>\d+) (?<item>[^'.]+)/, 'g');
@@ -853,15 +845,15 @@ class BetterItemValues {
 
 		return itemName ? this.getValue(itemName) * parseInt(countOf): null;
 	}
-	getMoneyFromEvent(eventDescription) {
+	_getMoneyFromEvent(eventDescription) {
 		const moneyRegex = new RegExp(/\u00a3\d+(,\d+)*/, 'g');
 		const moneyRegexResult = moneyRegex.exec(eventDescription);
 
 		if (!moneyRegexResult?.[0]) return null
 		return parseInt(moneyRegexResult?.[0].slice(1).replaceAll(',', ""));
 	}
-	getItemValFromEvent(eventDescription) {
-		const items = this.getItemsFromEvent(eventDescription);
+	_getItemValFromEvent(eventDescription) {
+		const items = this._getItemsFromEvent(eventDescription);
 		let totalValue = 0;
 		for (const [item, amount] of items) {
 			const itemValue = this.getValue(item);
@@ -871,7 +863,7 @@ class BetterItemValues {
 		}
 		return totalValue;
 	}
-	getItemsFromEvent(eventDescription) {
+	_getItemsFromEvent(eventDescription) {
 		const allItems = Object
 		  	.keys(this.defaultVals)
 		  	.map(item => RegExp.escape(item))
@@ -889,7 +881,7 @@ class BetterItemValues {
 			return [item, amount];
 		});
 	}
-	adjustEventHeader(header) {
+	_adjustEventHeader(header) {
 		// Adjust width of log to fit the new column
 		header.children[0].classList = "col-2 col-lg-2 col-md-3 col-sm-2";
 		header.children[1].classList = "col-5 col-lg-6 col-md-6 col-sm-7";
@@ -901,7 +893,7 @@ class BetterItemValues {
 		valueHeader.textContent = 'Value'
 		header.insertBefore(valueHeader, header.children[2]);
 	}
-	updateEventUI(eventList, profit, minProfit, maxProfit, category) {
+	_updateEventUI(eventList, profit, minProfit, maxProfit, category) {
 		for (let i = 0; i < eventList.length; i++) {
 			const ev = eventList[i];
 			ev.children[0].classList.value = "col-2 col-lg-2 col-md-3 col-sm-2"; //"col-2 col-lg-2 col-md-2 col-sm-2";
@@ -944,12 +936,11 @@ class BetterItemValues {
 		console.debug("Found", containers.length, "production containers.");
 
 		const cokeVal = this.getValue("Cocaine");
-		const assigned = [];
 		const profit = [];
 		let maxProfit = -Infinity;
 		let minProfit = Infinity;
 		for (let i = 0; i !== containers.length; ++i) {
-			profit[i] = calcProfit.call(this, i, containers[i]);
+			profit[i] = this._calcProfit(i, containers[i]);
 			if (profit[i] === null) continue;
 			maxProfit = Math.max(maxProfit, profit[i]);
 			minProfit = Math.min(minProfit, profit[i]);
@@ -968,16 +959,16 @@ class BetterItemValues {
 			container.insertBefore(expectedProfit, container.querySelectorAll("hr")[1]);
 
 			let narcoInput = containers[i].querySelector("input.assignNarcoInput");
-			assigned[i] = parseInt(narcoInput.value.replaceAll(',', ""));
+			this.assigned[i] = parseInt(narcoInput.value.replaceAll(',', ""));
 			narcoInput.id = `inputNum${i}`;
-			narcoInput.addEventListener("input", assignedNarcosChange.bind(this));
+			narcoInput.addEventListener("input", this._assignedNarcosChange.bind(this));
 		}
 
 		// Calculate Expected Daily Profit
 		const prodHeader = document.querySelector("#mainBackground > div > div > div.col-12 > div.productionsContainer.rounded > div.row.mb-0");
-		const dailyProfit = calcDailyProfit(profit, assigned, containers);
+		const dailyProfit = this._calcDailyProfit(profit, containers);
 
-		const flexContainer = constructProdHeader.call(this, dailyProfit, cokeVal);
+		const flexContainer = this._constructProdHeader(dailyProfit, cokeVal);
 
 		// Insert the flex container at the top of the target section
 		prodHeader.parentNode.insertBefore(flexContainer, prodHeader);
@@ -1033,168 +1024,156 @@ class BetterItemValues {
 				requiredElement.parentElement.insertBefore(daysLeftElement, requiredElement.nextSibling);
 			}
 		}
-
-		function getPrestigeLevels(prestigeTable) {
-			const prestigeLevels = { productionBoost: 0, efficiency: 0, premiumProduction: 0 };
-			if (!prestigeTable) return prestigeLevels;
-
-			for (const tr of prestigeTable.querySelectorAll('tr')) {
-				switch (tr.querySelector('td').textContent) {
-					case 'Production Boost':
-						prestigeLevels.productionBoost = parseInt(tr.querySelector('th')?.textContent.charAt(0) || '0');
-						break;
-					case 'Efficiency':
-						prestigeLevels.efficiency = parseInt(tr.querySelector('th')?.textContent.charAt(0) || '0');
-						break;
-					case 'Premium Production':
-						prestigeLevels.premiumProduction = parseInt(tr.querySelector('th')?.textContent.charAt(0) || '0');
-						break;
-					default:
-						break;
-				}
-			}
-			return prestigeLevels;
-		}
-
-		function calcProfit(id, container) {
-			const narcoInput = container.querySelector("input.assignNarcoInput");
-			assigned[id] = parseInt(narcoInput.value.replaceAll(',', ""));
-			if (assigned[id] === 0) return 0;
-
-			const prestigeTable = container.querySelector('div.table-responsive.production-table.mt-1');
-			const prestigeLevels = getPrestigeLevels(prestigeTable);
-
-			// Each level of 'Production Boost' prestige increases profit by 20%
-			const profitBoost = 1 + prestigeLevels.productionBoost * 0.2;
-
-			let profit = this.prodMoney[id] * profitBoost;
-			const itemProfit = calcItemProfits.call(this, id) * profitBoost;
-			if (itemProfit === null) return null;
-
-			profit += itemProfit;
-
-			let prodCount = getProdCount(container);
-
-			profit *= calcProfitScalar.call(this, id, prodCount);
-
-			// Each level of 'Efficiency' prestige reduces required supply by 10%
-			const efficiency = 1 - prestigeLevels.efficiency * 0.1;
-
-			const supplyCost = calcSupplyCost.call(this, id, prodCount, container) * efficiency;
-			if (supplyCost === null) return null;
-
-			profit -= supplyCost;
-
-			profit *= this.prodProfitFactor;
-			if (id === 0) profit *= this.streetProfitFactor;
-			profit /= this.narcoCounts[id] * (id === 4 ? prodCount : 1); // Also dealing with coke custom scaling
-			return profit;
-		}
-
-		function getProdCount(container) {
-			const prodCountText = container.querySelectorAll("tbody tr.align-middle th");
-			if (prodCountText.length === 0) return 1;
-			return parseInt(prodCountText[1].innerText) || 1;
-		}
-
-		function calcProfitScalar(id, prodCount) {
-			if (id === 4)
-				return this.prodCokeScaling[prodCount - 1]; // Coke has custom scaling
-			else
-				return Math.pow(1 - this.prodDepreciation / 100, prodCount - 1); // Maybe should instead be *= (1 - prodCount * this.prodDepreciation / 100)
-		}
-
-		function calcItemProfits(id) {
-			let itemProfit = 0;
-			for (const itemName of Object.keys(this.itemCounts[id])) {
-				const itemVal = this.getValue(itemName);
-				if (itemVal === null) continue;
-				itemProfit += itemVal * this.itemCounts[id][itemName];
-			}
-			return itemProfit;
-		}
-
-		function calcSupplyCost(id, prodCount, container) {
-			const prodReqsText = container.querySelector("p.card-text.text-center.mb-0");
-			const prodReqs = prodReqsText.innerText.split(' ').filter(w => w.startsWith('x'));
-			let supplyCost = 0;
-			let j = 0;
-			for (let itemName of Object.keys(this.prodReqs[id])) {
-				const itemVal = this.getValue(itemName);
-				if (itemVal === null) return null;
-				supplyCost += itemVal * parseInt(prodReqs[j].slice(1).replaceAll(',', "")) / (id === 4 ? 1 : prodCount);
-				++j;
-			}
-			return supplyCost;
-		}
-
-		function assignedNarcosChange(e) {
-			assigned[parseInt(e.target.id.slice(8))] = parseInt(e.target.value.replaceAll(',', ""));
-			const dailyProfitText = document.querySelector("span#dailyProfit");
-			const dailyProfitCokeText = document.querySelector("span#dailyProfitMinusCoke");
-			const dailyProfit = calcDailyProfit(profit, assigned, containers);
-
-			dailyProfitText.innerText = `${POUND}${dailyProfit === null ? "???" : Math.round(dailyProfit).toLocaleString("en-US")}`;
-			if (dailyProfit === null) return;
-
-			adjustColors(dailyProfitText, dailyProfit);
-
-			const dailyProfitCoke = dailyProfit - this.maxCokeDaily * cokeVal;
-			dailyProfitCokeText.innerText = `${POUND}${cokeVal === null ? "???" : Math.round(dailyProfitCoke).toLocaleString("en-US")}`;
-			if (cokeVal === null) return;
-
-			adjustColors(dailyProfitCokeText, dailyProfitCoke);
-		}
-
-		function calcDailyProfit(profit, assigned, containers) {
-			let dailyProfit = 0;
-			for (var j = 0; j !== containers.length; ++j) {
-				if (profit[j] === null && assigned[j]) return null;
-
-				dailyProfit += profit[j] * assigned[j];
-			}
-			return dailyProfit;
-		}
-
-
-		function adjustColors(elem, value) {
-			elem.classList.remove("text-danger", "text-warning", "text-success");
-			const className = value > 0 ? "text-success" : value < 0 ? "text-danger" : "text-warning";
-			elem.classList.add(className);
-		}
-
-		function constructProdHeader(dailyProfit, cokeVal) {
-			// Create Expected Daily Profit card
-			const expectedProfit = document.createElement("div");
-			expectedProfit.classList.add("mb-4", "card");
-			expectedProfit.innerHTML = `<div class="header-section"><h2>Expected Daily Profit</h2></div><div class="card-body"><p class="card-text text-center">Each day your narcos will produce roughly <span id="dailyProfit" class="fw-bold ${dailyProfit === null ? "text-muted" : dailyProfit > 0 ? "text-success" : dailyProfit < 0 ? "text-danger" : "text-warning"}">${POUND}${dailyProfit === null ? "???" : Math.round(dailyProfit).toLocaleString("en-US")}</span> in profit.<br>If you take ${this.maxCokeDaily} cocaine daily, your net profit is <span id="dailyProfitMinusCoke" class="fw-bold ${cokeVal === null || dailyProfit === null ? "text-muted" : dailyProfit - this.maxCokeDaily * cokeVal > 0 ? "text-success" : dailyProfit - this.maxCokeDaily * cokeVal < 0 ? "text-danger" : "text-warning"}">${POUND}${cokeVal === null || dailyProfit === null ? "???" : Math.round(dailyProfit - this.maxCokeDaily * cokeVal).toLocaleString("en-US")}</span> per day.</p></div>`;
-
-			// Create Buy Production card
-			const linkCard = document.createElement("div");
-			linkCard.classList.add("mb-4", "card");
-			linkCard.innerHTML = `<div class="header-section"><h2>Buy Production</h2></div><div class="card-body"><p class="card-text">Go to the <a class="text-white" href="/market?p=Production">Item Market</a> to buy production.</p><p></p></div>`;
-
-			// Create a flex container to hold both cards
-			const flexContainer = document.createElement("div");
-			flexContainer.classList.add("d-flex", "align-items-stretch", "mb-4");
-			flexContainer.style.justifyContent = "space-between";
-
-			// Wrap each card with a flex item that can grow
-			const leftFlexItem = document.createElement("div");
-			leftFlexItem.classList.add("flex-grow-1", "me-2");
-			leftFlexItem.appendChild(linkCard);
-
-			const rightFlexItem = document.createElement("div");
-			rightFlexItem.classList.add("flex-grow-1", "ms-2");
-			rightFlexItem.appendChild(expectedProfit);
-
-			// Add both flex items to the container
-			flexContainer.appendChild(leftFlexItem);
-			flexContainer.appendChild(rightFlexItem);
-			return flexContainer;
-		}
 	}
+	_getPrestigeLevels(prestigeTable) {
+		const prestigeLevels = { productionBoost: 0, efficiency: 0, premiumProduction: 0 };
+		if (!prestigeTable) return prestigeLevels;
 
+		for (const tr of prestigeTable.querySelectorAll('tr')) {
+			switch (tr.querySelector('td').textContent) {
+				case 'Production Boost':
+					prestigeLevels.productionBoost = parseInt(tr.querySelector('th')?.textContent.charAt(0) || '0');
+					break;
+				case 'Efficiency':
+					prestigeLevels.efficiency = parseInt(tr.querySelector('th')?.textContent.charAt(0) || '0');
+					break;
+				case 'Premium Production':
+					prestigeLevels.premiumProduction = parseInt(tr.querySelector('th')?.textContent.charAt(0) || '0');
+					break;
+				default:
+					break;
+			}
+		}
+		return prestigeLevels;
+	}
+	_calcProfit(id, container) {
+		const narcoInput = container.querySelector("input.assignNarcoInput");
+		this.assigned[id] = parseInt(narcoInput.value.replaceAll(',', ""));
+		if (this.assigned[id] === 0) return 0;
+
+		const prestigeTable = container.querySelector('div.table-responsive.production-table.mt-1');
+		const prestigeLevels = this._getPrestigeLevels(prestigeTable);
+
+		// Each level of 'Production Boost' prestige increases profit by 20%
+		const profitBoost = 1 + prestigeLevels.productionBoost * 0.2;
+
+		let profit = this.prodMoney[id] * profitBoost;
+		const itemProfit = this._calcItemProfits(id) * profitBoost;
+		if (itemProfit === null) return null;
+
+		profit += itemProfit;
+
+		const prodCount = this._getProdCount(container);
+
+		profit *= this._calcProfitScalar(id, prodCount);
+
+		// Each level of 'Efficiency' prestige reduces required supply by 10%
+		const efficiency = 1 - prestigeLevels.efficiency * 0.1;
+
+		const supplyCost = this._calcSupplyCost(id, prodCount, container) * efficiency;
+		if (supplyCost === null) return null;
+
+		profit -= supplyCost;
+
+		profit *= this.prodProfitFactor;
+		if (id === 0) profit *= this.streetProfitFactor;
+		profit /= this.narcoCounts[id] * (id === 4 ? prodCount : 1); // Also dealing with coke custom scaling
+		return profit;
+	}
+	_getProdCount(container) {
+		const prodCountText = container.querySelectorAll("tbody tr.align-middle th");
+		if (prodCountText.length === 0) return 1;
+		return parseInt(prodCountText[1].innerText) || 1;
+	}
+	_calcProfitScalar(id, prodCount) {
+		if (id === 4)
+			return this.prodCokeScaling[prodCount - 1]; // Coke has custom scaling
+		else
+			return Math.pow(1 - this.prodDepreciation / 100, prodCount - 1); // Maybe should instead be *= (1 - prodCount * this.prodDepreciation / 100)
+	}
+	_calcItemProfits(id) {
+		let itemProfit = 0;
+		for (const itemName of Object.keys(this.itemCounts[id])) {
+			const itemVal = this.getValue(itemName);
+			if (itemVal === null) continue;
+			itemProfit += itemVal * this.itemCounts[id][itemName];
+		}
+		return itemProfit;
+	}
+	_calcSupplyCost(id, prodCount, container) {
+		const prodReqsText = container.querySelector("p.card-text.text-center.mb-0");
+		const prodReqs = prodReqsText.innerText.split(' ').filter(w => w.startsWith('x'));
+		let supplyCost = 0;
+		let j = 0;
+		for (let itemName of Object.keys(this.prodReqs[id])) {
+			const itemVal = this.getValue(itemName);
+			if (itemVal === null) return null;
+			supplyCost += itemVal * parseInt(prodReqs[j].slice(1).replaceAll(',', "")) / (id === 4 ? 1 : prodCount);
+			++j;
+		}
+		return supplyCost;
+	}
+	_assignedNarcosChange(e) {
+		this.assigned[parseInt(e.target.id.slice(8))] = parseInt(e.target.value.replaceAll(',', ""));
+		const dailyProfitText = document.querySelector("span#dailyProfit");
+		const dailyProfitCokeText = document.querySelector("span#dailyProfitMinusCoke");
+		const dailyProfit = this._calcDailyProfit(profit, containers);
+
+		dailyProfitText.innerText = `${POUND}${dailyProfit === null ? "???" : Math.round(dailyProfit).toLocaleString("en-US")}`;
+		if (dailyProfit === null) return;
+
+		this._adjustColors(dailyProfitText, dailyProfit);
+
+		const dailyProfitCoke = dailyProfit - this.maxCokeDaily * cokeVal;
+		dailyProfitCokeText.innerText = `${POUND}${cokeVal === null ? "???" : Math.round(dailyProfitCoke).toLocaleString("en-US")}`;
+		if (cokeVal === null) return;
+
+		this._adjustColors(dailyProfitCokeText, dailyProfitCoke);
+	}
+	_calcDailyProfit(profit, containers) {
+		let dailyProfit = 0;
+		for (var j = 0; j !== containers.length; ++j) {
+			if (profit[j] === null && this.assigned[j]) return null;
+
+			dailyProfit += profit[j] * this.assigned[j];
+		}
+		return dailyProfit;
+	}
+	_adjustColors(elem, value) {
+		elem.classList.remove("text-danger", "text-warning", "text-success");
+		const className = value > 0 ? "text-success" : value < 0 ? "text-danger" : "text-warning";
+		elem.classList.add(className);
+	}
+	_constructProdHeader(dailyProfit, cokeVal) {
+		// Create Expected Daily Profit card
+		const expectedProfit = document.createElement("div");
+		expectedProfit.classList.add("mb-4", "card");
+		expectedProfit.innerHTML = `<div class="header-section"><h2>Expected Daily Profit</h2></div><div class="card-body"><p class="card-text text-center">Each day your narcos will produce roughly <span id="dailyProfit" class="fw-bold ${dailyProfit === null ? "text-muted" : dailyProfit > 0 ? "text-success" : dailyProfit < 0 ? "text-danger" : "text-warning"}">${POUND}${dailyProfit === null ? "???" : Math.round(dailyProfit).toLocaleString("en-US")}</span> in profit.<br>If you take ${this.maxCokeDaily} cocaine daily, your net profit is <span id="dailyProfitMinusCoke" class="fw-bold ${cokeVal === null || dailyProfit === null ? "text-muted" : dailyProfit - this.maxCokeDaily * cokeVal > 0 ? "text-success" : dailyProfit - this.maxCokeDaily * cokeVal < 0 ? "text-danger" : "text-warning"}">${POUND}${cokeVal === null || dailyProfit === null ? "???" : Math.round(dailyProfit - this.maxCokeDaily * cokeVal).toLocaleString("en-US")}</span> per day.</p></div>`;
+
+		// Create Buy Production card
+		const linkCard = document.createElement("div");
+		linkCard.classList.add("mb-4", "card");
+		linkCard.innerHTML = `<div class="header-section"><h2>Buy Production</h2></div><div class="card-body"><p class="card-text">Go to the <a class="text-white" href="/market?p=Production">Item Market</a> to buy production.</p><p></p></div>`;
+
+		// Create a flex container to hold both cards
+		const flexContainer = document.createElement("div");
+		flexContainer.classList.add("d-flex", "align-items-stretch", "mb-4");
+		flexContainer.style.justifyContent = "space-between";
+
+		// Wrap each card with a flex item that can grow
+		const leftFlexItem = document.createElement("div");
+		leftFlexItem.classList.add("flex-grow-1", "me-2");
+		leftFlexItem.appendChild(linkCard);
+
+		const rightFlexItem = document.createElement("div");
+		rightFlexItem.classList.add("flex-grow-1", "ms-2");
+		rightFlexItem.appendChild(expectedProfit);
+
+		// Add both flex items to the container
+		flexContainer.appendChild(leftFlexItem);
+		flexContainer.appendChild(rightFlexItem);
+		return flexContainer;
+	}
 	inJobs(url) {
 		const jobPanels = document.querySelectorAll("div.equipmentModule div.flex-column");
 		const buttons = document.querySelectorAll("div.equipmentModule form > .btn.w-100:not(#upgradeTimeButton):not(#upgradeRewardButton)");
@@ -1208,12 +1187,12 @@ class BetterItemValues {
 		this.minJobValue = Infinity;
 		for (let i = 0; i !== this.jobMoney.length; ++i) {
 			const jobPanel = jobPanels[i];
-			this.setJobTime(jobPanel);
+			this._setJobTime(jobPanel, i);
 
 			this.jobValue[i] = this.jobMoney[i];
-			this.setJobBaseItemReward();
+			this._setJobBaseItemReward(i);
 
-			if (this.jobValue[i] !== "???") this.setJobPrestigeReward(jobPanel);
+			if (this.jobValue[i] !== "???") this._setJobPrestigeReward(jobPanel, i);
 
 			const standardJobRepBonus = GM_getValue('perk_Standard Job Rep');
 			// Apply only to standard jobs
@@ -1222,9 +1201,9 @@ class BetterItemValues {
 			this.maxJobRep = Math.max(this.maxJobRep, this.jobRep[i] / this.jobTimes[i]);
 			this.minJobRep = Math.min(this.minJobRep, this.jobRep[i] / this.jobTimes[i]);
 		}
-		this.updateJobUI(jobPanels);
+		this._updateJobUI(jobPanels);
 	}
-	updateJobUI(jobPanels) {
+	_updateJobUI(jobPanels) {
 		for (let i = 0; i !== this.jobValue.length; ++i) {
 			const jobPanel = jobPanels[i];
 			let append = `<hr class="mt-4 w-75"><p class="text-center">`;
@@ -1238,37 +1217,37 @@ class BetterItemValues {
 			jobPanel.innerHTML += append;
 		}
 	}
-	setJobTime(jobPanel) {
+	_setJobTime(jobPanel, index) {
 		const jobTime = jobPanel.querySelector("p.card-text.fw-bold.text-muted");
 		const jobTimeSplit = jobTime.textContent.split(' ');
-		this.jobTimes[i] = parseFloat(jobTimeSplit[0].slice(1));
+		this.jobTimes[index] = parseFloat(jobTimeSplit[0].slice(1));
 		if (jobTimeSplit[1].startsWith("hour")) {
-			this.jobTimes[i] *= 60;
+			this.jobTimes[index] *= 60;
 			if (jobTimeSplit.length > 2)
-				this.jobTimes[i] += parseFloat(jobTimeSplit[2]);
+				this.jobTimes[index] += parseFloat(jobTimeSplit[2]);
 		}
 	}
-	setJobBaseItemReward() {
-		for (const item in this.jobItems[i]) {
+	_setJobBaseItemReward(index) {
+		for (const item in this.jobItems[index]) {
 			const price = this.getValue(item);
 			if (price !== null)
-				this.jobValue[i] += price * this.jobItems[i][item];
+				this.jobValue[index] += price * this.jobItems[index][item];
 			else {
-				this.jobValue[i] = "???";
+				this.jobValue[index] = "???";
 				break;
 			}
 		}
 	}
-	setJobPrestigeReward(jobPanel) {
+	_setJobPrestigeReward(jobPanel, index) {
 		const prestigeText = jobPanel.querySelector("p.prestigeText");
 		const incrReward = prestigeText !== null && /\+\d+%/.test(prestigeText.innerText) ? parseInt(prestigeText.innerText.match(/\+\d+%/)[0].slice(1, -1)) : 0;
-		this.jobValue[i] *= 1 + incrReward / 100;
-		this.jobRep[i] *= 1 + incrReward / 100;
+		this.jobValue[index] *= 1 + incrReward / 100;
+		this.jobRep[index] *= 1 + incrReward / 100;
 
-		this.jobValue[i] *= this.jobProfitFactor;
-		this.jobValue[i] /= this.jobTimes[i];
-		this.maxJobValue = Math.max(this.maxJobValue, this.jobValue[i]);
-		this.minJobValue = Math.min(this.minJobValue, this.jobValue[i]);
+		this.jobValue[index] *= this.jobProfitFactor;
+		this.jobValue[index] /= this.jobTimes[index];
+		this.maxJobValue = Math.max(this.maxJobValue, this.jobValue[index]);
+		this.minJobValue = Math.min(this.minJobValue, this.jobValue[index]);
 	}
 	inInventory(url) {
 		const itemList = document.querySelector("div.container.inventoryWrapper.pt-2");
