@@ -230,7 +230,8 @@ class BetterItemValues {
 				"Tainted Cocaine": this.maxCoke / 2 * this.taintedChance[1] / 100
 			}
 		];
-		//this.jobTimes = [ 5, 30, 60, 180, 15, 30, 60, 90, 360, 720 ]; // NOTE: prestige may change this, so instead calculate
+		// Fallback values, since time doesn't show when working
+		this.jobTimes = [ 5, 30, 60, 180, 15, 30, 60, 90, 360, 720 ];
 		this.jobMoney = [1650, 14000, 55000, 250000, 111, 111, 111, 260, 700000, 2250000];
 		// Base rep for standard jobs doubled with https://cartelempire.online/Forum/1/7289
 		this.jobRep = [20, 150, 320, 980, 21, 50, 82, 165, 2260, 4640];
@@ -247,13 +248,13 @@ class BetterItemValues {
 			{ "Personal Favour": 1 / 2 } // TODO this is a guess
 		];
 
-		const prodProfit = GM_getValue("perks_Production Profit") || 0; // percentage; NOTE: only works when integrated with other scripts
+		const prodProfit = GM_getValue("perks_Production Profit") || 0; // percentage;
 		this.prodProfitFactor = 1 + prodProfit / 100;
-		const streetProfit = GM_getValue("perks_Street Crime Profit") || 0; // percentage; NOTE: only works when integrated with other scripts
+		const streetProfit = GM_getValue("perks_Street Crime Profit") || 0; // percentage;
 		this.streetProfitFactor = 1 + streetProfit / 100;
-		const jobProfit = GM_getValue("perks_Job Profits") || 0; // percentage; NOTE: only works when integrated with other scripts
+		const jobProfit = GM_getValue("perks_Job Profits") || 0; // percentage;
 		this.jobProfitFactor = 1 + jobProfit / 100;
-		const medEffectivenessBoost = GM_getValue("perks_Med Effectiveness") || 0; // percentage; NOTE: only works when integrated with other scripts
+		const medEffectivenessBoost = GM_getValue("perks_Med Effectiveness") || 0; // percentage;
 		this.medEffectivenessFactor = 1 + medEffectivenessBoost / 100;
 
 		this.poundPerEnergy = {};
@@ -1176,10 +1177,8 @@ class BetterItemValues {
 	}
 	inJobs(url) {
 		const jobPanels = document.querySelectorAll("div.equipmentModule div.flex-column");
-		const buttons = document.querySelectorAll("div.equipmentModule form > .btn.w-100:not(#upgradeTimeButton):not(#upgradeRewardButton)");
-		if (jobPanels === null || buttons.length <= 1) return;
+		if (jobPanels?.length <= 0) return;
 
-		this.jobTimes = [];
 		this.maxJobRep = 0;
 		this.minJobRep = Infinity;
 		this.jobValue = [];
@@ -1203,6 +1202,29 @@ class BetterItemValues {
 		}
 		this._updateJobUI(jobPanels);
 	}
+	getJobTime(jobName) {
+		let formattedName = `job_time_${jobName.replaceAll(' ', '_')}`;
+		let val = GM_getValue(formattedName, null);
+
+		// Fallback to old format if new format returns null
+		if (val === null || val === NaN) {
+			formattedName = `value_${itemName}`; // Try without replacing spaces
+			val = GM_getValue(formattedName, null);
+		}
+
+		// Failsafe, because GM_getValue turns null into NaN
+		if (isNaN(val)) {
+			val = null;
+		}
+
+		console.debug(`Fetching job duration: ${formattedName}, Job name: ${jobName}, Result: ${val}`);
+		return val;
+	}
+	setJobTime(jobName, value) {
+		GM_setValue(`job_time_${jobName.replaceAll(' ', '_')}`, value);
+		console.debug(`Set job_time_${jobName} to ${value.toLocaleString("en-US")}`);
+		return value;
+	}
 	_updateJobUI(jobPanels) {
 		for (let i = 0; i !== this.jobValue.length; ++i) {
 			const jobPanel = jobPanels[i];
@@ -1219,13 +1241,22 @@ class BetterItemValues {
 	}
 	_setJobTime(jobPanel, index) {
 		const jobTime = jobPanel.querySelector("p.card-text.fw-bold.text-muted");
-		const jobTimeSplit = jobTime.textContent.split(' ');
+		const jobName = jobPanel.querySelector('h5').firstChild.textContent;
+
+		// Fallback, while doing a job; Use cached value
+		if (!jobTime) {
+			this.jobTimes[index] = this.getJobTime(jobName) || this.jobTimes[index];
+			return;
+		}
+
+		const jobTimeSplit = jobTime?.textContent.split(' ');
 		this.jobTimes[index] = parseFloat(jobTimeSplit[0].slice(1));
 		if (jobTimeSplit[1].startsWith("hour")) {
 			this.jobTimes[index] *= 60;
 			if (jobTimeSplit.length > 2)
 				this.jobTimes[index] += parseFloat(jobTimeSplit[2]);
 		}
+		this.setJobTime(jobName, this.jobTimes[index]);
 	}
 	_setJobBaseItemReward(index) {
 		for (const item in this.jobItems[index]) {
@@ -1307,12 +1338,12 @@ class BetterItemValues {
 		itemList.insertBefore(totalValCard, header);
 	}
 	inGym(url) {
-		this.updateCokeDisplay();
+		this._updateCokeDisplay();
 	}
 	inUniversity(url) {
-		this.updateCokeDisplay();
+		this._updateCokeDisplay();
 	}
-	updateCokeDisplay() {
+	_updateCokeDisplay() {
 		const item = document.getElementById(`item-${GM_getValue("itemID_Cocaine")}`);
 		if (item === null) return;
 
