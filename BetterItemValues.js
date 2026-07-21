@@ -165,7 +165,7 @@ class BetterItemValues {
 		}; // Players should go to the market to load up-to-date values, these are presets probably over half a year old
 		if (values.length === 0) {
 			for (const name in this.defaultVals)
-				this.setValue(name, defaultVals[name]);
+				this.setItemValue(name, defaultVals[name]);
 		}
 
 		this.maxCokeDaily = 8;
@@ -265,7 +265,7 @@ class BetterItemValues {
 		this.minPpht = Infinity;
 
 		for (const item in this.energyItems) {
-			const price = this.getValue(item);
+			const price = this.getItemValue(item);
 			if (price === null) continue;
 
 			const ppe = price / this.energyItems[item];
@@ -274,7 +274,7 @@ class BetterItemValues {
 			this.minPpe = Math.min(this.minPpe, ppe);
 		}
 		for (const item in this.hospitalItems) {
-			const price = this.getValue(item);
+			const price = this.getItemValue(item);
 			if (price === null) continue;
 
 			let time = this.hospitalItems[item];
@@ -286,7 +286,7 @@ class BetterItemValues {
 		}
 		// NOTE: calculate job values inJob since it's only used there and we need prestige levels
 
-		const pointVal = this.getValue(this.pointName);
+		const pointVal = this.getItemValue(this.pointName);
 		// To avoid multiplication with null
 		const calcPointVal = amount => pointVal !== null ? amount * pointVal : pointVal;
 
@@ -297,36 +297,21 @@ class BetterItemValues {
 			[`${POUND}50,000`, 50_000],
 			[`${POUND}100,000`, 100_000],
 			[`${POUND}250,000`, 250_000],
-			['a Personal Favour', this.getValue('Personal Favor')],
+			['a Personal Favour', this.getItemValue('Personal Favor')],
 			['5 Points', calcPointVal(5)],
 			['25 Points', calcPointVal(25)],
 			['50 Points', calcPointVal(50)],
-			['a Supporter Pack', this.getValue('Supporter Pack')],
+			['a Supporter Pack', this.getItemValue('Supporter Pack')],
 			['500 Points', calcPointVal(500)]
 		]);
 
 		// Production-related values
 		this.assigned = [];
 	}
-	getValue(itemName) {
-		let formattedName = `value_${itemName.replaceAll(' ', '_')}`;
-		let val = GM_getValue(formattedName, null);
-
-		// Fallback to old format if new format returns null
-		if (val === null || val === NaN) {
-			formattedName = `value_${itemName}`; // Try without replacing spaces
-			val = GM_getValue(formattedName, null);
-		}
-
-		// Failsafe, because GM_getValue turns null into NaN
-		if (isNaN(val)) {
-			val = null;
-		}
-
-		console.debug(`Fetching value for: ${formattedName}, ItemName: ${itemName}, Result: ${val}`);
-		return val;
+	getItemValue(itemName) {
+		return getNumericValue('value', itemName);
 	}
-	setValue(itemName, value) {
+	setItemValue(itemName, value) {
 		GM_setValue(`value_${itemName}`, value);
 		console.debug(`Set value_${itemName} to ${POUND}${value.toLocaleString("en-US")}`);
 		return value;
@@ -338,7 +323,7 @@ class BetterItemValues {
 		const options = itemSelector.options;
 		const pointPriceLabel = document.querySelector("#pricePerPointsLabel");
 
-		let price = this.getValue(this.pointName);
+		let price = this.getItemValue(this.pointName);
 		this.pointCurrentBest = this._createPointPriceContainer(price);
 
 		pointPriceLabel.textContent += ' ';
@@ -347,7 +332,7 @@ class BetterItemValues {
 		const pricePerLabel = document.querySelector("#pricePerLabel");
 
 		let itemName = options[0].textContent;
-		let currentBest = this.getValue(itemName);
+		let currentBest = this.getItemValue(itemName);
 		this.priceCurrentBest = this._createItemPriceContainer(itemName, currentBest);
 
 		pricePerLabel.textContent += ' ';
@@ -358,7 +343,7 @@ class BetterItemValues {
 				if (option.value !== e.target.value) continue;
 
 				itemName = option.textContent.trim().replace(/\s+-\s+\d+(?:\.\d+)?%$/, "");
-				price = this.getValue(itemName);
+				price = this.getItemValue(itemName);
 				this.priceCurrentBest.value = itemName;
 				this.priceCurrentBest.textContent = `(${POUND}${price === null ? "???" : price.toLocaleString("en-US")})`;
 				break;
@@ -443,9 +428,9 @@ class BetterItemValues {
 		while (textSplit[++i] !== "for") itemName += ` ${textSplit[i]}`;
 
 		const val = parseInt(textSplit.at(-1).slice(1).replace(',', ""));
-		const curVal = this.getValue(itemName);
+		const curVal = this.getItemValue(itemName);
 
-		if (curVal === null || val < curVal) this.setValue(itemName, val);
+		if (curVal === null || val < curVal) this.setItemValue(itemName, val);
 	}
 	_createPointPriceContainer(price) {
 		const pointCurrentBest = document.createElement("span");
@@ -468,7 +453,7 @@ class BetterItemValues {
 	}
 	inSupporter(url) {
 		const refillText = document.querySelector("div.card-body p.card-text:not(.fw-bold)");
-		const pointPrice = this.getValue(this.pointName);
+		const pointPrice = this.getItemValue(this.pointName);
 		if (pointPrice === null || refillText === null) return;
 
 		refillText.innerHTML = `${refillText.innerText.slice(0, -1)} <span class="text-muted">(${POUND}${(pointPrice * 25).toLocaleString("en-US")})</span>.`;
@@ -486,7 +471,7 @@ class BetterItemValues {
 				.split("<br>")
 				.map(mat => {
 					const count = parseInt(mat.split(' ')[0].slice(1).replaceAll(',', ""));
-					const val = this.getValue(mat.split(' ').slice(1).join(' ').trim());
+					const val = this.getItemValue(mat.split(' ').slice(1).join(' ').trim());
 
 					if (val === null) totalCost = "???";
 					else if (totalCost !== "???") totalCost += count * val;
@@ -524,7 +509,7 @@ class BetterItemValues {
 				changed = true;
 				const count = parseInt(mat.split(' ')[0].slice(0, -1).replaceAll(',', ""));
 				const matName = mat.split(' ').slice(1).join(' ').trim();
-				const val = this.getValue(matName === "Concrete" ? "Concrete Bags" : matName);
+				const val = this.getItemValue(matName === "Concrete" ? "Concrete Bags" : matName);
 				matDesc.innerHTML = `${mat.trim()} <span class="text-muted">(${POUND}${val === null ? "???" : (count * val).toLocaleString("en-US")})</span>`;
 
 				if (val === null) totalCost = "???";
@@ -553,7 +538,7 @@ class BetterItemValues {
 		}
 	}
 	_updateStoreUI(item, itemName, inSellingUI) {
-		const currentBest = this.getValue(itemName);
+		const currentBest = this.getItemValue(itemName);
 		if (currentBest === null) return;
 
 		const priceElem = item.children[4];
@@ -585,7 +570,7 @@ class BetterItemValues {
 			}
 
 			const inputs = tradeTab.querySelectorAll("input.form-control");
-			const pointVal = this.getValue(this.pointName);
+			const pointVal = this.getItemValue(this.pointName);
 
 			// Cash in trade
 			totalVal[i] += parseInt(inputs[0].value.replaceAll(',', ""));
@@ -611,7 +596,7 @@ class BetterItemValues {
 		const items = itemList.querySelectorAll("tr.align-middle");
 		for (const item of items) {
 			const itemName = item.children[0].textContent;
-			const val = this.getValue(itemName);
+			const val = this.getItemValue(itemName);
 			const itemCount = parseInt(item.children[1].textContent.replaceAll(',', ""));
 			item.innerHTML += `<td class="text-muted">${POUND}${val === null ? "???" : (val * itemCount).toLocaleString("en-US")}</td>`;
 			if (val === null) {
@@ -660,7 +645,7 @@ class BetterItemValues {
 			if (item.children.length < 2) continue;
 
 			const itemName = item.children[1].textContent.split(' ').slice(0, -1).join(' ');
-			const currentBest = this.getValue(itemName);
+			const currentBest = this.getItemValue(itemName);
 
 			const value = document.createElement("span");
 			value.classList.add("itemValue", "text-muted", "float-end");
@@ -670,7 +655,7 @@ class BetterItemValues {
 			const input = item.querySelector("input.form-control");
 			input.addEventListener("input", e => {
 				const value = e.target.parentNode.parentNode.querySelector("span.itemValue");
-				const currentBest = this.getValue(itemName);
+				const currentBest = this.getItemValue(itemName);
 				const inputVal = e.target.value;
 				let totalValue = 0;
 
@@ -722,7 +707,7 @@ class BetterItemValues {
 			const itemText = item.children[1];
 			const itemName = itemText.textContent.split(' ').slice(0, -1).join(' ');
 			const countOf = parseInt(itemText.querySelector('span.itemQuantity').textContent);
-			const currentBest = this.getValue(itemName);
+			const currentBest = this.getItemValue(itemName);
 
 			const value = document.createElement("span");
 			value.classList.add("itemValue", "text-muted", "float-end");
@@ -735,7 +720,7 @@ class BetterItemValues {
 			this._colorArmoryItems(item, itemName);
 		}
 		
-		const pointVal = this.getValue(this.pointName);
+		const pointVal = this.getItemValue(this.pointName);
 		if (pointVal !== null) {
 			const pointsText = cards[cards.length - 2].querySelector("div.header-section > h2");
 			const pointsTextSplit = pointsText.innerText.split(' ');
@@ -844,7 +829,7 @@ class BetterItemValues {
 		const itemName = regexResult?.groups?.item;
 		const countOf = regexResult?.groups?.amount || 0;
 
-		return itemName ? this.getValue(itemName) * parseInt(countOf): null;
+		return itemName ? this.getItemValue(itemName) * parseInt(countOf): null;
 	}
 	_getMoneyFromEvent(eventDescription) {
 		const moneyRegex = new RegExp(/\u00a3\d+(,\d+)*/, 'g');
@@ -857,7 +842,7 @@ class BetterItemValues {
 		const items = this._getItemsFromEvent(eventDescription);
 		let totalValue = 0;
 		for (const [item, amount] of items) {
-			const itemValue = this.getValue(item);
+			const itemValue = this.getItemValue(item);
 			if (itemValue === null) return itemValue;
 
 			totalValue += amount * itemValue;
@@ -936,7 +921,7 @@ class BetterItemValues {
 
 		console.debug("Found", containers.length, "production containers.");
 
-		const cokeVal = this.getValue("Cocaine");
+		const cokeVal = this.getItemValue("Cocaine");
 		const profit = [];
 		let maxProfit = -Infinity;
 		let minProfit = Infinity;
@@ -1095,7 +1080,7 @@ class BetterItemValues {
 	_calcItemProfits(id) {
 		let itemProfit = 0;
 		for (const itemName of Object.keys(this.itemCounts[id])) {
-			const itemVal = this.getValue(itemName);
+			const itemVal = this.getItemValue(itemName);
 			if (itemVal === null) continue;
 			itemProfit += itemVal * this.itemCounts[id][itemName];
 		}
@@ -1107,7 +1092,7 @@ class BetterItemValues {
 		let supplyCost = 0;
 		let j = 0;
 		for (let itemName of Object.keys(this.prodReqs[id])) {
-			const itemVal = this.getValue(itemName);
+			const itemVal = this.getItemValue(itemName);
 			if (itemVal === null) return null;
 			supplyCost += itemVal * parseInt(prodReqs[j].slice(1).replaceAll(',', "")) / (id === 4 ? 1 : prodCount);
 			++j;
@@ -1228,15 +1213,37 @@ class BetterItemValues {
 	_updateJobUI(jobPanels) {
 		for (let i = 0; i !== this.jobValue.length; ++i) {
 			const jobPanel = jobPanels[i];
-			let append = `<hr class="mt-4 w-75"><p class="text-center">`;
+
+			const divider = document.createElement('hr');
+			divider.classList = 'mt-4 w-75';
+
+			const pElem = document.createElement('p');
+			pElem.classList = 'text-center';
+			pElem.textContent = 'Expected gain: ';
+
 			const gain = this.jobValue[i];
 			const repPerTime = this.jobRep[i] / this.jobTimes[i];
-			append += gain === "???"
-				? `Expected gain: <span class="text-muted">${POUND}???/h</span>`
-				: `Expected gain: <span class="fw-bold" style="color: hsl(${(gain - this.minJobValue) / (this.maxJobValue - this.minJobValue) * 120}, 67%, ${this.brightness}%)">${POUND}${Math.round(gain * 60).toLocaleString("en-US")}/h</span>`;
-			append += `<br>Expected rep: <span class="fw-bold" style="color: hsl(${(repPerTime - this.minJobRep) / (this.maxJobRep - this.minJobRep) * 120}, 67%, ${this.brightness}%)">${(repPerTime * 60).toLocaleString("en-US")}/h</span>`;
-			append += "</p>";
-			jobPanel.innerHTML += append;
+			const spanElem = document.createElement('span');
+			if (gain === '???') {
+				spanElem.classList = 'text-muted';
+				spanElem.textContent = `${POUND}???/h`;
+			} else {
+				spanElem.classList = 'fw-bold';
+				spanElem.style.color = `hsl(${(gain - this.minJobValue) / (this.maxJobValue - this.minJobValue) * 120}, 67%, ${this.brightness}%)`;
+				spanElem.textContent = `${POUND}${Math.round(gain * 60).toLocaleString("en-US")}/h`;
+			}
+			pElem.appendChild(spanElem.cloneNode(true));
+			pElem.appendChild(document.createElement('br'));
+			pElem.append('Expected rep: ');
+
+			const spanElem2 = document.createElement('span');
+			spanElem2.classList = 'fw-bold';
+			spanElem2.style.color = `hsl(${(repPerTime - this.minJobRep) / (this.maxJobRep - this.minJobRep) * 120}, 67%, ${this.brightness}%)`;
+			spanElem2.textContent = `${(repPerTime * 60).toLocaleString("en-US")}/h`;
+
+			pElem.appendChild(spanElem2);
+
+			jobPanel.appendChild(pElem);
 		}
 	}
 	_setJobTime(jobPanel, index) {
@@ -1260,7 +1267,7 @@ class BetterItemValues {
 	}
 	_setJobBaseItemReward(index) {
 		for (const item in this.jobItems[index]) {
-			const price = this.getValue(item);
+			const price = this.getItemValue(item);
 			if (price !== null)
 				this.jobValue[index] += price * this.jobItems[index][item];
 			else {
@@ -1298,7 +1305,7 @@ class BetterItemValues {
 
 			const countElem = nameElem.querySelector('span.itemQuantity');
 			const countOf = parseInt(countElem.textContent);
-			const currentBest = this.getValue(itemName);
+			const currentBest = this.getItemValue(itemName);
 			if (currentBest === null) {
 				totalVal += parseInt(item.children[3].innerText.slice(1).replaceAll(',', "")) * countOf;
 				haveAll = false;

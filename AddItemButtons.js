@@ -117,9 +117,8 @@ class AddItemButtons {
 		console.debug(`Set itemCache_${itemName} to ${cache}`);
 		return cache;
 	}
-	getValue(itemName) {
-		const val = GM_getValue(`value_${itemName}`);
-		return val === undefined ? null : val;
+	getItemValue(itemName) {
+		return getNumericValue('value', itemName);
 	}
 	useItemClicked(e) {
 		// Disable button
@@ -371,7 +370,7 @@ class AddItemButtons {
 	}
 	addItem(itemName, targetElement) {
 		const temp = document.createElement('div');
-		temp.innerHTML = this.add(this.getCount(itemName) || 0, this.getValue(itemName) || "???", 4, itemName);
+		temp.innerHTML = this.add(this.getCount(itemName) || 0, this.getItemValue(itemName) || "???", 4, itemName);
 		const newDiv = temp.firstElementChild;
 
 		targetElement.parentNode.insertBefore(newDiv, targetElement.nextSibling);

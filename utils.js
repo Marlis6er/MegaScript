@@ -76,3 +76,29 @@ function getUserInfoFromStorage() {
 	console.debug(`From LocalStorage: Name: ${storedName}, ID: ${storedId}`);
 	return { user_name: storedName, user_id: storedId };
 }
+
+// Fetches a stored numeric value
+function getNumericValue(prefix, name) {
+	let formattedName = `value_${name.replaceAll(' ', '_')}`;
+	let val = GM_getValue(formattedName, null);
+
+	// Fallback to old format if new format returns null
+	if (val === null || val === NaN) {
+		formattedName = `value_${name}`; // Try without replacing spaces
+		val = GM_getValue(formattedName, null);
+	}
+
+	// Failsafe, because GM_getValue turns null into NaN
+	if (isNaN(val) || val === null) {
+		console.warn(`Fetching value for: ${formattedName}, ItemName: ${name}, Result: ${val}`);
+		val = null;
+	}
+	return val;
+}
+
+// Sets a local cache value
+function setValue(prefix, name, value) {
+	const spacesEscaped = name.replaceAll(' ', '_')
+	GM_setValue(`prefix_${spacesEscaped}`, value);
+	return value;
+}
