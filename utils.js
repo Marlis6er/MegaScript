@@ -79,26 +79,39 @@ function getUserInfoFromStorage() {
 
 // Fetches a stored numeric value
 function getNumericValue(prefix, name) {
-	let formattedName = `value_${name.replaceAll(' ', '_')}`;
+	const result = getValue(prefix, name);
+	if (isNaN(result)) return null;
+	return result;
+}
+
+// Fetches a stored value of any type
+function getValue(prefix, name) {
+	let formattedName = `${prefix}_${name.replaceAll(' ', '_')}`;
 	let val = GM_getValue(formattedName, null);
 
 	// Fallback to old format if new format returns null
-	if (val === null || val === NaN) {
-		formattedName = `value_${name}`; // Try without replacing spaces
+	if (val === null || val === NaN || val === undefined) {
+		formattedName = `${prefix}_${name}`; // Try without replacing spaces
 		val = GM_getValue(formattedName, null);
+	} else return val;
+
+	// Still fails, default to null
+	if (val === null || val === NaN || val === undefined) {
+		return null;
+	} else {
+		// Update to new format
+		setValue(prefix, name, val);
+
+		// Remove legacy key
+		GM_deleteValue(`${prefix}_${name}`);
 	}
 
-	// Failsafe, because GM_getValue turns null into NaN
-	if (isNaN(val) || val === null) {
-		console.warn(`Fetching value for: ${formattedName}, ItemName: ${name}, Result: ${val}`);
-		val = null;
-	}
 	return val;
 }
 
 // Sets a local cache value
 function setValue(prefix, name, value) {
 	const spacesEscaped = name.replaceAll(' ', '_')
-	GM_setValue(`prefix_${spacesEscaped}`, value);
+	GM_setValue(`${prefix}_${spacesEscaped}`, value);
 	return value;
 }

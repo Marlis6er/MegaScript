@@ -7,8 +7,8 @@ class EstimatedIntGains {
 		this.base = 1 + 1 / this.constant;
 		this.ID = "expectedIntGains";
 
-		this.maxInt = GM_getValue("perks_Max Int") || 1200; // NOTE: only works when integrated with other scripts
-		const extraIntGains = GM_getValue("perks_Int Gains") || 0; // percentage; NOTE: only works when integrated with other scripts
+		this.maxInt = getNumericValue('perks', 'Max Int') || 1200;
+		const extraIntGains = getNumericValue('perks', 'Int Gains') || 0; // percentage
 		this.extraGainsFactor = 1 + extraIntGains / 100;
 	}
 	calcGain(energy, currentInt) {

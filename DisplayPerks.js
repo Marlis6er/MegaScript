@@ -14,11 +14,10 @@ class DisplayPerks {
 		this.medProgram = "Medical Program";
 	}
 	getPerk(type) {
-		const perk = GM_getValue(`perks_${type}`);
-		return perk === undefined ? null : perk;
+		return getValue('perks', type);
 	}
 	setPerk(type, perk) {
-		GM_setValue(`perks_${type}`, perk);
+		setValue('perks', type, perk);
 		console.debug(`Set perks_${type} to ${perk}`);
 		return perk;
 	}

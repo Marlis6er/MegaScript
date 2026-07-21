@@ -1,7 +1,7 @@
 class ColorStats {
 	constructor(darkMode) {
 		this.brightness = darkMode ? 50 : 45;
-		this.maxInt = GM_getValue("perks_Max Int") || 1200;
+		this.maxInt = getNumericValue('perks', 'Max Int') || 1200;
 	}
 	calcGym(stat) {
 		return Math.min(1, 12.5 / 120 * Math.log(stat / 51000 + 1)); // Arbitrary calculation, reaches 120 at ~750 mil (per stat)

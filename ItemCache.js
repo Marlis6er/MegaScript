@@ -7,20 +7,18 @@ class ItemCache {
 		this.itemNames = [...this.prodItemNames, "Cocaine", "Personal Favour", 'Corana Beer']; // Also cache these for other scripts
 	}
 	getCache(type) {
-		const cache = GM_getValue(`itemCache_${type}`);
-		return cache === undefined ? null : cache;
+		return getNumericValue('itemCache', type);
 	}
 	setCache(type, cache) {
-		GM_setValue(`itemCache_${type}`, cache);
+		setValue('itemCache', type, cache);
 		console.debug(`Set itemCache_${type} to ${cache}`);
 		return cache;
 	}
 	getReq(type) {
-		const req = GM_getValue(`prodReq_${type}`);
-		return req === undefined ? null : req;
+		return getNumericValue('prodReq', type);
 	}
 	setReq(type, req) {
-		GM_setValue(`prodReq_${type}`, req);
+		setValue('prodReq', type, req);
 		console.debug(`Set prodReq_${type} to ${req}`);
 		return req;
 	}

@@ -248,13 +248,13 @@ class BetterItemValues {
 			{ "Personal Favour": 1 / 2 } // TODO this is a guess
 		];
 
-		const prodProfit = GM_getValue("perks_Production Profit") || 0; // percentage;
+		const prodProfit = this.getPerk('Production Profit') || 0; // percentage;
 		this.prodProfitFactor = 1 + prodProfit / 100;
-		const streetProfit = GM_getValue("perks_Street Crime Profit") || 0; // percentage;
+		const streetProfit = this.getPerk('Street Crime Profit') || 0; // percentage;
 		this.streetProfitFactor = 1 + streetProfit / 100;
-		const jobProfit = GM_getValue("perks_Job Profits") || 0; // percentage;
+		const jobProfit = this.getPerk('Job Profits') || 0; // percentage;
 		this.jobProfitFactor = 1 + jobProfit / 100;
-		const medEffectivenessBoost = GM_getValue("perks_Med Effectiveness") || 0; // percentage;
+		const medEffectivenessBoost = this.getPerk('Med Effectiveness') || 0; // percentage;
 		this.medEffectivenessFactor = 1 + medEffectivenessBoost / 100;
 
 		this.poundPerEnergy = {};
@@ -308,11 +308,14 @@ class BetterItemValues {
 		// Production-related values
 		this.assigned = [];
 	}
+	getPerk(perkName) {
+		return getNumericValue('perks', perkName);
+	}
 	getItemValue(itemName) {
 		return getNumericValue('value', itemName);
 	}
 	setItemValue(itemName, value) {
-		GM_setValue(`value_${itemName}`, value);
+		setValue('value', itemName, value);
 		console.debug(`Set value_${itemName} to ${POUND}${value.toLocaleString("en-US")}`);
 		return value;
 	}
@@ -396,16 +399,17 @@ class BetterItemValues {
 		const itemPrice = parseInt(itemPriceText.slice(1).split(' ')[0].replaceAll(',', ""));
 
 		// Format key to match required format
-		const key = `value_${itemName.replace(/\s+/g, '_')}`;
+		const key = `${itemName.replace(/\s+/g, '_')}`;
 
-		// Use GM_getValue to retrieve the current best value
-		const currentBest = GM_getValue(key, null);
+		// Use getNumericValue to retrieve the current best value
+		const currentBest = this.getItemValue(key);
 
 		if (currentBest === itemPrice) return;
 
 		console.debug(`Updating value for ${itemName} from ${currentBest} to ${itemPrice}`); // Debugging log
-		GM_setValue(key, itemPrice); // Store value with formatted key
-		const newStoredValue = GM_getValue(key);
+		this.setItemValue(key, itemPrice); // Store value with formatted key
+
+		const newStoredValue = this.getItemValue(key);
 
 
 		// Ensure pointName and priceCurrentBest are defined
@@ -1178,7 +1182,7 @@ class BetterItemValues {
 
 			if (this.jobValue[i] !== "???") this._setJobPrestigeReward(jobPanel, i);
 
-			const standardJobRepBonus = GM_getValue('perk_Standard Job Rep');
+			const standardJobRepBonus = getNumericValue('perk', 'Standard Job Rep');
 			// Apply only to standard jobs
 			if (i <= 4) this.jobRep[i] * (1 + (standardJobRepBonus / 100));
 
@@ -1188,25 +1192,13 @@ class BetterItemValues {
 		this._updateJobUI(jobPanels);
 	}
 	getJobTime(jobName) {
-		let formattedName = `job_time_${jobName.replaceAll(' ', '_')}`;
-		let val = GM_getValue(formattedName, null);
+		const jobTime = getNumericValue('job_time', jobName);
 
-		// Fallback to old format if new format returns null
-		if (val === null || val === NaN) {
-			formattedName = `value_${itemName}`; // Try without replacing spaces
-			val = GM_getValue(formattedName, null);
-		}
-
-		// Failsafe, because GM_getValue turns null into NaN
-		if (isNaN(val)) {
-			val = null;
-		}
-
-		console.debug(`Fetching job duration: ${formattedName}, Job name: ${jobName}, Result: ${val}`);
-		return val;
+		console.debug(`Fetching job duration; Job name: ${jobName}, Result: ${jobTime}`);
+		return jobTime;
 	}
 	setJobTime(jobName, value) {
-		GM_setValue(`job_time_${jobName.replaceAll(' ', '_')}`, value);
+		setValue('job_time', jobName, value);
 		console.debug(`Set job_time_${jobName} to ${value.toLocaleString("en-US")}`);
 		return value;
 	}
@@ -1351,7 +1343,7 @@ class BetterItemValues {
 		this._updateCokeDisplay();
 	}
 	_updateCokeDisplay() {
-		const item = document.getElementById(`item-${GM_getValue("itemID_Cocaine")}`);
+		const item = document.getElementById(`item-${getValue('itemID', 'Cocaine')}`);
 		if (item === null) return;
 
 		const val = this.poundPerEnergy["Cocaine"];

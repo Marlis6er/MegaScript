@@ -30,29 +30,26 @@ class StatEstimate {
 		this.multHosp = 3 / 4;
 		this.perPage = 50;
 	}
-	getEst(ID = "self") {
-		const val = GM_getValue(`statEstimate_${ID}`);
-		return val === undefined ? null : val;
+	getEst(ID = 'self') {
+		return getValue('statEstimate', ID);
 	}
 	setEst(ID, estimate) {
-		GM_setValue(`statEstimate_${ID}`, estimate);
+		setValue('statEstimate', ID, estimate);
 		console.debug(`Set statEstimate_${ID} to "${estimate}"`);
 		return estimate;
 	}
 	getList() {
-		const list = GM_getValue("statEstimate_list");
-		return list === undefined ? null : list;
+		return getValue('statEstimate', 'list');
 	}
 	setList(list) {
-		GM_setValue("statEstimate_list", list);
+		setValue('statEstimate', 'list', list);
 		return list;
 	}
 	getName(ID) {
-		const name = GM_getValue(`name_${ID}`);
-		return name === undefined ? null : name;
+		return getValue('name', ID);
 	}
 	setName(ID, name) {
-		GM_setValue(`name_${ID}`, name);
+		setValue('name', ID, name);
 		console.debug(`Set name_${ID} to "${name}"`);
 		return name;
 	}

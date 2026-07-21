@@ -62,11 +62,10 @@ class DisplayTownCaches {
 		];
 	}
 	getCache(type) {
-		const cache = GM_getValue(`cache_${type}`);
-		return cache === undefined ? null : cache;
+		return getValue('cache', type);
 	}
 	setCache(type, cache) {
-		GM_setValue(`cache_${type}`, cache);
+		setValue('cache', type, cache);
 		console.debug(`Set cache_${type} to ${cache}`);
 		return cache;
 	}

@@ -7,20 +7,18 @@ class CartelMemberRep {
 		}
 	}
 	getAttackList() {
-		const list = GM_getValue("cartelMemberRep_attackList");
-		return list === undefined ? null : list;
+		return getValue('cartelMemberRep', 'attackList');
 	}
 	setAttackList(list) {
-		GM_setValue("cartelMemberRep_attackList", list);
+		setValue('cartelMemberRep', 'attackList', list);
 		console.debug(`Set cartelMemberRep_attackList to ${JSON.stringify(list)}`);
 		return list;
 	}
 	getMemberRep(memberID) {
-		const rep = GM_getValue(`cartelMemberRep_${memberID}`);
-		return rep === undefined ? null : rep;
+		return getNumericValue('cartelMemberRep', memberID);
 	}
 	setMemberRep(memberID, rep) {
-		GM_setValue(`cartelMemberRep_${memberID}`, rep);
+		setValue('cartelMemberRep', memberID, rep);
 		console.debug(`Set cartelMemberRep_${memberID} to ${rep.toLocaleString("en-US")}`);
 		return rep;
 	}

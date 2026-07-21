@@ -19,11 +19,10 @@ class HighscoreChanges {
 		this.hoverColor = "rgba(var(--bs-emphasis-color-rgb), 0)";
 	}
 	getCache(type) {
-		const cache = GM_getValue(`highscoreCache_${type}`);
-		return cache === undefined ? null : cache;
+		return getValue('highscoreCache', type);
 	}
 	setCache(type, cache) {
-		GM_setValue(`highscoreCache_${type}`, cache);
+		setValue('highscoreCache', type, cache);
 		console.debug(`Set highscoreCache_${type} to ${JSON.stringify(cache)}`);
 		return cache;
 	}

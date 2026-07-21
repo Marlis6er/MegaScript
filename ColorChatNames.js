@@ -6,11 +6,11 @@ class ColorChatNames {
 		return `hsl(200, 70%, ${l}%)`;
 	}
 	getList(friends = true) {
-		const list = GM_getValue(`connections_${friends ? "friends" : "enemies"}`);
-		return list === undefined ? [] : list;
+		const list = getValue('connections', friends ? 'friends' : 'enemies');
+		return list === null ? [] : list;
 	}
 	setList(list, friends = true) {
-		GM_setValue(`connections_${friends ? "friends" : "enemies"}`, list);
+		setValue('connections', friends ? 'friends' : 'enemies', list);
 		console.debug(`Set connections_${friends ? "friends" : "enemies"} to ${JSON.stringify(list)}`);
 		return list;
 	}

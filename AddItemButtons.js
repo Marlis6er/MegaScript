@@ -100,21 +100,18 @@ class AddItemButtons {
 		]);
 	}
 	getID(itemName) {
-		const ID = GM_getValue(`itemID_${itemName}`);
-		return ID === undefined ? null : ID;
+		return getValue('itemID', itemName);
 	}
 	setID(cache, itemName) {
-		GM_setValue(`itemID_${itemName}`, cache);
+		setValue('itemID', itemName, cache);
 		console.debug(`Set itemID_${itemName} to ${cache}`);
 		return cache;
 	}
 	getCount(itemName) {
-		const val = GM_getValue(`itemCache_${itemName}`);
-		return val === undefined ? null : val;
+		return getValue('itemCache', itemName);
 	}
 	setCount(cache, itemName) {
-		GM_setValue(`itemCache_${itemName}`, cache);
-		console.debug(`Set itemCache_${itemName} to ${cache}`);
+		setValue('itemCache', itemName, cahce);
 		return cache;
 	}
 	getItemValue(itemName) {
@@ -427,7 +424,7 @@ class AddItemButtons {
 
 			const nameSplit = item.children[1].innerText.split(' ');
 			const itemName = nameSplit.slice(0, -1).join(' ');
-			if (this.itemMap.keys.includes(itemName))
+			if (this.itemMap.get(itemName))
 				this.setID(item.id.slice(5), itemName);
 		}
 	}

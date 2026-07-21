@@ -55,21 +55,19 @@ class BlackjackHelper {
 		];
 	}
 	getMoneyStat(stat) {
-		const money = GM_getValue(`blackjack_${stat}`);
-		return money === undefined ? null : money;
+		return getNumericValue('blackjack', stat);
 	}
 	setMoneyStat(stat, money) {
-		GM_setValue(`blackjack_${stat}`, money);
+		setValue('blackjack', stat, money);
 		console.debug(`Set blackjack_${stat} to ${POUND}${money.toLocaleString("en-US")}`);
 		return money;
 	}
 	getStats() {
-		const stats = GM_getValue("blackjack_Stats");
-		return stats === undefined ? null : stats;
+		return this.getMoneyStat('Stats');
 	}
 	setStats(stats) {
-		GM_setValue("blackjack_Stats", stats);
-		console.debug(`Set blackjack_${stats} to ${JSON.stringify(stats)}`);
+		setValue('blackjack', 'Stats', stats);
+		console.debug(`Set blackjack_Stats to ${JSON.stringify(stats)}`);
 		return stats;
 	}
 	addProfit(val) {
