@@ -1,6 +1,7 @@
 class StatEstimate {
-	constructor(darkMode, user_id, user_name) {
-		this.brightness = darkMode ? 50 : 45;
+	constructor() {
+		const configManger = ConfigManager.getInstance();
+		this.brightness = configManger.darkmode ? 50 : 45;
 		this.statEstimateLink = "/StatEstimates";
 		this.statEstimateRegex = /^statestimates(\/|(\/\d+\/?)?(\?.+)?)?/;
 

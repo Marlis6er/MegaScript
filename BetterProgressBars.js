@@ -2,6 +2,17 @@ class BetterProgressBars {
 	constructor() {
 		this.healthColor = `hsl(230, 75%, 60%)`;
 		this.setReloadInterval();
+
+		const barPageMethods = [
+			'inEstateAgent',
+			'inCartelPerks',
+			'inProperty'
+		];
+
+		// It works, but could be better
+		barPageMethods.forEach(method => {
+			this.__proto__[method] = this.inBarPage;
+		});
 	}
 
 	setReloadInterval() {

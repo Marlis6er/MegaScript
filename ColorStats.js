@@ -1,6 +1,7 @@
 class ColorStats {
-	constructor(darkMode) {
-		this.brightness = darkMode ? 50 : 45;
+	constructor() {
+		const configManger = ConfigManager.getInstance();
+		this.brightness = configManger.darkmode ? 50 : 45;
 		this.maxInt = getNumericValue('perks', 'Max Int') || 1200;
 	}
 	calcGym(stat) {

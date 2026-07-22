@@ -1,7 +1,8 @@
 class DisplayTownCaches {
-	constructor(darkMode) {
+	constructor() {
+		const configManger = ConfigManager.getInstance();
 		this.hoursLate = 0;
-		this.brightness = darkMode ? 50 : 45;
+		this.brightness = configManger.darkmode ? 50 : 45;
 		this.incompleteColor = `hsl(60, 67%, ${this.brightness}%)`;
 
 		this.casinoIdx = 4;

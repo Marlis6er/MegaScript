@@ -1,7 +1,8 @@
 class ItemCache {
-	constructor(darkMode, days) {
-		this.brightness = darkMode ? 50 : 45;
-		this.days = days;
+	constructor() {
+		const configManger = ConfigManager.getInstance();
+		this.brightness = configManger.darkmode ? 50 : 45;
+		this.days = configManger.DAYS;
 
 		this.prodItemNames = ["Bag of Fertiliser", "Agave Heart", "Coca Paste"];
 		this.itemNames = [...this.prodItemNames, "Cocaine", "Personal Favour", 'Corana Beer']; // Also cache these for other scripts

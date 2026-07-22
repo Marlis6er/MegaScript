@@ -4,13 +4,24 @@ class BetterItemValues {
 	// Container for the best item price in market
 	priceCurrentBest;
 
-	constructor(darkMode, strikethrough, alwaysColorNames) {
-		this.brightness = darkMode ? 50 : 45;
-		this.bestColor = `hsl(60, 100%, ${darkMode ? 70 : 40}%)`;
-		this.strikethrough = strikethrough;
-		this.alwaysColorNames = alwaysColorNames;
+	constructor() {
+		const configManager = ConfigManager.getInstance();
+		this.brightness = configManager.darkmode ? 50 : 45;
+		this.bestColor = `hsl(60, 100%, ${configManager.darkmode ? 70 : 40}%)`;
+		this.strikethrough = configManager.STRIKETHROUGH;
+		this.alwaysColorNames = configManager.ALWAYS_COLOR_NAMES;
 
 		this.pointName = "Supporter Points";
+
+		const townStoreMethods = [
+			'inPharmacy',
+			'inPetshop'
+		];
+
+		// It works, but could be better
+		townStoreMethods.forEach(method => {
+			this.__proto__[method] = this.inTownStore;
+		});
 
 		const values = GM_listValues().filter(name => name.startsWith('value_')); // Prefill values first use
 		this.defaultVals = {
@@ -1216,6 +1227,7 @@ class BetterItemValues {
 			const gain = this.jobValue[i];
 			const repPerTime = this.jobRep[i] / this.jobTimes[i];
 			const spanElem = document.createElement('span');
+			
 			if (gain === '???') {
 				spanElem.classList = 'text-muted';
 				spanElem.textContent = `${POUND}???/h`;

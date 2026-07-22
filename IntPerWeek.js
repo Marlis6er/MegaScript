@@ -1,6 +1,7 @@
 class IntPerWeek {
-	constructor(darkMode) {
-		this.brightness = darkMode ? 50 : 45;
+	constructor() {
+		const configManger = ConfigManager.getInstance();
+		this.brightness = configManger.darkmode ? 50 : 45;
 
 		this.stats = window.location.href[window.location.href.length - 1] === '2';
 	}

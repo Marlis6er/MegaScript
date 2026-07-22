@@ -88,8 +88,8 @@ const LINKS = [
 ];
 
 class AddLinks {
-	constructor(links) {
-		this.links = links;
+	constructor() {
+		this.links = LINKS;
 	}
 
 	inAnywhere(url) {

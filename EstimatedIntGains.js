@@ -1,6 +1,7 @@
 class EstimatedIntGains {
-	constructor(darkMode) {
-		this.brightness = darkMode ? 50 : 45;
+	constructor() {
+		const configManger = ConfigManager.getInstance();
+		this.brightness = configManger.darkmode ? 50 : 45;
 
 		this.improperWay = false; // Instead of using ^energy, Diablo used to use *energy incorrectly
 		this.constant = this.improperWay ? 36715 : 36667;

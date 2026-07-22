@@ -1,5 +1,5 @@
 class ColorChatNames {
-	constructor(user_id) {
+	constructor() {
 		this.ownID = user_id;
 	}
 	ownColor(l) {

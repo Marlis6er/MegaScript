@@ -1,6 +1,7 @@
 class EstateLevelInfo {
-	constructor(darkMode) {
-		this.brightness = darkMode ? 50 : 45;
+	constructor() {
+		const configManger = ConfigManager.getInstance();
+		this.brightness = configManger.darkmode ? 50 : 45;
 
 		this.prefixes = ["", "", '${POUND}', '-', '+', '+', '+'];
 		this.postfixes = ["", "", 'M', '%', '%', " INT", '%'];
