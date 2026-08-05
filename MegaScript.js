@@ -830,12 +830,13 @@ class BetterItemValues {
 	inSupporter(url) {
 		const refillText = document.querySelector("div.card-body p.card-text:not(.fw-bold)");
 		const pointPrice = this.getValue(this.pointName);
-		if (pointPrice === null) return;
+		if (pointPrice === null || refillText === null) return;
 
 		refillText.innerHTML = `${refillText.innerText.slice(0, -1)} <span class="text-muted">(\u00a3${(pointPrice * 25).toLocaleString("en-US")})</span>.`;
 	}
 	inEstateAgent(url) {
 		const buildReqs = document.querySelectorAll("div.row.pb-2");
+		if (buildReqs?.length <= 0) return;
 
 		for (const buildReq of buildReqs) {
 			const matList = buildReq.querySelector('div.col-6.d-flex.flex-column > p');
@@ -863,6 +864,7 @@ class BetterItemValues {
 		}
 
 		const buildModal = document.querySelector("div#buildModal");
+		if (!buildModal) return;
 
 		observeDOM(buildModal, e => {
 			const modal = e[1].target;
@@ -932,6 +934,8 @@ class BetterItemValues {
 	}
 	inTradeView(url) {
 		const tradeTabs = document.querySelectorAll("div.card-body:not(.text-center)");
+		if (tradeTabs.length <= 0) return;
+
 		const totalVal = [0, 0];
 
 		for (let i = 0; i !== 2; ++i) {
@@ -1131,6 +1135,7 @@ class BetterItemValues {
 			return;
 
 		const eventList = document.querySelectorAll("div.container.eventWrapper > div.eventItemWrapper");
+		if (eventList?.length <= 0) return;
 
 		let profit = [];
 		let maxProfit = 0;
@@ -2189,6 +2194,7 @@ class BuyPointsLink {
     inSupporter(url) {
         // Find the container (updated from the previous class names)
         let container = document.querySelector("div.col-12"); // Adjust this selector if needed
+		if (!container) return;
  
         // Find the cards in the container (adjust this according to the new structure of your cards)
         const cards = container.querySelectorAll("div.card.mb-4");
@@ -2255,6 +2261,8 @@ class CartelMemberRep {
 	}
 	inAttackLog(url) {
 		const rows = document.querySelectorAll("table#eventsTable tbody tr");
+		if (rows.length <= 0) return;
+
 		this.processLogs(rows);
 	}
 	inCartelHomepage(url) {
@@ -2351,9 +2359,11 @@ class ColorChatNames {
 		return list;
 	}
 	inConnections(url) {
-		const [friendList, enemyList] = document.querySelectorAll("div.card-body  div.tab-content");
-		const friends = friendList.querySelectorAll("a.fw-bold");
-		const enemies = enemyList.querySelectorAll("a.fw-bold");
+		const lists = document.querySelectorAll("div.card-body div.tab-content");
+		if (lists.length < 2) return;
+
+		const friends = lists[0].querySelectorAll("a.fw-bold");
+		const enemies = lists[1].querySelectorAll("a.fw-bold");
 		let list = [];
 		for (const user of friends) {
 			list.push(user.href.match(/\d+$/)[0]);
@@ -2636,7 +2646,7 @@ class ColorStats {
 	}
 	inInventory(url) {
 		const itemList = document.querySelectorAll("div.container.inventoryWrapper > div.inventoryItemWrapper");
-		if (itemList === null) return;
+		if (itemList.length <= 0) return;
 
 		for (const item of itemList) {
 			if (item.children.length < 7) continue;
@@ -2757,6 +2767,7 @@ Hospital timer by ${hospTimeText} ${this.getPerk(this.medEffectiveness) === 0 ? 
 	inHomepage(url) {
 		// Grab the perk items from the updated structure
 		const perks = document.querySelectorAll(".col-12.d-flex.align-items-stretch.col-xxl-4 .perk-item");
+		if (perks.length <= 0) return;
 
 		const museumVals = {
 			"Small": 50,
@@ -2853,6 +2864,8 @@ Hospital timer by ${hospTimeText} ${this.getPerk(this.medEffectiveness) === 0 ? 
 	}
 	inMarket(url) {
 		const medItems = document.querySelector("div#content-medical");
+		if (!medItems) return;
+
 		observeDOM(medItems, e => {
 			const list = e[0]?.addedNodes[2];
 			if (list?.classList === undefined || !list.classList.contains("offerListWrapper"))
@@ -2975,6 +2988,8 @@ class DisplayTownCaches {
 	}
 	inCasinoSpinner(url) {
 		const spinsLeft = document.querySelector("span#tokenCount");
+		if (!spinsLeft) return;
+
 		const spinsLeftNum = parseInt(spinsLeft.textContent);
 		const curCache = this.getCache("Spins");
 		const now = Date.now() - this.hoursLate * 1000 * 60 * 60;
@@ -2988,6 +3003,8 @@ class DisplayTownCaches {
 	}
 	inSupporter(url) {
 		const refillButton = document.querySelector("a#refillEnergy");
+		if (!refillButton) return;
+
 		const refillDone = refillButton.classList.contains("disabled");
 
 		const curCache = this.getCache("EnergyRefill");
@@ -2997,6 +3014,8 @@ class DisplayTownCaches {
 	}
 	inMateos(url) {
 		const headerSections = document.querySelectorAll('.header-section');
+		if (headerSections.length < 2) return;
+
 		const pointsHeader = headerSections[2].querySelector('h2').textContent;
 		const pointsDepleted = pointsHeader.includes("(0/25)");
 		console.debug(pointsHeader);
@@ -3118,6 +3137,7 @@ class DPEnergyRefillReminder {
 	constructor() { }
 	inSupporter(url) {
 		let modalText = document.querySelector("#useRefillConfirm p.card-text.modal-bodyText");
+		if (!modalText) return;
 
 		const modalObserver = e => {
 			const textSplit = e[0].target.innerText.split(' ');
@@ -3268,6 +3288,7 @@ class ExpeditionChances {
 	constructor() { }
 	inExpeditions(URL) {
 		const teamStats = this.getTeamStats();
+		if (!teamStats) return;
 
 		const expeds = document.querySelectorAll(".expeditionButton");
 		for (const exped of expeds) {
@@ -3380,6 +3401,8 @@ class HighlightInactives {
 	}
 	inCartel(url) {
 		const table = document.querySelector("div.card-body > div.container-fluid");
+		if (!table) return;
+
 		const rows = table.querySelectorAll(".row.align-middle");
 
 		for (const row of rows) {
@@ -3565,6 +3588,8 @@ class IntPerWeek {
 	}
 	inUniversityPage(url) {
 		const courses = document.querySelectorAll("div#classAccordion div.accordion-item");
+		if (courses.length <= 0) return;
+
 		let intPerDay = [];
 		let maxIpd = 0;
 		let minIpd = Infinity;
@@ -3700,7 +3725,7 @@ class ItemCache {
 	}
 	inJobs(url) {
 		const jobPanels = document.querySelectorAll("div.equipmentModule div.flex-column");
-		if (!jobPanels) return;
+		if (jobPanels.length <= 0) return;
 
 		const hrLine = document.createElement('hr');
 		hrLine.classList = 'w-75';
@@ -4342,6 +4367,8 @@ class StatEstimate {
 	}
 	inCartelWar(url) {
 		const war = document.querySelector("div#warReportModule");
+		if (!war) return;
+
 		let cols = war.querySelectorAll("div.col-12.col-lg-6");
 		cols[0].classList.remove("col-lg-6");
 		cols[0].classList.add("col-lg-7");
@@ -4454,6 +4481,8 @@ class StatEstimate {
 		};
 
 		const firstRow = document.querySelector("div.fightTable tbody tr td");
+		if (!firstRow) return;
+		
 		const youAttacked = firstRow.textContent.startsWith("You ");
 		const attackedYou = firstRow.textContent.endsWith(" you");
 		const estimate = youAttacked ? this.estimateYouAttacked.bind(this) : attackedYou ? this.estimateAttackedYou.bind(this) : this.AattackedB.bind(this);
