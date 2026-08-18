@@ -70,6 +70,30 @@ class Item {
 
 
 class AddItemButtons {
+
+	static metadata = {
+		displayName: 'Add Item Buttons',
+		description: 'Add items to certain pages for convenience',
+		settings: {
+			active: {
+				inGym: {
+					description: 'Add a button for cocaine'
+				},
+				inUniversity: {
+					description: 'Add a button for Cocaine'
+				},
+				inJail: {
+					description: 'Add a button for Personal Favours'
+				},
+				inInventory: {
+					description: 'Required to update the item ID'
+				}
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		// Static info on each item
 		this.itemMap = new Map([
@@ -231,9 +255,6 @@ class AddItemButtons {
 		currentLifeElem.textContent = newLife;
 		lifeProgressElem.style.width = `${percentageOfMax}%`;
 		lifeProgressElem.setAttribute("aria-valuenow", newLife);
-	}
-	addScript() {
-		
 	}
 	add(count, value, pb, itemName) {
 		const ID = this.getID(itemName);

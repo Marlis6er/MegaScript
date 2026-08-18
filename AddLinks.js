@@ -88,6 +88,21 @@ const LINKS = [
 ];
 
 class AddLinks {
+
+	static metadata = {
+		displayName: 'Add Links',
+		description: 'Add extra links to the top nav bar',
+		settings: {
+			active: {
+				inAnywhere: {
+					description: 'Add useful links'
+				}
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		this.links = LINKS;
 	}

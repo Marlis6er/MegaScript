@@ -1,4 +1,43 @@
 class StatEstimate {
+
+	static metadata = {
+		displayName: 'Stat Estimate',
+		description: 'Estimate the total stats of your opponents',
+		settings: {
+			active: {
+				inStatEstimate: {
+					description: 'A page to manage your stat estimates'
+				},
+				inSearch: {
+					description: 'Display stat estimates'
+				},
+				inBountyOrOtherCartel: {
+					description: 'Display stat estimates'
+				},
+				inCartelWar: {
+					description: 'Display stat estimates'
+				},
+				inHomepage: {
+					description: 'Store your own stats after applying perk boni'
+				},
+				inGym: {
+					description: 'Store your own stats after applying perk boni'
+				},
+				inFight: {
+					description: 'Calculate and display your opponent\'s stats'
+				},
+				inUserProfile: {
+					description: 'Display the user\'s stats'
+				},
+				inEvents: {
+					description: 'Display stat estimates in the attack logs'
+				}
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		const configManger = ConfigManager.getInstance();
 		this.brightness = configManger.darkmode ? 50 : 45;

@@ -1,4 +1,19 @@
 class BankDepositTax {
+
+	static metadata = {
+		displayName: 'Bank Deposit Tax',
+		description: 'Calculate and displays the bank deposit tax',
+		settings: {
+			active: {
+				inBank: {
+					description: 'Display the bank deposit tax below the input box'
+				}
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		this.taxRate = 2.5;
 		this.ID = "taxOnDeposit";

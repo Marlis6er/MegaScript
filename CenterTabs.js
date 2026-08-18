@@ -1,4 +1,16 @@
 class CenterTabs {
+
+	static metadata = {
+		displayName: 'Center Tabs',
+		description: 'Center tabs and spread them to the full length of their container',
+		settings: {
+			active: {
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		const navPageMethods = [
 			'inExpeditions',

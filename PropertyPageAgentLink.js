@@ -1,4 +1,16 @@
 class PropertyPageAgentLink {
+
+	static metadata = {
+		displayName: 'Property Agent Page Link',
+		description: 'Add a link to the estate agent to the property page',
+		settings: {
+			active: {
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		this.add = `
             <div class="row">

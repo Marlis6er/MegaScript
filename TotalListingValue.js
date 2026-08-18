@@ -1,5 +1,18 @@
 class TotalListingValue {
+
+	static metadata = {
+		displayName: 'Total Listing Value',
+		description: 'Calculate and display the total value of your listed items',
+		settings: {
+			active: {
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() { }
+
 	inMarket(url) {
 		const ownOffers = document.querySelector("div.offerListWrapper:first-of-type");
 		if (ownOffers === null) return;

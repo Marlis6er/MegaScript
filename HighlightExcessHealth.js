@@ -1,4 +1,16 @@
 class HighlightExcessHealth {
+
+	static metadata = {
+		displayName: 'Highlight Excess Health',
+		description: 'Show health over maximum in red and bold',
+		settings: {
+			active: {
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() { }
 	inUserProfile(url) {
 		const trs = document.querySelectorAll("table.table tbody tr");

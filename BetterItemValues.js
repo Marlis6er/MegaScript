@@ -1,4 +1,63 @@
 class BetterItemValues {
+
+	static metadata = {
+		displayName: 'Better Itemvalues',
+		description: 'Use the player market value for item value',
+		settings: {
+			active: {
+				inGym: {
+					description: 'Update the coke item button from the Add Item Buttons module'
+				},
+				inUniversity: {
+					description: 'Update the coke item button from the Add Item Buttons module'
+				},
+				inMarket: {
+					description: 'Set the item values for this module and use these prices for the default input value'
+				},
+				inSupporter: {
+					description: 'Display the energy refill price'
+				},
+				inEstateAgent: {
+					description: 'Display the material- and total cost of the properties'
+				},
+				inPharmacy: {
+					description: 'Display the market value next to the store value for each item'
+				},
+				inTownStore: {
+					description: 'Display the market value next to the store value for each item'
+				},
+				inPetStore: {
+					description: 'Display the market value next to the store value for each item'
+				},
+				inTradeView: {
+					description: 'Automatically calculate accurate total value for each player'
+				},
+				inAddItems: {
+					description: 'Display the total value of the selected items'
+				},
+				inCartelArmory: {
+					description: 'Display the market value of each item'
+				},
+				inEvents: {
+					description: 'Display the total value of each event log (if applicable)'
+				},
+				inProduction: {
+					description: 'Calculate the total daily profits'
+				},
+				inJobs: {
+					description: 'Calculate the hourly rep- and money profits for each job'
+				},
+				inInventory: {
+					description: 'Display the market value of each item'
+				}
+			},
+			custom: {
+			}
+		}
+	}
+
+
+
 	// Container for the best point price in market
 	pointCurrentBest;
 	// Container for the best item price in market

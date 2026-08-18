@@ -27,7 +27,6 @@ class ConfigManager {
             HighlightExcessHealth,
             HighlightInactives,
             HighlightUnequipped,
-            HighscoreChanges,
             IntPerWeek,
             ItemCache,
             LargerGymGraph,
@@ -40,56 +39,62 @@ class ConfigManager {
             TrueKDR
         ];
 
-        this.URL_MAP = new Map([
-            [/^gym\/?$/, 'inGym'],
-            [/^university\/?$/, 'inUniversity'],
-            [/^university\/[132]\/?$/, 'inUniversityPage'],
-            [/^jail\/?$/, 'inJail'],
-            [/^bank\/?$/, 'inBank'],
-            [/^expedition/, 'inExpeditions'],
-            [/^market/, 'inMarket'],
-            [/^supporter\/?$/, 'inSupporter'],
-            [/^town\/?$/, 'inTown'],
-            [/^town\/estateagent\/?/, 'inEstateAgent'],
-            [/^town\/pharmacy\/?$/, 'inPharmacy'],
-            [/^town\/club\/?$/, 'inSicarios'],
-            [/^town\/mateos\/?$/, 'inMateos'],
-            [/^town\/.+\/?$/, 'inTownStore'],
-            [/^petshop\/?$/, 'inPetshop'],
-            [/^trade\/view/, 'inTradeView'],
-            [/^trade\/?$/, 'inTrade'],
-            [/^trade\/additems/, 'inAddItems'],
-            [/^cartel\/\d+\/?$/, 'inBountyOrOtherCartel'],
-            [/^cartel\/?$/, 'inCartel'],
-            [/^cartel\/armou?ry\/deposit\/?$/, 'inAddItems'],
-            [/^cartel\/armou?ry/, 'inCartelArmory'],
-            [/^cartel\/territory\/?$/, 'inCartelWar'],
-            [/^cartel\/perks\/?$/, 'inCartelPerks'],
-            [/^cartel\/allfights/, 'inAttackLog'],
-            [/^events/, 'inEvents'],
-            [/^production\/?$/, 'inProduction'],
-            [/^jobs\/?$/, 'inJobs'],
-            [/^inventory/, 'inInventory'],
-            [/^casino\/?$/, 'inCasino'],
-            [/^casino\/spinner\/?$/, 'inCasinoSpinner'],
-            [/^casino\/blackjack\/?$/, 'inBlackjack'],
-            [/^casino\/blackjackstats(\/|\/?\?.+)?/, 'inBlackjackStats'],
-            [/^highscores/, 'inHighscores'],
-            [/^(home|user)\/?$/, 'inHomepage'],
-            [/^user\/\d+\/?$/, 'inUserProfile'],
-            [/^user\/stats/, 'inPersonalStats'],
-            [/^property\/?$/, 'inProperty'],
-            [/^statestimates(\/|(\/\d+\/?)?(\?.+)?)?/, 'inStatEstimate'],
-            [/^(advanced)?search/, 'inSearch'],
-            [/^bounty/, 'inBountyOrOtherCartel'],
-            [/^fight/, 'inFight'],
-            [/^connections$/, 'inConnections'],
-            [/^forum\/\d+\/\d+|^forum\/thread\/\d+/, 'inForumPost'],
-            [/^forum\/\d+/, 'inForumCategory'],
-            [/^inbox|^outbox/, 'inMail'],
-            [/^settings/, 'inSettings'],
-            [/./, 'inAnywhere']
-        ]);
+        this.PAGE_DATA = [
+            [/^gym\/?$/, 'inGym', 'In Gym'],
+            [/^university\/?$/, 'inUniversity', 'In Univesity'],
+            [/^university\/[132]\/?$/, 'inUniversityPage', 'In Univserity Course'],
+            [/^jail\/?$/, 'inJail', 'In Jail'],
+            [/^bank\/?$/, 'inBank', 'In Bank'],
+            [/^expedition/, 'inExpeditions', 'In Expeditions'],
+            [/^market/, 'inMarket', 'In Market'],
+            [/^supporter\/?$/, 'inSupporter', 'In Supporter'],
+            [/^town\/?$/, 'inTown', 'In Town'],
+            [/^town\/estateagent\/?/, 'inEstateAgent', 'In Estate Agent'],
+            [/^town\/pharmacy\/?$/, 'inPharmacy', 'In Pharmancy'],
+            [/^town\/club\/?$/, 'inSicarios', 'In Scicarios Store'],
+            [/^town\/mateos\/?$/, 'inMateos', 'In Mateo\'s Store'],
+            [/^town\/.+\/?$/, 'inTownStore', 'In Town Store'],
+            [/^petshop\/?$/, 'inPetshop', 'In Pet Store'],
+            [/^trade\/view/, 'inTradeView', 'In Trade View'],
+            [/^trade\/?$/, 'inTrade', 'In Trade'],
+            [/^trade\/additems/, 'inAddItems', 'In Add Items'],
+            [/^cartel\/\d+\/?$/, 'inBountyOrOtherCartel', 'In Bounty or Other Cartel'],
+            [/^cartel\/?$/, 'inCartel', 'In Own Cartel'],
+            [/^cartel\/armou?ry\/deposit\/?$/, 'inAddItems', 'In Add Items of Armory'],
+            [/^cartel\/armou?ry/, 'inCartelArmory', 'In Cartel Armory'],
+            [/^cartel\/territory\/?$/, 'inCartelWar', 'In Cartel War'],
+            [/^cartel\/perks\/?$/, 'inCartelPerks', 'in Cartel Perks'],
+            [/^cartel\/allfights/, 'inAttackLog', 'In Cartel Attack Logs'],
+            [/^events/, 'inEvents', 'In Events'],
+            [/^production\/?$/, 'inProduction', 'In Production'],
+            [/^jobs\/?$/, 'inJobs', 'In Jobs'],
+            [/^inventory/, 'inInventory', 'In Inventory'],
+            [/^casino\/?$/, 'inCasino', 'In Casino'],
+            [/^casino\/spinner\/?$/, 'inCasinoSpinner', 'In Casino Spinner'],
+            [/^casino\/blackjack\/?$/, 'inBlackjack', 'In Blackjack'],
+            [/^casino\/blackjackstats(\/|\/?\?.+)?/, 'inBlackjackStats', 'In Blackjack Stats'],
+            [/^highscores/, 'inHighscores', 'In Highscores'],
+            [/^(home|user)\/?$/, 'inHomepage', 'In Homepage'],
+            [/^user\/\d+\/?$/, 'inUserProfile', 'In User Profile'],
+            [/^user\/stats/, 'inPersonalStats', 'In Personal Stats'],
+            [/^property\/?$/, 'inProperty', 'In Property'],
+            [/^statestimates(\/|(\/\d+\/?)?(\?.+)?)?/, 'inStatEstimate', 'In Stat Estimates'],
+            [/^(advanced)?search/, 'inSearch', 'In Search'],
+            [/^bounty/, 'inBountyOrOtherCartel', 'In Bounty or Other Cartel'],
+            [/^fight/, 'inFight', 'In Fight'],
+            [/^connections$/, 'inConnections', 'In Connections'],
+            [/^forum\/\d+\/\d+|^forum\/thread\/\d+/, 'inForumPost', 'In Forum Post'],
+            [/^forum\/\d+/, 'inForumCategory', 'In Forum Category'],
+            [/^inbox|^outbox/, 'inMail', 'In Mail'],
+            [/^settings/, 'inSettings', 'In Settings'],
+            [/./, 'inAnywhere', 'Anywhere']
+        ];
+
+        // Maps the page regex to the method name
+        this.URL_MAP = new Map(this.PAGE_DATA.map(page_data => [page_data[0], page_data[1]]));
+
+        if (getValue('script', 'settings') === null)
+			setValue('script', 'settings', this.generateDefaultSettings());
 
         this.STRIKETHROUGH = false; // Display the normally-displayed price as well, striked-through
         this.ALWAYS_COLOR_NAMES = [ "FN SCAR-H", "Desert Eagle", "Full-Body Armour" ];
@@ -97,6 +102,22 @@ class ConfigManager {
         this.darkmode = document.querySelector("html").getAttribute("data-bs-theme") === "dark";
     }
 
+	generateDefaultSettings() {
+		const settings = {};
+		for (const module of this.MODULES) {
+			settings[module.name] = {'active': {}};
+
+			const methods = Object.getOwnPropertyNames(module.prototype);
+			const allMethods = this.URL_MAP.values().toArray();
+			const availableMethods = new Set(allMethods).intersection(new Set(methods));
+
+			for (const method of availableMethods.values()) {
+				settings[module.name]['active'][method] = true;
+			}
+		}
+		return settings;
+	}
+    
     static getInstance() {
         if (this.instance) return this.instance;
 

@@ -1,4 +1,16 @@
 class GreenMoney {
+
+	static metadata = {
+		displayName: 'Green Money',
+		description: 'Color money values green',
+		settings: {
+			active: {
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		this.color = "hsl(95, 100%, 25%)"; // Default color
 	}

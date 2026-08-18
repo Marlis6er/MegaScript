@@ -1,4 +1,31 @@
 class BetterMoneyInputs {
+
+	static metadata = {
+		displayName: 'Better Money Inputs',
+		description: 'Press \'a\' to add all your money and \'h\' to add half your money',
+		settings: {
+			active: {
+				inBank: {
+					description: 'Affects the deposit- and withdraw input'
+				},
+				inCartelArmory: {
+					description: 'Affects the point deposit input'
+				},
+				inTradeView: {
+					description: 'Affects the cash- and point input'
+				},
+				inMarket: {
+					description: 'Affects the cash- and point input'
+				},
+				inUserProfile: {
+					description: 'Affects the send cash input'
+				}
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() { }
 	_changeAutonumeric(input) {
 		let elem = AutoNumeric.getAutoNumericElement(input);

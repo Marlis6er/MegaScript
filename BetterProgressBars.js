@@ -1,4 +1,34 @@
 class BetterProgressBars {
+
+	static metadata = {
+		displayName: 'Better Progress Bars',
+		description: 'Change progress bars to be striped and animated',
+		settings: {
+			active: {
+				inExpeditions: {
+					description: 'Affects the scicario level progress bar'
+				},
+				inJobs: {
+					description: 'Affects the prestige progress bar'
+				},
+				inAnywhere: {
+					description: 'Affects the health- and energy progress bars'
+				},
+				inEstateAgent: {
+					description: 'Affects the build progress bar'
+				},
+				inCartelPerks: {
+					description: 'Affects the perk progress bars'
+				},
+				inProperty: {
+					description: 'Affects the upgrade progress bars'
+				}
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		this.healthColor = `hsl(230, 75%, 60%)`;
 		this.setReloadInterval();

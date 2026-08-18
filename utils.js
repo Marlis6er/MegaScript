@@ -1,5 +1,8 @@
 // constants used in all modules
 const POUND = '\u00a3';
+const SettingType = {
+	TOGGLE: 0
+}
 
 // Used for seeing when elements update, for some reason there's no neat standard way to do that
 const observeDOM = (function() {
@@ -114,4 +117,8 @@ function setValue(prefix, name, value) {
 	const spacesEscaped = name.replaceAll(' ', '_')
 	GM_setValue(`${prefix}_${spacesEscaped}`, value);
 	return value;
+}
+
+function getSettings(moduleName) {
+	return getValue('script', 'settings')[moduleName] || null;
 }

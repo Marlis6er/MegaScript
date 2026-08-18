@@ -1,4 +1,43 @@
 class ColorChatNames {
+
+	static metadata = {
+		displayName: 'Color Names',
+		description: 'Color friend names green and enemie names red',
+		settings: {
+			active: {
+				inConnections: {
+					description: 'Store the list of friends / enemies'
+				},
+				inUserProfile: {
+					description: 'Update the stored list when you add / remove a friend / enemy'
+				},
+				inBountyOrOtherCartel: {
+					description: 'Color names in the member list / bounty list'
+				},
+				inTrade: {
+					description: 'Color the names in the trade list'
+				},
+				inMail: {
+					description: 'Color the names in the mail list'
+				},
+				inMarket: {
+					description: 'Color the names in the offer list'
+				},
+				inForumCategory: {
+					description: 'Color the name of the authors'
+				},
+				inForumPost: {
+					description: 'Color both author- and comment names'
+				},
+				inAnywhere: {
+					description: 'Color names when they appear with a link to the user profile'
+				},
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		this.ownID = user_id;
 	}

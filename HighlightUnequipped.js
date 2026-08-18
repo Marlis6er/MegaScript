@@ -1,5 +1,24 @@
 class HighlightUnequipped {
+
+	static metadata = {
+		displayName: 'Highlight Unequipped',
+		description: 'Color unequipped slots red and bold',
+		settings: {
+			active: {
+				inInventory: {
+					description: 'Highlight unequipped weapons / armor'
+				},
+				inProduction: {
+					description: 'Highlight empty narco slots'
+				}
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor(darkMode) { }
+
 	inInventory(url) {
 		const titles = document.querySelectorAll("h6.card-title");
 

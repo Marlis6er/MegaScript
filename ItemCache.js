@@ -1,4 +1,28 @@
 class ItemCache {
+
+	static metadata = {
+		displayName: 'Item Cache',
+		description: 'Cache the amount of items you currently have',
+		settings: {
+			active: {
+				inMarket: {
+					description: 'Update cache when items are listed or bought'
+				},
+				inInventory: {
+					description: 'Store the amount of each item'
+				},
+				inProduction: {
+					description: 'Display your current material items and how many days of production you have left'
+				},
+				inJobs: {
+					description: 'Display your current material items and how many days of production you have left'
+				}
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		const configManger = ConfigManager.getInstance();
 		this.brightness = configManger.darkmode ? 50 : 45;

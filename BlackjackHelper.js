@@ -1,4 +1,22 @@
 class BlackjackHelper {
+
+	static metadata = {
+		displayName: 'Blackjack Helper',
+		description: 'Highlight the best next move',
+		settings: {
+			active: {
+				inBlackjack: {
+					description: 'Highlight the best next move and record your statistics'
+				},
+				inBlackjackStats: {
+					description: 'Display your statistics'
+				}
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		this.statsRegex = /^casino\/blackjackstats(\/|\/?\?.+)?/;
 		this.id = "totalProfit";

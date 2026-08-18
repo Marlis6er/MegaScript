@@ -1,4 +1,22 @@
 class CenterText {
+
+	static metadata = {
+		displayName: 'Center Text',
+		description: 'Center the text',
+		settings: {
+			active: {
+				inTown: {
+					description: 'Center the name and text of each location'
+				},
+				inAnywhere: {
+					description: 'Center the name of each chat'
+				},
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() { }
 	inTown(url) {
 		const places = document.querySelectorAll("div.equipmentModule p.card-text.flex-grow-1");
