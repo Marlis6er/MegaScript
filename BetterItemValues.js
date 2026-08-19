@@ -90,7 +90,6 @@ class BetterItemValues {
 
 		this.pointName = "Supporter Points";
 
-		const values = GM_listValues().filter(name => name.startsWith('value_')); // Prefill values first use
 		this.defaultVals = {
 			// Primary Weapons
 			'AK-47': 5_000,
@@ -241,9 +240,11 @@ class BetterItemValues {
 			'Tech Specialist Contact': 0,
 			'Leadership Specialist Contact': 0,
 		}; // Players should go to the market to load up-to-date values, these are presets probably over half a year old
+
+		const values = GM_listValues().filter(name => name.startsWith('value_')); // Prefill values first use
 		if (values.length === 0) {
 			for (const name in this.defaultVals)
-				this.setItemValue(name, defaultVals[name]);
+				this.setItemValue(name, this.defaultVals[name]);
 		}
 
 		this.maxCokeDaily = 8;
