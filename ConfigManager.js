@@ -92,9 +92,9 @@ class ConfigManager {
 
         // Maps the page regex to the method name
         this.URL_MAP = new Map(this.PAGE_DATA.map(page_data => [page_data[0], page_data[1]]));
-
-        if (getValue('script', 'settings') === null)
-			setValue('script', 'settings', this.generateDefaultSettings());
+        
+        const updatedSettings = this.updateSettings(getValue('script', 'settings'));
+        setValue('script', 'settings', updatedSettings);
 
         this.STRIKETHROUGH = false; // Display the normally-displayed price as well, striked-through
         this.ALWAYS_COLOR_NAMES = [ "FN SCAR-H", "Desert Eagle", "Full-Body Armour" ];
@@ -102,17 +102,23 @@ class ConfigManager {
         this.darkmode = document.querySelector("html").getAttribute("data-bs-theme") === "dark";
     }
 
-	generateDefaultSettings() {
-		const settings = {};
+    updateSettings(current) {
+		const settings = current || {};
 		for (const module of this.MODULES) {
-			settings[module.name] = {'active': {}, 'custom': {}};
+            if (!settings[module.name])
+			    settings[module.name] = {'active': {}, 'custom': {}};
+            if (!settings[module.name]['active'])
+                settings[module.name]['active'] = {}
+            if (!settings[module.name]['custom'])
+                settings[module.name]['custom'] = {}
 
 			const methods = Object.getOwnPropertyNames(module.prototype);
 			const allMethods = this.URL_MAP.values().toArray();
 			const availableMethods = new Set(allMethods).intersection(new Set(methods));
 
 			for (const method of availableMethods.values()) {
-				settings[module.name]['active'][method] = true;
+                if (settings[module.name]['active'][method] === undefined)
+				    settings[module.name]['active'][method] = true;
 			}
 		}
 		return settings;

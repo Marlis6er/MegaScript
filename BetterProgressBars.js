@@ -32,17 +32,6 @@ class BetterProgressBars {
 	constructor() {
 		this.healthColor = `hsl(230, 75%, 60%)`;
 		this.setReloadInterval();
-
-		const barPageMethods = [
-			'inEstateAgent',
-			'inCartelPerks',
-			'inProperty'
-		];
-
-		// It works, but could be better
-		barPageMethods.forEach(method => {
-			this.__proto__[method] = this.inBarPage;
-		});
 	}
 
 	setReloadInterval() {
@@ -60,12 +49,19 @@ class BetterProgressBars {
 			window.location.reload();
 		}, timeToNextInterval);
 	}
-
+	inEstateAgent(url) {
+		this.inBarPage(url);
+	}
+	inCartelPerks(url) {
+		this.inBarPage(url);
+	}
+	inProperty(url) {
+		this.inBarPage(url);
+	}
 	inExpeditions(url) {
 		const bars = document.querySelectorAll(".progress-bar-striped");
 		for (const bar of bars) bar.classList.remove("bg-success");
 	}
-
 	inJobs(url) {
 		const bars = document.querySelectorAll("div.equipmentModule .progress-bar");
 		for (const bar of bars) {
