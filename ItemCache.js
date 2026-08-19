@@ -19,14 +19,22 @@ class ItemCache {
 				}
 			},
 			custom: {
+				production_stock_days: {
+					displayName: 'Production Stock Days',
+					description: 'Number of days of production materials to stock up',
+					type: SettingType.INTEGER,
+					extra: {
+						defaultValue: 7
+					}
+				}
 			}
 		}
 	}
 
 	constructor() {
-		const configManger = ConfigManager.getInstance();
-		this.brightness = configManger.darkmode ? 50 : 45;
-		this.days = configManger.DAYS;
+		const configManager = ConfigManager.getInstance();
+		this.brightness = configManager.darkmode ? 50 : 45;
+		this.days = configManager.getCustomSetting(this, 'production_stock_days') || 1;
 
 		this.prodItemNames = ["Bag of Fertiliser", "Agave Heart", "Coca Paste"];
 		this.itemNames = [...this.prodItemNames, "Cocaine", "Personal Favour", 'Corana Beer']; // Also cache these for other scripts

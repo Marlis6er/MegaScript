@@ -181,7 +181,7 @@ class ScriptSettings {
 		sectionHeaderTemplate.innerHTML = `
 			<button class="accordion-button bg-dark rounded collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#${bodyID}" aria-expanded="false" aria-controls="${bodyID}">
 				<div class="d-none d-sm-inline">
-					<span class="text-center">${name}${description ? ' - ' + description : ''}</span>
+					<span class="text-center fw-bold" style="color: hsl(250, 40%, 60%)">${name}</span>${description ? '<span style="color: gray"> - ' + description  + '</span>' : ''}
 				</div>
 			</button>
 		`;
@@ -263,26 +263,32 @@ class ScriptSettings {
 		} else {
 			for (const [name, data] of Object.entries(customSettings)) {
 				const id = `${module.name}-custom-${name}`;
-				let content;
+				const attributes = [
+					id,
+					data?.displayName || name,
+					data?.description || '',
+					this.storedSettings[module.name]?.['custom']?.[name],
+					data?.extra
+				];
+				let optionObj;
 				switch(data?.type) {
 					case SettingType.TOGGLE:
-						const toggle = new OptionToggle(
-							id,
-							data?.displayName || name,
-							data?.description || '',
-							{
-								storedValue: this.storedSettings[module.name]?.['custom']?.[name],
-								defaultValue: false
-							}
-						);
-						this.setOptionElement(module.name, 'custom', name, toggle);
-						content = toggle.getTemplate();
+						optionObj = new OptionToggle(...attributes);
+						break;
+					case SettingType.INTEGER:
+						optionObj = new OptionInteger(...attributes);
+						break;
+					case SettingType.ITEMLIST:
+						optionObj = new OptionItemList(...attributes);
 						break;
 					default:
 						console.warn(`The setting type for ${name} is not specified`);
-						content = this._createMissingTypeEleme(name, data);
+						optionObj = new OptionDefault(...attributes);
 						break;
 				}
+				this.setOptionElement(module.name, 'custom', name, optionObj);
+				const content = optionObj.getTemplate();
+
 				const template = this._createSettingOptionElem(data?.displayName || name, data?.description || '');
 				template.querySelector('td:last-of-type').appendChild(content);
 				tableCustomBody.appendChild(template);
@@ -310,6 +316,7 @@ class ScriptSettings {
 			data?.description || ''
 		);
 		template.querySelector('td:last-of-type').innerHTML = 'Invalid Setting type'
+		return template;
 	}
 	_createNoCustomSettingsElem(){
 		return this._createSettingOptionElem(
@@ -319,20 +326,48 @@ class ScriptSettings {
 	}
 }
 
+class OptionDefault {
+	constructor(name, displayName, description) {
+		if (!this.htmlElem) {
+			this.htmlElem = this._createHTMLTemplate(name, displayName, description);
+			this.path = name.split('-');
+		}
+	}
+
+	_createHTMLTemplate(name, displayName, description) {
+		const template = document.createElement('div');
+		template.innerHTML = 'Invalid option type';
+		return template;
+	}
+
+	getTemplate() {
+		return this.htmlElem;
+	}
+
+	getValue() {
+		return undefined;
+	}
+
+	setValue() {
+	}
+
+	getPath() {
+		return this.path;
+	}
+}
+
 class OptionToggle {
 
 	/**
 	 * @param {{
-	 *     storedValue: boolean,
 	 *     defaultValue: boolean
-	 * }} data - Additional data for the toggle
+	 * }} data - Additional data
 	 */
-	constructor(name, displayName, description, data) {
+	constructor(name, displayName, description, storedValue, data) {
 		if (!this.htmlElem) {
 			this.htmlElem = this._createHTMLTemplate(name, displayName, description);
 			this.path = name.split('-');
 
-			const storedValue = data?.storedValue;
 			const defaultValue = data?.defaultValue;
 			this.setValue(storedValue, defaultValue);
 		}
@@ -361,5 +396,210 @@ class OptionToggle {
 
 	getPath() {
 		return this.path;
+	}
+}
+
+class OptionInteger {
+
+	/**
+	 * @param {{
+	 *     defaultValue: boolean
+	 * }} data - Additional data
+	 */
+	constructor(name, displayName, description, storedValue, data) {
+		if (!this.htmlElem) {
+			this.htmlElem = this._createHTMLTemplate(name, displayName, description);
+			this.path = name.split('-');
+
+			const defaultValue = data?.defaultValue;
+			this.setValue(storedValue, defaultValue);
+		}
+	}
+
+	_createHTMLTemplate(name, displayName, description) {
+		const template = document.createElement('div');
+		template.innerHTML = `<input class="form-control" required="" id="${name}Int" name="${name}" type="number" placeholder="7" min="0" max="9999" value="">`;
+		return template;
+	}
+
+	getTemplate() {
+		return this.htmlElem;
+	}
+
+	getValue() {
+		const input = this.htmlElem.querySelector(`input`);
+		const rawValue = input.value;
+		const value = parseInt(rawValue);
+		return value;
+	}
+
+	setValue(storedValue, defaultValue=0) {
+		const input = this.htmlElem.querySelector(`input`);
+		if (storedValue === undefined || storedValue === null)
+			input.value = defaultValue;
+		else
+			input.value = storedValue;
+	}
+
+	getPath() {
+		return this.path;
+	}
+}
+
+class OptionItemList {
+
+	EMPTY_ITEM_TEXT = '- Select Item -';
+	DELETE_BTN_TEMPLATE = '<button class="btn btn-sm btn-danger action-btn fw-normal float-end ms-2" title="Remove entry"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path></svg></buton>';
+
+	/**
+	 * @param {{
+	 *     defaultValue: string[];
+	 *     availableItems: string[];
+	 * }} data - Additional data
+	 */
+	constructor(name, displayName, description, storedValue, data) {
+		this.itemList = [];
+		this.availableItems = data?.availableItems || ITEMS;
+		this.unique = data?.unique || false;
+		this.name = name;
+
+		if (!this.htmlElem) {
+			this.htmlElem = this._createHTMLTemplate(name, displayName, description);
+			this.path = name.split('-');
+
+			const formElem = this.htmlElem.querySelector('form')
+
+			formElem.addEventListener('submit', this._addBtnHandler.bind(this));
+			formElem.querySelector(`select#${name}Itemlist`).addEventListener('change', this._selectChangeHandler.bind(this));
+
+			this._populateSelect(this.htmlElem.querySelector('select'), this.availableItems);
+
+			const defaultValue = data?.defaultValue;
+			this.setValue(storedValue, defaultValue);
+		}
+	}
+
+	_createHTMLTemplate(name, displayName, description) {
+		const template = document.createElement('div');
+		template.innerHTML = `
+			<table class="table align-items-center table-flush table-hover" id="${name}Table"><tbody></tbody></table>
+			<hr>
+			<form class="input-group row-adjust" id="${name}Form">
+				<select class="form-select form-control col-8" id="${name}Itemlist" name="${name}" form="${name}Form">
+					<option id="${name}DefaultOption">${this.EMPTY_ITEM_TEXT}</option>
+				</select>
+				<button class="btn btn-sm btn-success action-btn fw-normal float-end col-2" id="${name}AddBtn" disabled>Add</button>
+			</form>
+		`;
+
+		return template;
+	}
+
+	_selectChangeHandler(evt) {
+		const selected = evt.target.querySelector('option:checked');
+		const form = evt.target.parentElement;
+		const btn = form.querySelector(`button#${this.name}AddBtn`);
+		if (selected.textContent === this.EMPTY_ITEM_TEXT)
+			btn.disabled = true;
+		else
+			btn.disabled = false;
+	}
+
+	_addBtnHandler(evt) {
+		evt.preventDefault();
+		evt.stopImmediatePropagation();
+		evt.stopPropagation();
+
+		const formElem = evt.target;
+		const selectElem = formElem.querySelector(`select#${this.name}Itemlist`);
+		const selectedOptionElem = selectElem.querySelector('option:checked');
+
+		const item = selectedOptionElem.textContent;
+		if (item === this.EMPTY_ITEM_TEXT) return;
+		if (this.unique && this.itemList.includes(item)) return;
+		if (this.unique) selectElem.remove(selectedOptionElem.index);
+
+		selectElem.selectedIndex = 0;
+		selectElem.dispatchEvent(new Event('change'));
+
+		this.itemList.push(item);
+		const tbodyElem = formElem.parentElement.querySelector(`table#${this.name}Table > tbody`);
+
+		this._addToList(tbodyElem, item);
+	}
+
+	getTemplate() {
+		return this.htmlElem;
+	}
+
+	getValue() {
+		const entries = this.htmlElem.querySelectorAll(`table#${this.name}Table > tbody > tr > td:first-of-type`);
+		return entries.values().map(elem => elem.textContent).toArray();
+	}
+
+	setValue(storedValue, defaultValue=[]) {
+		let items;
+		const input = this.htmlElem.querySelector(`input`);
+		if (storedValue === undefined || storedValue === null)
+			items = defaultValue;
+		else
+			items = storedValue;
+		
+		this.itemList = items;
+
+		const itemListElem = this.htmlElem.querySelector('table > tbody');
+		itemListElem.innerHTML = '';
+		for (const entry of items) {
+			this._addToList(itemListElem, entry);
+		}
+	}
+
+	_addToList(tbodyElem, itemName) {
+		const newListElem = document.createElement('tr');
+		const itemNameElem = document.createElement('td');
+		itemNameElem.textContent = itemName;
+
+		const removeBtn = document.createElement('td');
+		removeBtn.innerHTML = this.DELETE_BTN_TEMPLATE;
+
+		removeBtn.querySelector('button').addEventListener('click', this._deleteBtnHandler.bind(this));
+
+		newListElem.appendChild(itemNameElem);
+		newListElem.appendChild(removeBtn);
+		tbodyElem.appendChild(newListElem);
+	}
+
+	_deleteBtnHandler(evt) {
+		const btn = evt.currentTarget;
+		// Should be the tr element
+		const tableRowElem = btn.parentElement.parentElement;
+		const entry = tableRowElem.querySelector('td');
+		const item = entry.textContent;
+
+		if (this.unique) {
+			const outerTdElem = tableRowElem.parentElement.parentElement.parentElement;
+			const formElem = outerTdElem.querySelector('form');
+			const selectElem = formElem.querySelector('select');
+			
+			const optionElem = document.createElement('option');
+			optionElem.textContent = item;
+			selectElem.add(optionElem);
+		}
+		tableRowElem.remove();
+		arrayRemoveElem(this.itemList, item);
+	}
+
+	getPath() {
+		return this.path;
+	}
+
+	_populateSelect(selectElem, itemNames) {
+		selectElem.innerHTML = `<option>${this.EMPTY_ITEM_TEXT}</option>`;
+
+		for (const itemName of itemNames) {
+			const optionElem = document.createElement('option');
+			optionElem.textContent = itemName;
+			selectElem.add(optionElem);
+		}
 	}
 }

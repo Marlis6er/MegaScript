@@ -52,6 +52,23 @@ class BetterItemValues {
 				}
 			},
 			custom: {
+				strikethrough: {
+					displayName: 'Strikethrough',
+					description: 'Whether or not to display and strike through the original value of items',
+					type: SettingType.TOGGLE,
+					extra: {
+						defaultValue: false
+					}
+				},
+				always_color_names: {
+					displayName: 'Always Color Names',
+					description: 'Whether or not to display and strike through the original value of items',
+					type: SettingType.ITEMLIST,
+					extra: {
+						defaultValue:  [ 'FN SCAR-H', 'Desert Eagle', 'Full-Body Armour' ],
+						unique: true
+					}
+				}
 			}
 		}
 	}
@@ -65,10 +82,11 @@ class BetterItemValues {
 
 	constructor() {
 		const configManager = ConfigManager.getInstance();
+		
 		this.brightness = configManager.darkmode ? 50 : 45;
 		this.bestColor = `hsl(60, 100%, ${configManager.darkmode ? 70 : 40}%)`;
-		this.strikethrough = configManager.STRIKETHROUGH;
-		this.alwaysColorNames = configManager.ALWAYS_COLOR_NAMES;
+		this.strikethrough = configManager.getCustomSetting(this, 'strikethrough') || false;
+		this.alwaysColorNames = configManager.getCustomSetting(this, 'always_color_names') || [];
 
 		this.pointName = "Supporter Points";
 

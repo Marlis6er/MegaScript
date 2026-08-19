@@ -105,7 +105,7 @@ class ConfigManager {
 	generateDefaultSettings() {
 		const settings = {};
 		for (const module of this.MODULES) {
-			settings[module.name] = {'active': {}};
+			settings[module.name] = {'active': {}, 'custom': {}};
 
 			const methods = Object.getOwnPropertyNames(module.prototype);
 			const allMethods = this.URL_MAP.values().toArray();
@@ -117,6 +117,16 @@ class ConfigManager {
 		}
 		return settings;
 	}
+
+    getCustomSetting(moduleInstance, settingName) {
+        const moduleName = moduleInstance.constructor.name;
+        const allSettings = getSettings(moduleName);
+        if (allSettings === null) return null;
+
+        const setting = allSettings['custom']?.[settingName];
+        if (setting === undefined || setting === null) return null;
+        return setting;
+    }
     
     static getInstance() {
         if (this.instance) return this.instance;
