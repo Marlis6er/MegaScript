@@ -3,6 +3,8 @@ This is a tampermonkey script for Cartel Empire, originally created by K9er.
 
 **NOTE:** This is a temporary branch to refactor the script and split it into multiple files. It is usable, but the version the main-branch is a much more user-friendly version.
 
+# Using local files
+
 (Only works on chrome)
 To use this version, you have to:
 1) Clone or download the repo
@@ -14,7 +16,7 @@ To use this version, you have to:
 // @namespace    http://tampermonkey.net/
 // @version      1.0.0
 // @description  MegaScript instance to fix known bugs and update outdated systems
-// @author       K9er
+// @author       K9er, Marlis
 // @include      /https:\/\/cartelempire\.online\/?.*$/
 // @icon         https://i.imgur.com/Zh7LX39.png
 // @grant        GM_setValue
@@ -49,7 +51,6 @@ To use this version, you have to:
 // @require      file://Path/to/your/folder/HighlightExcessHealth.js
 // @require      file://Path/to/your/folder/HighlightInactives.js
 // @require      file://Path/to/your/folder/HighlightUnequipped.js
-// @require      file://Path/to/your/folder/HighscoreChanges.js
 // @require      file://Path/to/your/folder/IntPerWeek.js
 // @require      file://Path/to/your/folder/ItemCache.js
 // @require      file://Path/to/your/folder/LargerGymGraph.js
@@ -61,7 +62,33 @@ To use this version, you have to:
 // @require      file://Path/to/your/folder/TransparentChats.js
 // @require      file://Path/to/your/folder/TrueKDR.js
 
+// @require      file://Path/to/your/folder/ConfigManager.js
 // @require      file://Path/to/your/folder/MegaScript.js
 // ==/UserScript==
 ```
 And replace the `Path/to/your/folder` part with a path to the folder which contains all the scripts.
+
+# Using the github version
+
+(Should work with any browser)
+To use this version, you have to:
+2) Create a new tampermonkey script
+3) Copy-paste the following template:
+```
+// ==UserScript==
+// @name         AP megascript refactor version
+// @namespace    http://tampermonkey.net/
+// @version      1.0.0
+// @description  MegaScript instance to fix known bugs and update outdated systems
+// @author       K9er, Marlis
+// @include      /https:\/\/cartelempire\.online\/?.*$/
+// @icon         https://i.imgur.com/Zh7LX39.png
+// @grant        GM_setValue
+// @grant        GM_getValue
+// @grant        GM_deleteValue
+// @grant        GM_listValues
+// @grant        GM_addStyle
+// @run-at       document-end
+// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/tampermonkey.js
+// ==/UserScript==
+```
