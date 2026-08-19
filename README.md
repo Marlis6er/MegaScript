@@ -72,8 +72,8 @@ And replace the `Path/to/your/folder` part with a path to the folder which conta
 
 (Should work with any browser)
 To use this version, you have to:
-2) Create a new tampermonkey script
-3) Copy-paste the following template:
+1) Create a new tampermonkey script
+2) Copy-paste the following template:
 ```
 // ==UserScript==
 // @name         MegaScript Modular github version
