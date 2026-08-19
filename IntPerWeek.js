@@ -1,4 +1,16 @@
 class IntPerWeek {
+
+	static metadata = {
+		displayName: 'Intelligence Per Week',
+		description: 'Display the int gain per week for each study course',
+		settings: {
+			active: {
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		const configManger = ConfigManager.getInstance();
 		this.brightness = configManger.darkmode ? 50 : 45;

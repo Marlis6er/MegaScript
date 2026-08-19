@@ -1,4 +1,19 @@
 class EstimatedIntGains {
+
+	static metadata = {
+		displayName: 'Estimated Intelligence Gains',
+		description: 'Calculate and display your estimated intelligence gains',
+		settings: {
+			active: {
+				inUniversity: {
+					description: 'Display the estimated int gains and the energy to max int'
+				}
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		const configManger = ConfigManager.getInstance();
 		this.brightness = configManger.darkmode ? 50 : 45;

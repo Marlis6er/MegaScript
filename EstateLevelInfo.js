@@ -1,4 +1,19 @@
 class EstateLevelInfo {
+
+	static metadata = {
+		displayName: 'Estate Level Info',
+		description: 'Display bonus effects of upgrades',
+		settings: {
+			active: {
+				inEstateAgent: {
+					description: 'Display bonus effects of upgrades'
+				}
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		const configManger = ConfigManager.getInstance();
 		this.brightness = configManger.darkmode ? 50 : 45;

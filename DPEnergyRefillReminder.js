@@ -1,4 +1,19 @@
 class DPEnergyRefillReminder {
+
+	static metadata = {
+		displayName: 'Supporter Pack Energy Refill Reminder',
+		description: 'Add warning to not use energy refill when energy is not zero or max energy is not 200',
+		settings: {
+			active: {
+				inSupporter: {
+					description: 'Add warning to not use energy refill when energy is not zero or max energy is not 200'
+				}
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() { }
 	inSupporter(url) {
 		const modalText = document.querySelector("#useRefillConfirm p.card-text.modal-bodyText");

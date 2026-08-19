@@ -1,4 +1,40 @@
 class ColorStats {
+
+	static metadata = {
+		displayName: 'Color Stats',
+		description: 'Color different statistics',
+		settings: {
+			active: {
+				inForumPost: {
+					description: 'Color the forum respect'
+				},
+				inHighscores: {
+					description: 'Color the highscore stat'
+				},
+				inHomepage: {
+					description: 'Color your reputation, intelligence and battle stats'
+				},
+				inGym: {
+					description: 'Color your battle stats'
+				},
+				inUniversity: {
+					description: 'Color your intelligence'
+				},
+				inPersonalStats: {
+					description: '(Broken) Color your reputation, intelligence and battle stats'
+				},
+				inInventory: {
+					description: 'Color the item quality'
+				},
+				inMarket: {
+					description: 'Color the item quality'
+				}
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		const configManger = ConfigManager.getInstance();
 		this.brightness = configManger.darkmode ? 50 : 45;

@@ -1,4 +1,80 @@
 class BetterItemValues {
+
+	static metadata = {
+		displayName: 'Better Itemvalues',
+		description: 'Use the player market value for item value',
+		settings: {
+			active: {
+				inGym: {
+					description: 'Update the coke item button from the Add Item Buttons module'
+				},
+				inUniversity: {
+					description: 'Update the coke item button from the Add Item Buttons module'
+				},
+				inMarket: {
+					description: 'Set the item values for this module and use these prices for the default input value'
+				},
+				inSupporter: {
+					description: 'Display the energy refill price'
+				},
+				inEstateAgent: {
+					description: 'Display the material- and total cost of the properties'
+				},
+				inPharmacy: {
+					description: 'Display the market value next to the store value for each item'
+				},
+				inTownStore: {
+					description: 'Display the market value next to the store value for each item'
+				},
+				inPetStore: {
+					description: 'Display the market value next to the store value for each item'
+				},
+				inTradeView: {
+					description: 'Automatically calculate accurate total value for each player'
+				},
+				inAddItems: {
+					description: 'Display the total value of the selected items'
+				},
+				inCartelArmory: {
+					description: 'Display the market value of each item'
+				},
+				inEvents: {
+					description: 'Display the total value of each event log (if applicable)'
+				},
+				inProduction: {
+					description: 'Calculate the total daily profits'
+				},
+				inJobs: {
+					description: 'Calculate the hourly rep- and money profits for each job'
+				},
+				inInventory: {
+					description: 'Display the market value of each item'
+				}
+			},
+			custom: {
+				strikethrough: {
+					displayName: 'Strikethrough',
+					description: 'Whether or not to display and strike through the original value of items',
+					type: SettingType.TOGGLE,
+					extra: {
+						defaultValue: false
+					}
+				},
+				always_color_names: {
+					displayName: 'Always Color Names',
+					description: 'Whether or not to display and strike through the original value of items',
+					type: SettingType.ITEMLIST,
+					extra: {
+						defaultValue:  [ 'FN SCAR-H', 'Desert Eagle', 'Full-Body Armour' ],
+						unique: true
+					}
+				}
+			}
+		}
+	}
+
+
+
 	// Container for the best point price in market
 	pointCurrentBest;
 	// Container for the best item price in market
@@ -6,22 +82,13 @@ class BetterItemValues {
 
 	constructor() {
 		const configManager = ConfigManager.getInstance();
+		
 		this.brightness = configManager.darkmode ? 50 : 45;
 		this.bestColor = `hsl(60, 100%, ${configManager.darkmode ? 70 : 40}%)`;
-		this.strikethrough = configManager.STRIKETHROUGH;
-		this.alwaysColorNames = configManager.ALWAYS_COLOR_NAMES;
+		this.strikethrough = configManager.getCustomSetting(this, 'strikethrough') || false;
+		this.alwaysColorNames = configManager.getCustomSetting(this, 'always_color_names') || [];
 
 		this.pointName = "Supporter Points";
-
-		const townStoreMethods = [
-			'inPharmacy',
-			'inPetshop'
-		];
-
-		// It works, but could be better
-		townStoreMethods.forEach(method => {
-			this.__proto__[method] = this.inTownStore;
-		});
 
 		const values = GM_listValues().filter(name => name.startsWith('value_')); // Prefill values first use
 		this.defaultVals = {
@@ -329,6 +396,12 @@ class BetterItemValues {
 		setValue('value', itemName, value);
 		console.debug(`Set value_${itemName} to ${POUND}${value.toLocaleString("en-US")}`);
 		return value;
+	}
+	inPharmacy(url) {
+		this.inTownStore(url);
+	}
+	inPetshop(url) {
+		this.inTownStore(url);
 	}
 	inMarket(url) {
 		const itemSelector = document.querySelector("#itemSelector");

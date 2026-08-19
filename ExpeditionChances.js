@@ -1,4 +1,16 @@
 class ExpeditionChances {
+
+	static metadata = {
+		displayName: 'Expedition Chances',
+		description: 'Display expedition chances in the dropdown',
+		settings: {
+			active: {
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() { }
 	inExpeditions(URL) {
 		const teamStats = this.getTeamStats();

@@ -1,18 +1,37 @@
 class BetterProgressBars {
+
+	static metadata = {
+		displayName: 'Better Progress Bars',
+		description: 'Change progress bars to be striped and animated',
+		settings: {
+			active: {
+				inExpeditions: {
+					description: 'Affects the scicario level progress bar'
+				},
+				inJobs: {
+					description: 'Affects the prestige progress bar'
+				},
+				inAnywhere: {
+					description: 'Affects the health- and energy progress bars'
+				},
+				inEstateAgent: {
+					description: 'Affects the build progress bar'
+				},
+				inCartelPerks: {
+					description: 'Affects the perk progress bars'
+				},
+				inProperty: {
+					description: 'Affects the upgrade progress bars'
+				}
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		this.healthColor = `hsl(230, 75%, 60%)`;
 		this.setReloadInterval();
-
-		const barPageMethods = [
-			'inEstateAgent',
-			'inCartelPerks',
-			'inProperty'
-		];
-
-		// It works, but could be better
-		barPageMethods.forEach(method => {
-			this.__proto__[method] = this.inBarPage;
-		});
 	}
 
 	setReloadInterval() {
@@ -30,12 +49,19 @@ class BetterProgressBars {
 			window.location.reload();
 		}, timeToNextInterval);
 	}
-
+	inEstateAgent(url) {
+		this.inBarPage(url);
+	}
+	inCartelPerks(url) {
+		this.inBarPage(url);
+	}
+	inProperty(url) {
+		this.inBarPage(url);
+	}
 	inExpeditions(url) {
 		const bars = document.querySelectorAll(".progress-bar-striped");
 		for (const bar of bars) bar.classList.remove("bg-success");
 	}
-
 	inJobs(url) {
 		const bars = document.querySelectorAll("div.equipmentModule .progress-bar");
 		for (const bar of bars) {

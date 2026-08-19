@@ -1,4 +1,16 @@
 class DisableThrow {
+
+	static metadata = {
+		displayName: 'Disable Throw',
+		description: 'Disable the throw button',
+		settings: {
+			active: {
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		this.throwText = "Throw Away";
 	}

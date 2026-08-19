@@ -1,5 +1,18 @@
 class TrueKDR {
+
+	static metadata = {
+		displayName: 'True Kill / Death Ratio',
+		description: 'Calculate and display the true fights won / fights lost ratio',
+		settings: {
+			active: {
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() { }
+
 	inHomepage(url) {
 		const stats = document.querySelectorAll(".col-md-6.d-flex.align-items-stretch.col-xxl-4");
 		if (stats.length < 2) return;

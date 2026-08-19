@@ -1,4 +1,31 @@
 class DisplayPerks {
+
+	static metadata = {
+		displayName: 'Display Perks',
+		description: 'Display various perk effects',
+		settings: {
+			active: {
+				inHomepage: {
+					description: 'Store the perk values'
+				},
+				inGym: {
+					description: 'Display the gym gain boni'
+				},
+				inInventory: {
+					description: 'Adjust the medical item effect text to account for perk effects'
+				},
+				inMarket: {
+					description: 'Adjust the medical item effect text to account for perk effects'
+				},
+				inPharmacy: {
+					description: 'Adjust the medical item effect text to account for perk effects'
+				}
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		this.statGains = ["Accuracy", "Agility", "Defence", "Strength"];
 		this.prod = "Production Profit";

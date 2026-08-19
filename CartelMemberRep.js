@@ -1,4 +1,22 @@
 class CartelMemberRep {
+
+	static metadata = {
+		displayName: 'Cartelmember Reputation',
+		description: 'Display how much reputation each member earned',
+		settings: {
+			active: {
+				inAttackLog: {
+					description: 'Store the reputation earned by each member'
+				},
+				inCartel: {
+					description: 'Display the reputation earned by each member'
+				},
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		this.attackList = this.getAttackList();
 		if (this.attackList === null) {
@@ -48,7 +66,7 @@ class CartelMemberRep {
 		
 		this.processLogs(rows);
 	}
-	inCartelHomepage(url) {
+	inCartel(url) {
 		const attackTable = document.querySelectorAll("table#eventsTable tbody")[1];
 		const rows = attackTable.querySelectorAll("tr");
 		this.processLogs(rows);

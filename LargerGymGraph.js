@@ -1,4 +1,16 @@
 class LargerGymGraph {
+
+	static metadata = {
+		displayName: 'Larger Gym Graph',
+		description: 'Make the gym graph larger',
+		settings: {
+			active: {
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		this.newHeight = 400;
 		this.factor = 1.12;

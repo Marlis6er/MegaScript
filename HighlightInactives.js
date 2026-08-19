@@ -1,4 +1,16 @@
 class HighlightInactives {
+
+	static metadata = {
+		displayName: 'Highlight Inactives',
+		description: 'Color the names of inactive users',
+		settings: {
+			active: {
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		this.yellowBy = 1; // in days
 		this.redBy = 2; // in days

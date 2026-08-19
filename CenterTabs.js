@@ -1,19 +1,38 @@
 class CenterTabs {
-	constructor() {
-		const navPageMethods = [
-			'inExpeditions',
-			'inMarket',
-			'inEstateAgent',
-			'inCartelPerks',
-			'inHighscores',
-			'inProperty',
-			'inSettings'
-		];
 
-		// It works, but could be better
-		navPageMethods.forEach(method => {
-			this.__proto__[method] = this._centerTabs;
-		});
+	static metadata = {
+		displayName: 'Center Tabs',
+		description: 'Center tabs and spread them to the full length of their container',
+		settings: {
+			active: {
+			},
+			custom: {
+			}
+		}
+	}
+
+	constructor() {}
+
+	inExpeditions() {
+		this._centerTabs();
+	}
+	inMarket() {
+		this._centerTabs();
+	}
+	inEstateAgent() {
+		this._centerTabs();
+	}
+	inCartelPerks() {
+		this._centerTabs();
+	}
+	inHighscores() {
+		this._centerTabs();
+	}
+	inProperty() {
+		this._centerTabs();
+	}
+	inSettings() {
+		this._centerTabs();
 	}
 	_centerTabs() {
 		const tabs = document.querySelectorAll(".nav-tabs");

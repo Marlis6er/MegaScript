@@ -1,5 +1,161 @@
 // constants used in all modules
 const POUND = '\u00a3';
+const SettingType = {
+	TOGGLE: 0,
+	LIST: 1,
+	ITEMLIST: 2,
+	INTEGER: 3
+}
+const ITEMS = [
+	// Primary Weapons
+	'AK-47',
+	'MG34',
+	'G36',
+	'L86 LSW',
+	'Steyr AUG',
+	'SIG SG 550',
+	'MG5',
+	'FN SCAR-H', 
+	'Bazooka',
+
+	// Secondary Weapons
+	'Baseball Bat',
+	'Walther P38',
+	'M16A2 Rifle',
+	'M1911',
+	'S&W Magnum Revolver',
+	'Glock 18',
+	'Desert Eagle', // TODO: Update this price
+
+	// Thrown
+	'Illuminating Grenade',
+	'Tear Gas Grenade',
+	'Stun Grenade',
+	'Flash Bang Grenade',
+	'Fragmentation Grenade',
+
+	// Armour
+	'Trench Coat',
+	'Covert Stab Vest',
+	'Ballistic Vest',
+	'Kevlar Weave Vest',
+	'Carbon Fiber Vest',
+	'Armoured Suit',
+	'Ceramic Plate Carrier Vest',
+	'Riot Suit',
+	'Tactical Plate Armour',
+	'Blast Suit',
+	'New-Age Combat Fatigues',
+	'Full-Body Armour',
+
+	// Special
+	'Green Surprise Gift',
+	'Velvet Mystery Gift',
+	'Rustic Charm Gift',
+	'Golden Treasure Gift',
+	'Mini-Supporter Pack',
+	'Personal Favour',
+	'Supporter Pack',
+
+	// Alcohol
+	'Corana Beer',
+	'Mexcal Beer',
+	'Blancoda Tequila',
+	'Repose Tequila',
+	'Anejo Tequila',
+	'Raicilla',
+
+	// Medical
+	'Bandage',
+	'Small Medical Kit',
+	'Tainted Cannabis',
+	'Large Medical Kit',
+	'Tainted Cocaine',
+	'Basic Trauma Kit',
+	'Large Trauma Kit',
+
+	// Drugs
+	'Glittering Gift',
+	'Cannabis',
+	'Cocaine',
+
+	// Production
+	'Bag of Fertiliser',
+	'Agave Heart',
+	'Coca Paste',
+
+	// Construction
+	'Nails',
+	'Bricks',
+	'Concrete Bags',
+	'Steel',
+
+	// Food
+	'Dog Food',
+	'Black Market Treat',
+
+	// Collectible
+	'El Chapo\'s Head',
+	'Pablo\'s Hat',
+	'Quecheu Troll Doll',
+	'The Easter Fuggly',
+	'Elf on a Shelf - Green',
+	'Elf on a Shelf - Red',
+	'Padrino\'s Egg',
+	'The Crimson Star',
+	'La Cara Roja Mask',
+
+	// Luxury
+	'Diablo Tattoo',
+	'Italian Shoes',
+	'Cuban Cigar Set',
+	'Eagle Cabernet',
+	'Whiskey Decanter',
+	'Gold Grooming Kit',
+	'Gemstone Cufflinks',
+	'Lapis-Encrusted Lighter',
+	'Satellite Phone',
+	'Club VIP Lounge Membership',
+	'Pearl-Encrusted Lighter',
+	'Diamond Watch',
+	'Diamond-Encrusted Lighter',
+	'Bulletproof Suit',
+	'Pet Jaguar',
+	'Gold-Plated Pistol',
+	'Platinum Credit Card',
+	'Personal Helicopter',
+
+	// Cars
+	'Renault Espace',
+	'Fiat Panda',
+	'Austin Metro',
+	'Peugeot 205 GTI',
+	'Ford Sierra',
+	'Vauxhall Cavalier',
+	'Ford Escord',
+	'Honda CRX',
+	'Saab 900 Turbo',
+	'Lancia Delta Integrale',
+	'Toyota MR2',
+	'Audi Quattro', // TODO: Get market value
+	'Ford Capri 2.8i',
+	'Volkswagen Golf GTI',
+	'BMW M5',
+	'Porsche 959',
+	'Ferrari F40',
+	'Lamborghini Countach',
+
+	// Enhancement
+	'Street-Quality Enhancement',
+	'Syndicate-Issued Enhancement',
+	'Blacksite Prototype Enhancement',
+
+	// Smuggling Enhancement
+	'Weapons & Armor Specialist Contact',
+	'Alcohol Specialist Contact',
+	'Tech Specialist Contact',
+	'Leadership Specialist Contact',
+];
 
 // Used for seeing when elements update, for some reason there's no neat standard way to do that
 const observeDOM = (function() {
@@ -114,4 +270,14 @@ function setValue(prefix, name, value) {
 	const spacesEscaped = name.replaceAll(' ', '_')
 	GM_setValue(`${prefix}_${spacesEscaped}`, value);
 	return value;
+}
+
+function getSettings(moduleName) {
+	return getValue('script', 'settings')[moduleName] || null;
+}
+
+function arrayRemoveElem(array, elem) {
+	const index = array.indexOf(elem);
+	if (index !== -1) array.splice(index, 1);
+	return array;
 }

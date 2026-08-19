@@ -1,4 +1,19 @@
 class BuyPointsLink {
+
+	static metadata = {
+		displayName: 'Buy Points Link',
+		description: 'Add a link to Mateo\'s store',
+		settings: {
+			active: {
+				inSupporter: {
+					description: 'Add a link to Mateo\'s store to the energy refill card'
+				}
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		this.add = `<div class="row mb-0"><div class="col-12"><div class="header-section"><h2>Buy Points</h2></div></div></div><div class="card-body"><p class="card-text">Go to the <a class="text-white" href="/market?p=Points">Item Market</a> to buy points.</p></div>`;
 	}

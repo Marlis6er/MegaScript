@@ -1,4 +1,40 @@
 class DisplayTownCaches {
+
+	static metadata = {
+		displayName: 'Display Town Caches',
+		description: 'Display links to locations to visit once a day',
+		settings: {
+			active: {
+				inPetshop: {
+					description: 'Update cache when visited'
+				},
+				inSicarios: {
+					description: 'Update cache when visited'
+				},
+				inCasinoSpinner: {
+					description: 'Update cache when all spins are used'
+				},
+				inSupporter: {
+					description: 'Update cache when energy refill is used'
+				},
+				inMateos: {
+					description: 'Update cache when all points are bought'
+				},
+				inTown: {
+					description: 'Display remaining spins for the casino and cached dogs for the pet shop'
+				},
+				inCasino: {
+					description: 'Display remaining spins for the spinner'
+				},
+				inAnywhere: {
+					description: 'Display links to relevant locations in the top nav bar'
+				}
+			},
+			custom: {
+			}
+		}
+	}
+
 	constructor() {
 		const configManger = ConfigManager.getInstance();
 		this.hoursLate = 0;
