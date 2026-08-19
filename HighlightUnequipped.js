@@ -17,7 +17,7 @@ class HighlightUnequipped {
 		}
 	}
 
-	constructor(darkMode) { }
+	constructor() { }
 
 	inInventory(url) {
 		const titles = document.querySelectorAll("h6.card-title");

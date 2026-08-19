@@ -11,21 +11,28 @@ class CenterTabs {
 		}
 	}
 
-	constructor() {
-		const navPageMethods = [
-			'inExpeditions',
-			'inMarket',
-			'inEstateAgent',
-			'inCartelPerks',
-			'inHighscores',
-			'inProperty',
-			'inSettings'
-		];
+	constructor() {}
 
-		// It works, but could be better
-		navPageMethods.forEach(method => {
-			this.__proto__[method] = this._centerTabs;
-		});
+	inExpeditions() {
+		this._centerTabs();
+	}
+	inMarket() {
+		this._centerTabs();
+	}
+	inEstateAgent() {
+		this._centerTabs();
+	}
+	inCartelPerks() {
+		this._centerTabs();
+	}
+	inHighscores() {
+		this._centerTabs();
+	}
+	inProperty() {
+		this._centerTabs();
+	}
+	inSettings() {
+		this._centerTabs();
 	}
 	_centerTabs() {
 		const tabs = document.querySelectorAll(".nav-tabs");

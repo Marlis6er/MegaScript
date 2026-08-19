@@ -90,16 +90,6 @@ class BetterItemValues {
 
 		this.pointName = "Supporter Points";
 
-		const townStoreMethods = [
-			'inPharmacy',
-			'inPetshop'
-		];
-
-		// It works, but could be better
-		townStoreMethods.forEach(method => {
-			this.__proto__[method] = this.inTownStore;
-		});
-
 		const values = GM_listValues().filter(name => name.startsWith('value_')); // Prefill values first use
 		this.defaultVals = {
 			// Primary Weapons
@@ -406,6 +396,12 @@ class BetterItemValues {
 		setValue('value', itemName, value);
 		console.debug(`Set value_${itemName} to ${POUND}${value.toLocaleString("en-US")}`);
 		return value;
+	}
+	inPharmacy(url) {
+		this.inTownStore(url);
+	}
+	inPetshop(url) {
+		this.inTownStore(url);
 	}
 	inMarket(url) {
 		const itemSelector = document.querySelector("#itemSelector");
