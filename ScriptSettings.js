@@ -265,8 +265,6 @@ class ScriptSettings {
 				const id = `${module.name}-custom-${name}`;
 				const attributes = [
 					id,
-					data?.displayName || name,
-					data?.description || '',
 					this.storedSettings[module.name]?.['custom']?.[name],
 					data?.defaultValue,
 					data?.extra
@@ -331,14 +329,14 @@ class ScriptSettings {
 }
 
 class OptionDefault {
-	constructor(name, displayName, description) {
+	constructor(name, storedValue, defaultValue, data) {
 		if (!this.htmlElem) {
-			this.htmlElem = this._createHTMLTemplate(name, displayName, description);
+			this.htmlElem = this._createHTMLTemplate(name);
 			this.path = name.split('-');
 		}
 	}
 
-	_createHTMLTemplate(name, displayName, description) {
+	_createHTMLTemplate(name) {
 		const template = document.createElement('div');
 		template.innerHTML = 'Invalid option type';
 		return template;
@@ -362,16 +360,16 @@ class OptionDefault {
 
 class OptionToggle {
 
-	constructor(name, displayName, description, storedValue, defaultValue, data) {
+	constructor(name, storedValue, defaultValue, data) {
 		if (!this.htmlElem) {
-			this.htmlElem = this._createHTMLTemplate(name, displayName, description);
+			this.htmlElem = this._createHTMLTemplate(name);
 			this.path = name.split('-');
 
 			this.setValue(storedValue, defaultValue);
 		}
 	}
 
-	_createHTMLTemplate(name, displayName, description) {
+	_createHTMLTemplate(name) {
 		const template = document.createElement('div');
 		template.classList = 'form-check form-switch';
 		template.innerHTML = `<input class="form-check-input" name="${name}" type="checkbox" id="${name}Switch">`;
@@ -399,16 +397,16 @@ class OptionToggle {
 
 class OptionInteger {
 
-	constructor(name, displayName, description, storedValue, defaultValue, data) {
+	constructor(name, storedValue, defaultValue, data) {
 		if (!this.htmlElem) {
-			this.htmlElem = this._createHTMLTemplate(name, displayName, description);
+			this.htmlElem = this._createHTMLTemplate(name);
 			this.path = name.split('-');
 
 			this.setValue(storedValue, defaultValue);
 		}
 	}
 
-	_createHTMLTemplate(name, displayName, description) {
+	_createHTMLTemplate(name) {
 		const template = document.createElement('div');
 		template.innerHTML = `<input class="form-control" required="" id="${name}Int" name="${name}" type="number" placeholder="7" min="0" max="9999" value="">`;
 		return template;
@@ -447,7 +445,7 @@ class OptionList {
 	 *     availableElements: string[];
 	 * }} data - Additional data
 	 */
-	constructor(name, displayName, description, storedValue, defaultValue, data) {
+	constructor(name, storedValue, defaultValue, data) {
 		this.itemList = [];
 		this.unique = data?.unique || false;
 		this.name = name;
@@ -455,7 +453,7 @@ class OptionList {
 		const availableElements = data?.availableElements || [];
 
 		if (!this.htmlElem) {
-			this.htmlElem = this._createHTMLTemplate(name, displayName, description);
+			this.htmlElem = this._createHTMLTemplate(name);
 			this.path = name.split('-');
 
 			const formElem = this.htmlElem.querySelector('form')
@@ -469,7 +467,7 @@ class OptionList {
 		}
 	}
 
-	_createHTMLTemplate(name, displayName, description) {
+	_createHTMLTemplate(name) {
 		const template = document.createElement('div');
 		template.innerHTML = `
 			<table class="table align-items-center table-flush table-hover" id="${name}Table"><tbody></tbody></table>
@@ -609,12 +607,12 @@ class OptionMultiSelect {
 	 *     availableElements: string[];
 	 * }} data - Additional data
 	 */
-	constructor(name, displayName, description, storedValue, defaultValue, data) {
+	constructor(name, storedValue, defaultValue, data) {
 		this.availableElements = data?.availableElements || [];
 		this.name = name;
 
 		if (!this.htmlElem) {
-			this.htmlElem = this._createHTMLTemplate(name, displayName, description);
+			this.htmlElem = this._createHTMLTemplate(name);
 			this.path = name.split('-');
 
 			const formElem = this.htmlElem.querySelector('form');
@@ -625,7 +623,7 @@ class OptionMultiSelect {
 		}
 	}
 
-	_createHTMLTemplate(name, displayName, description) {
+	_createHTMLTemplate(name) {
 		const template = document.createElement('div');
 		template.innerHTML = `
 			<form class="input-group row-adjust" id="${name}Form">
