@@ -268,6 +268,7 @@ class ScriptSettings {
 					data?.displayName || name,
 					data?.description || '',
 					this.storedSettings[module.name]?.['custom']?.[name],
+					data?.defaultValue,
 					data?.extra
 				];
 				let optionObj;
@@ -278,8 +279,11 @@ class ScriptSettings {
 					case SettingType.INTEGER:
 						optionObj = new OptionInteger(...attributes);
 						break;
-					case SettingType.ITEMLIST:
-						optionObj = new OptionItemList(...attributes);
+					case SettingType.LIST:
+						optionObj = new OptionList(...attributes);
+						break;
+					case SettingType.MULTISELECT:
+						optionObj = new OptionMultiSelect(...attributes);
 						break;
 					default:
 						console.warn(`The setting type for ${name} is not specified`);
@@ -358,17 +362,11 @@ class OptionDefault {
 
 class OptionToggle {
 
-	/**
-	 * @param {{
-	 *     defaultValue: boolean
-	 * }} data - Additional data
-	 */
-	constructor(name, displayName, description, storedValue, data) {
+	constructor(name, displayName, description, storedValue, defaultValue, data) {
 		if (!this.htmlElem) {
 			this.htmlElem = this._createHTMLTemplate(name, displayName, description);
 			this.path = name.split('-');
 
-			const defaultValue = data?.defaultValue;
 			this.setValue(storedValue, defaultValue);
 		}
 	}
@@ -401,17 +399,11 @@ class OptionToggle {
 
 class OptionInteger {
 
-	/**
-	 * @param {{
-	 *     defaultValue: boolean
-	 * }} data - Additional data
-	 */
-	constructor(name, displayName, description, storedValue, data) {
+	constructor(name, displayName, description, storedValue, defaultValue, data) {
 		if (!this.htmlElem) {
 			this.htmlElem = this._createHTMLTemplate(name, displayName, description);
 			this.path = name.split('-');
 
-			const defaultValue = data?.defaultValue;
 			this.setValue(storedValue, defaultValue);
 		}
 	}
@@ -446,22 +438,21 @@ class OptionInteger {
 	}
 }
 
-class OptionItemList {
-
+class OptionList {
 	EMPTY_ITEM_TEXT = '- Select Item -';
 	DELETE_BTN_TEMPLATE = '<button class="btn btn-sm btn-danger action-btn fw-normal float-end ms-2" title="Remove entry"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path></svg></buton>';
 
 	/**
 	 * @param {{
-	 *     defaultValue: string[];
-	 *     availableItems: string[];
+	 *     availableElements: string[];
 	 * }} data - Additional data
 	 */
-	constructor(name, displayName, description, storedValue, data) {
+	constructor(name, displayName, description, storedValue, defaultValue, data) {
 		this.itemList = [];
-		this.availableItems = data?.availableItems || ITEMS;
 		this.unique = data?.unique || false;
 		this.name = name;
+
+		const availableElements = data?.availableElements || [];
 
 		if (!this.htmlElem) {
 			this.htmlElem = this._createHTMLTemplate(name, displayName, description);
@@ -472,9 +463,8 @@ class OptionItemList {
 			formElem.addEventListener('submit', this._addBtnHandler.bind(this));
 			formElem.querySelector(`select#${name}Itemlist`).addEventListener('change', this._selectChangeHandler.bind(this));
 
-			this._populateSelect(this.htmlElem.querySelector('select'), this.availableItems);
+			this._populateSelect(this.htmlElem.querySelector('select'), availableElements);
 
-			const defaultValue = data?.defaultValue;
 			this.setValue(storedValue, defaultValue);
 		}
 	}
@@ -510,22 +500,7 @@ class OptionItemList {
 		evt.stopImmediatePropagation();
 		evt.stopPropagation();
 
-		const formElem = evt.target;
-		const selectElem = formElem.querySelector(`select#${this.name}Itemlist`);
-		const selectedOptionElem = selectElem.querySelector('option:checked');
-
-		const item = selectedOptionElem.textContent;
-		if (item === this.EMPTY_ITEM_TEXT) return;
-		if (this.unique && this.itemList.includes(item)) return;
-		if (this.unique) selectElem.remove(selectedOptionElem.index);
-
-		selectElem.selectedIndex = 0;
-		selectElem.dispatchEvent(new Event('change'));
-
-		this.itemList.push(item);
-		const tbodyElem = formElem.parentElement.querySelector(`table#${this.name}Table > tbody`);
-
-		this._addToList(tbodyElem, item);
+		this._addToList();
 	}
 
 	getTemplate() {
@@ -538,26 +513,51 @@ class OptionItemList {
 	}
 
 	setValue(storedValue, defaultValue=[]) {
-		let items;
+		let elements;
 		const input = this.htmlElem.querySelector(`input`);
 		if (storedValue === undefined || storedValue === null)
-			items = defaultValue;
+			elements = defaultValue;
 		else
-			items = storedValue;
-		
-		this.itemList = items;
+			elements = storedValue;
 
 		const itemListElem = this.htmlElem.querySelector('table > tbody');
 		itemListElem.innerHTML = '';
-		for (const entry of items) {
-			this._addToList(itemListElem, entry);
+		this.itemList = [];
+		for (const entry of elements) {
+			this._addToList(entry);
 		}
 	}
 
-	_addToList(tbodyElem, itemName) {
+	_addToList(elem) {
+		const tableBodyElem = this.htmlElem.querySelector('table > tbody');
+		const formElem = this.htmlElem.querySelector('form');
+		const selectElem = formElem.querySelector('select');
+		const selectedOptionElem = selectElem.querySelector('option:checked');
+
+		const entry = elem || selectedOptionElem.textContent;
+		if (entry === this.EMPTY_ITEM_TEXT) return;
+		if (this.unique && this.itemList.includes(entry)) return;
+		if (this.unique) {
+			selectElem
+				.querySelectorAll('option')
+				.values()
+				.find(option => option.textContent === entry)
+				.remove();
+		}
+			
+
+		selectElem.selectedIndex = 0;
+		selectElem.dispatchEvent(new Event('change'));
+
+		this.itemList.push(elem);
+
+		this._addToListElem(tableBodyElem, entry);
+	}
+
+	_addToListElem(tbodyElem, entry) {
 		const newListElem = document.createElement('tr');
 		const itemNameElem = document.createElement('td');
-		itemNameElem.textContent = itemName;
+		itemNameElem.textContent = entry;
 
 		const removeBtn = document.createElement('td');
 		removeBtn.innerHTML = this.DELETE_BTN_TEMPLATE;
@@ -573,8 +573,7 @@ class OptionItemList {
 		const btn = evt.currentTarget;
 		// Should be the tr element
 		const tableRowElem = btn.parentElement.parentElement;
-		const entry = tableRowElem.querySelector('td');
-		const item = entry.textContent;
+		const entry = tableRowElem.querySelector('td').textContent;
 
 		if (this.unique) {
 			const outerTdElem = tableRowElem.parentElement.parentElement.parentElement;
@@ -582,23 +581,97 @@ class OptionItemList {
 			const selectElem = formElem.querySelector('select');
 			
 			const optionElem = document.createElement('option');
-			optionElem.textContent = item;
+			optionElem.textContent = entry;
 			selectElem.add(optionElem);
 		}
 		tableRowElem.remove();
-		arrayRemoveElem(this.itemList, item);
+		arrayRemoveElem(this.itemList, entry);
 	}
 
 	getPath() {
 		return this.path;
 	}
 
-	_populateSelect(selectElem, itemNames) {
+	_populateSelect(selectElem, entries) {
 		selectElem.innerHTML = `<option>${this.EMPTY_ITEM_TEXT}</option>`;
 
-		for (const itemName of itemNames) {
+		for (const entry of entries) {
 			const optionElem = document.createElement('option');
-			optionElem.textContent = itemName;
+			optionElem.textContent = entry;
+			selectElem.add(optionElem);
+		}
+	}
+}
+
+class OptionMultiSelect {
+	/**
+	 * @param {{
+	 *     availableElements: string[];
+	 * }} data - Additional data
+	 */
+	constructor(name, displayName, description, storedValue, defaultValue, data) {
+		this.availableElements = data?.availableElements || [];
+		this.name = name;
+
+		if (!this.htmlElem) {
+			this.htmlElem = this._createHTMLTemplate(name, displayName, description);
+			this.path = name.split('-');
+
+			const formElem = this.htmlElem.querySelector('form');
+
+			this._populateSelect(this.htmlElem.querySelector('select'), this.availableElements);
+
+			this.setValue(storedValue, defaultValue);
+		}
+	}
+
+	_createHTMLTemplate(name, displayName, description) {
+		const template = document.createElement('div');
+		template.innerHTML = `
+			<form class="input-group row-adjust" id="${name}Form">
+				<select class="form-select form-control" id="${name}MultiSelect" name="${name}" multiple>
+				</select>
+			</form>
+		`;
+		return template;
+	}
+
+	getTemplate() {
+		return this.htmlElem;
+	}
+
+	getValue() {
+		return this.htmlElem
+			.querySelectorAll(`form > select`)
+			.selectedOptions
+			.values()
+			.map(option => option.textContent)
+			.toArray();
+	}
+
+	setValue(storedValue, defaultValue=[]) {
+		let items;
+		if (storedValue === undefined || storedValue === null)
+			items = defaultValue;
+		else
+			items = storedValue;
+
+		const selectElem = this.htmlElem.querySelector('form > select');
+		for (const entry of items) {
+			selectElem.options.values().find(option => option.textContent === entry).checked = true;
+		}
+	}
+
+	getPath() {
+		return this.path;
+	}
+
+	_populateSelect(selectElem, elements) {
+		selectElem.innerHTML = '';
+
+		for (const elem of elements) {
+			const optionElem = document.createElement('option');
+			optionElem.textContent = elem;
 			selectElem.add(optionElem);
 		}
 	}

@@ -56,23 +56,21 @@ class BetterItemValues {
 					displayName: 'Strikethrough',
 					description: 'Whether or not to display and strike through the original value of items',
 					type: SettingType.TOGGLE,
-					extra: {
-						defaultValue: false
-					}
+					defaultValue: false
 				},
 				always_color_names: {
 					displayName: 'Always Color Names',
 					description: 'Whether or not to display and strike through the original value of items',
-					type: SettingType.ITEMLIST,
+					type: SettingType.LIST,
+					defaultValue:  [ 'FN SCAR-H', 'Desert Eagle', 'Full-Body Armour' ],
 					extra: {
-						defaultValue:  [ 'FN SCAR-H', 'Desert Eagle', 'Full-Body Armour' ],
+						availableElements: ITEMS,
 						unique: true
 					}
 				}
 			}
 		}
 	}
-
 
 
 	// Container for the best point price in market

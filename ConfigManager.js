@@ -112,6 +112,7 @@ class ConfigManager {
             if (!settings[module.name]['custom'])
                 settings[module.name]['custom'] = {}
 
+            // Populate page active settings
 			const methods = Object.getOwnPropertyNames(module.prototype);
 			const allMethods = this.URL_MAP.values().toArray();
 			const availableMethods = new Set(allMethods).intersection(new Set(methods));
@@ -119,6 +120,16 @@ class ConfigManager {
 			for (const method of availableMethods.values()) {
                 if (settings[module.name]['active'][method] === undefined)
 				    settings[module.name]['active'][method] = true;
+			}
+
+            // Populate custom settings
+            const meta = module.metadata;
+            const customSettings = meta?.settings?.custom;
+            if (!customSettings) return;
+
+            for (const [settingName, setting] of Object.entries(customSettings)) {
+                if (settings[module.name]['custom'][settingName] === undefined)
+				    settings[module.name]['custom'][settingName] = setting?.defaultValue;
 			}
 		}
 		return settings;

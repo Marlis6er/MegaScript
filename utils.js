@@ -3,8 +3,8 @@ const POUND = '\u00a3';
 const SettingType = {
 	TOGGLE: 0,
 	LIST: 1,
-	ITEMLIST: 2,
-	INTEGER: 3
+	INTEGER: 2,
+	MULTISELECT: 3
 }
 const ITEMS = [
 	// Primary Weapons
