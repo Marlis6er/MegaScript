@@ -53,6 +53,7 @@ class ConfigManager {
             [/^town\/pharmacy\/?$/, 'inPharmacy', 'In Pharmancy'],
             [/^town\/club\/?$/, 'inSicarios', 'In Scicarios Store'],
             [/^town\/mateos\/?$/, 'inMateos', 'In Mateo\'s Store'],
+            [/^town\/policeauction\/?$/, 'inPoliceAuction', 'In Police Auction'],
             [/^town\/.+\/?$/, 'inTownStore', 'In Town Store'],
             [/^petshop\/?$/, 'inPetshop', 'In Pet Store'],
             [/^trade\/view/, 'inTradeView', 'In Trade View'],
