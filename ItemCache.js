@@ -141,11 +141,11 @@ class ItemCache {
 			const prodReq = this.getReq(this.prodItemNames[i - 4]);
 			if (prodReq === null) continue;
 
-			supplyElem.title = `Your production material requirements for ${this.days} days`;
+			supplyElem.title = `Material  for ${this.days} days`;
 			const materialText = `Have <span class="fw-bold" style="color: hsl(${prodReq === 0 ? 120 : Math.min(supply / (prodReq * this.days), 1) * 120}, 67%, ${this.brightness}%)">${supply.toLocaleString("en-US")}/${prodReq * this.days}</span>`;
 
 			if (supplyElem.textContent === 'N/A')
-				supplyElem.innerHTML = materialText;
+				supplyElem.innerHTML = materialText + ' ' + this.prodItemNames[i - 4];
 			else 
 				supplyElem.innerHTML = supplyText.replace(`x${supply}`, materialText);
 		}
