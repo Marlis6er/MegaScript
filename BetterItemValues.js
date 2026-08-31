@@ -1024,13 +1024,9 @@ class BetterItemValues {
 			const expectedProfit = document.createElement("p");
 			expectedProfit.id = 'expected-profit-' + i;
 			expectedProfit.classList.add("card-text", "text-center");
-			if (this.profit[i] !== null) {
-				const colorVal = (this.profit[i] - this.minProfit) / (this.maxProfit - this.minProfit);
-				expectedProfit.innerHTML = `Profit: <span class="fw-bold" style="color: hsl(${this.profit[i] >= 0 ? colorVal * 120 : 0}, 67%, ${this.brightness}%)">${POUND}${Math.floor(this.profit[i]).toLocaleString("en-US")}/narco</span>`;
-			}
-			else
-				expectedProfit.innerHTML = `Profit: <span class="text-muted">${POUND}???/narco</span>`;
 			container.insertBefore(expectedProfit, container.querySelectorAll("hr")[1]);
+
+			this._updateExpectedProfit(containers, i);
 
 			let narcoInput = containers[i].querySelector("input.assignNarcoInput");
 			this.assigned[i] = parseInt(narcoInput.value.replaceAll(',', ""));
@@ -1146,6 +1142,19 @@ class BetterItemValues {
 		if (this.assigned[id] === 0) return 0;
 		if (supplyCost === null) return null;
 
+		// Get supply items
+		const requiredElement = container.querySelector("p.card-text.text-center.mb-0");
+		const ownedElement = container.querySelector("p.card-text.text-center.fst-italic");
+
+		const requiredText = requiredElement ? requiredElement.innerText.replace(/\D/g, "") : "N/A"; // Extract numbers only
+		const ownedText = ownedElement ? ownedElement.innerText.replace(/\D/g, "") : "N/A"; // Extract numbers only
+
+		const required = parseInt(requiredText) || 0;
+		const owned = parseInt(ownedText) || 0;
+		
+		const assignedFraction = Math.min(this.assigned[id] / (this.narcoCounts[id] * prodCount), 1);
+		const materialFraction = required > 0 ? Math.min(owned / required, 1) : 1;
+
 		const prestigeTable = container.querySelector('div.table-responsive.production-table.mt-1');
 		const prestigeLevels = this._getPrestigeLevels(prestigeTable);
 
@@ -1157,9 +1166,15 @@ class BetterItemValues {
 		if (itemProfit === null) return null;
 
 		profit += itemProfit;
+
+		// Calculation based on https://discord.com/channels/1011563751884988467/1011563751884988469/1050410586778902641
+		profit *= assignedFraction;
+		profit *= materialFraction;
+		// More prods mean less profit per prod
 		profit *= this._calcProfitScalar(id, prodCount);
-		profit -= supplyCost;
 		profit *= this.prodProfitFactor;
+
+		profit -= supplyCost;
 
 		if (id === 0) profit *= this.streetProfitFactor;
 		profit /= this.narcoCounts[id] * (id === 4 ? prodCount : 1); // Also dealing with coke custom scaling
