@@ -384,6 +384,12 @@ class BetterItemValues {
 
 		// Production-related values
 		this.assigned = [];
+		this.prodProfit = [];
+		this.minProfit = -Infinity;
+		this.maxProfit = Infinity;
+		// Fallback default values
+		this.required = [0, 0, 10, 5, 35];
+		this.owned = [0, 0, 0, 0, 0];
 	}
 	getPerk(perkName) {
 		return getNumericValue('perks', perkName);
@@ -1009,100 +1015,54 @@ class BetterItemValues {
 	inProduction() {
 		// Get all production containers
 		const containers = document.querySelectorAll("div.row.g-0.align-items-center.h-100.flex-column");
-		if (containers?.length === 0) {
-			console.warn("No production containers found!");
-			return;
-		}
+		if (containers?.length === 0) return;
 
-		const cokeVal = this.getItemValue("Cocaine");
-		const profit = [];
-		let maxProfit = -Infinity;
-		let minProfit = Infinity;
-		for (let i = 0; i !== containers.length; ++i) {
-			profit[i] = this._calcProfit(i, containers[i]);
-			if (profit[i] === null) continue;
-			maxProfit = Math.max(maxProfit, profit[i]);
-			minProfit = Math.min(minProfit, profit[i]);
-		}
 
-		for (let i = 0; i !== containers.length; ++i) {
-			const container = containers[i];
-			const expectedProfit = document.createElement("p");
-			expectedProfit.classList.add("card-text", "text-center");
-			if (profit[i] !== null) {
-				const colorVal = (profit[i] - minProfit) / (maxProfit - minProfit);
-				expectedProfit.innerHTML = `Profit: <span class="fw-bold" style="color: hsl(${profit[i] >= 0 ? colorVal * 120 : 0}, 67%, ${this.brightness}%)">${POUND}${Math.floor(profit[i]).toLocaleString("en-US")}/narco</span>`;
-			}
-			else
-				expectedProfit.innerHTML = `Profit: <span class="text-muted">${POUND}???/narco</span>`;
-			container.insertBefore(expectedProfit, container.querySelectorAll("hr")[1]);
-
-			let narcoInput = containers[i].querySelector("input.assignNarcoInput");
-			this.assigned[i] = parseInt(narcoInput.value.replaceAll(',', ""));
-			narcoInput.id = `inputNum${i}`;
-			narcoInput.addEventListener("input", this._assignedNarcosChange.bind(this));
-		}
-
-		// Calculate Expected Daily Profit
 		const prodHeader = document.querySelector("#mainBackground > div > div > div.col-12 > div.productionsContainer.rounded > div.row.mb-0");
-		const dailyProfit = this._calcDailyProfit(profit, containers);
-
-		const flexContainer = this._constructProdHeader(dailyProfit, cokeVal);
-
+		const flexContainer = this._constructProdHeader(0);
 		// Insert the flex container at the top of the target section
 		prodHeader.parentNode.insertBefore(flexContainer, prodHeader);
 
-		for (let i = 2; i < containers.length; i++) { // Start from index 2 to skip the first two
+		this._initProfits(containers);
+
+		for (let i = 0; i !== containers.length; ++i) {
 			const container = containers[i];
+
+			const expectedProfit = document.createElement("p");
+			expectedProfit.id = 'expected-profit-' + i;
+			expectedProfit.classList.add("card-text", "text-center");
+			container.insertBefore(expectedProfit, container.querySelectorAll("hr")[1]);
+
+			const sliderElem = container.querySelector('input.premiumSlider');
+			if (sliderElem) {
+				this._setDistribution(sliderElem, i);
+				sliderElem.addEventListener('change', (evt) => {this._updateDistribution.bind(this)(evt.target, i)});
+			}
+			
+
+			this._updateExpectedProfit(containers, i);
 
 			// Get the "Narcos Assigned" input field
 			const narcoInput = container.querySelector("input.assignNarcoInput");
-			if (!narcoInput) {
-				console.warn(`No narco input found for container ${i}`);
-				continue;
-			}
+			if (!narcoInput) continue;
 
-			// Get production ID if needed
-			const productionIdElement = container.querySelector(".productionId");
-			const productionId = productionIdElement ? productionIdElement.innerText.trim() : "Unknown";
+			this.assigned[i] = parseInt(narcoInput.value);
+			narcoInput.id = `inputNum${i}`;
+			narcoInput.addEventListener("change", this._assignedNarcosChange.bind(this));
 
-			// Get supply items
-			const requiredElement = container.querySelector("p.card-text.text-center.mb-0");
-			const ownedElement = container.querySelector("p.card-text.text-center.fst-italic");
+			// Skip street crimes and offices
+			if (i < 2) continue;
 
-			const requiredText = requiredElement ? requiredElement.innerText.replace(/\D/g, "") : "N/A"; // Extract numbers only
-			const ownedText = ownedElement ? ownedElement.innerText.replace(/\D/g, "") : "N/A"; // Extract numbers only
-
-			const required = parseInt(requiredText);
-			const owned = parseInt(ownedText);
-
-			// Log extracted values
-			console.info(`Production ID: ${productionId}`);
-			console.info(`Required: ${requiredText}`);
-			console.info(`Owned: ${ownedText}`);
-			console.info(`Assigned Narcos: ${narcoInput.value}`);
-
-			// Calculate days left
 			const daysLeftElement = document.createElement("p");
 			daysLeftElement.classList.add("card-text", "text-center");
 
-			if (!isNaN(required) && !isNaN(owned) && required > 0) {
-				const daysLeft = Math.floor(owned / required);
-
-				let colorClass = "text-success";
-				if (daysLeft <= 3) colorClass = "text-danger";
-				else if (daysLeft <= 10) colorClass = "text-warning";
-
-				daysLeftElement.innerHTML = `Days Left: <span class="fw-bold ${colorClass}">${daysLeft}</span>`;
-			} else {
-				daysLeftElement.innerHTML = `Days Left: <span class="fw-bold text-muted">N/A</span>`;
-			}
-
 			// Append days left under supply items
-			if (requiredElement) {
-				requiredElement.parentElement.insertBefore(daysLeftElement, requiredElement.nextSibling);
-			}
+			const requiredElement = container.querySelector("p.card-text.text-center.mb-0");
+			requiredElement.parentElement.insertBefore(daysLeftElement, requiredElement.nextSibling);
+
+			this._updateDaysLeft(daysLeftElement, i);
 		}
+		this._updateDailyProfit();
 	}
 	_getPrestigeLevels(prestigeTable) {
 		const prestigeLevels = { productionBoost: 0, efficiency: 0, premiumProduction: 0 };
@@ -1125,16 +1085,40 @@ class BetterItemValues {
 		}
 		return prestigeLevels;
 	}
+	_initProfits(containers) {
+		const profit = [];
+		let maxProfit = -Infinity;
+		let minProfit = Infinity;
+		for (let i = 0; i !== containers.length; ++i) {
+			profit[i] = this._calcProfit(i, containers[i]);
+			if (profit[i] === null) continue;
+
+			maxProfit = Math.max(maxProfit, profit[i]);
+			minProfit = Math.min(minProfit, profit[i]);
+		}
+		this.profit = profit;
+		this.minProfit = minProfit;
+		this.maxProfit = maxProfit;
+	}
 	_calcProfit(id, container) {
+		this._updateSupplyInfo(container, id);
+
 		const prodCount = this._getProdCount(container);
+
 		// Get supply amount directly from container, so 'Efficiency' prestige
 		// doesn't need to be applied; 
 		const supplyCost = this._calcSupplyCost(id, prodCount, container);
 
 		const narcoInput = container.querySelector("input.assignNarcoInput");
-		this.assigned[id] = parseInt(narcoInput.value.replaceAll(',', ""));
+		this.assigned[id] = parseInt(narcoInput.value);
 		if (this.assigned[id] === 0) return 0;
 		if (supplyCost === null) return null;
+
+		const required = this.required[id];
+		const owned = this.owned[id];
+		const assignedFraction = Math.min(this.assigned[id] / (this.narcoCounts[id] * prodCount), 1);
+
+		const materialFraction = required > 0 ? Math.min(owned / required, 1) : 1;
 
 		const prestigeTable = container.querySelector('div.table-responsive.production-table.mt-1');
 		const prestigeLevels = this._getPrestigeLevels(prestigeTable);
@@ -1147,13 +1131,31 @@ class BetterItemValues {
 		if (itemProfit === null) return null;
 
 		profit += itemProfit;
+
+		// Calculation based on https://discord.com/channels/1011563751884988467/1011563751884988469/1050410586778902641
+		profit *= assignedFraction;
+		profit *= materialFraction;
+		// More prods mean less profit per prod
 		profit *= this._calcProfitScalar(id, prodCount);
-		profit -= supplyCost;
 		profit *= this.prodProfitFactor;
+
+		profit -= supplyCost;
 
 		if (id === 0) profit *= this.streetProfitFactor;
 		profit /= this.narcoCounts[id] * (id === 4 ? prodCount : 1); // Also dealing with coke custom scaling
 		return profit;
+	}
+	_updateSupplyInfo(container, id) {
+		if (id < 2) return;
+		// Get supply items
+		const requiredElement = container.querySelector("p.card-text.text-center.mb-0");
+		const ownedElement = container.querySelector("p.card-text.text-center.fst-italic");
+
+		const requiredText = requiredElement ? requiredElement.innerText.replace(/\D/g, "") : "N/A"; // Extract numbers only
+		const ownedText = ownedElement ? ownedElement.innerText.replace(/\D/g, "") : "N/A"; // Extract numbers only
+
+		this.required[id] = parseInt(requiredText);
+		this.owned[id] = parseInt(ownedText);
 	}
 	_getProdCount(container) {
 		const prodCountText = container.querySelectorAll("tbody tr.align-middle th");
@@ -1185,39 +1187,101 @@ class BetterItemValues {
 		const regexResult = prodReqsText.textContent.match(/^x(\d+)/);
 		const prodReqValue = parseInt(regexResult?.[1]);
 		let supplyCost = 0;
-		let j = 0;
-		for (let itemName of Object.keys(this.prodReqs[id])) {
+		for (const itemName of Object.keys(this.prodReqs[id])) {
 			const itemVal = this.getItemValue(itemName);
 			if (itemVal === null) return null;
 			supplyCost += itemVal * prodReqValue / (id === 4 ? 1 : prodCount);
-			++j;
 		}
 		return supplyCost;
 	}
 	_assignedNarcosChange(e) {
-		this.assigned[parseInt(e.target.id.slice(8))] = parseInt(e.target.value.replaceAll(',', ""));
+		const containers = document.querySelectorAll("div.row.g-0.align-items-center.h-100.flex-column");
+		const id = parseInt(e.target.id.slice(8));
+
+		this.profit[id] = this._calcProfit(id, containers[id]);
+
+		this.assigned[id] = parseInt(e.target.value);
+
+		this._updateDailyProfit();
+
+		this._updateExpectedProfit(containers, id);
+	}
+	_updateDailyProfit() {
+		const containers = document.querySelectorAll("div.row.g-0.align-items-center.h-100.flex-column");
 		const dailyProfitText = document.querySelector("span#dailyProfit");
 		const dailyProfitCokeText = document.querySelector("span#dailyProfitMinusCoke");
-		const dailyProfit = this._calcDailyProfit(profit, containers);
+		const dailyProfit = this._calcDailyProfit(containers);
 
-		dailyProfitText.innerText = `${POUND}${dailyProfit === null ? "???" : Math.round(dailyProfit).toLocaleString("en-US")}`;
-		if (dailyProfit === null) return;
+		dailyProfitText.innerText = `${POUND}${Math.round(dailyProfit).toLocaleString("en-US")}`;
 
 		this._adjustColors(dailyProfitText, dailyProfit);
 
+		const cokeVal = this.getItemValue("Cocaine");
 		const dailyProfitCoke = dailyProfit - this.maxCokeDaily * cokeVal;
 		dailyProfitCokeText.innerText = `${POUND}${cokeVal === null ? "???" : Math.round(dailyProfitCoke).toLocaleString("en-US")}`;
 		if (cokeVal === null) return;
 
 		this._adjustColors(dailyProfitCokeText, dailyProfitCoke);
 	}
-	_calcDailyProfit(profit, containers) {
-		let dailyProfit = 0;
-		for (var j = 0; j !== containers.length; ++j) {
-			if (profit[j] === null && this.assigned[j]) return null;
+	_updateDistribution(sliderElem, id) {
+		this._setDistribution(sliderElem, id);
 
-			dailyProfit += profit[j] * this.assigned[j];
+		const containers = document.querySelectorAll("div.row.g-0.align-items-center.h-100.flex-column");
+		this._updateExpectedProfit(containers, id);
+		this._updateDailyProfit();
+	}
+	_setDistribution(sliderElem, id) {
+		const taintedChance = 100 - parseInt(sliderElem.value);
+		const containers = document.querySelectorAll("div.row.g-0.align-items-center.h-100.flex-column");
+		if (id == 2) {
+			this.taintedChance[0] = taintedChance;
+			this.itemCounts[id]['Cannabis'] = this.maxCannabis / 2 * (1 - this.taintedChance[0] / 100);
+			this.itemCounts[id]['Tainted Cannabis'] = this.maxCannabis / 2 * this.taintedChance[0] / 100;
 		}
+		if (id == 4) {
+			this.taintedChance[1] = taintedChance;
+			this.itemCounts[id]['Cocaine'] = this.maxCoke / 2 * (1 - this.taintedChance[1] / 100);
+			this.itemCounts[id]['Tainted Cocaine'] = this.maxCoke / 2 * this.taintedChance[1] / 100;
+		}
+		this.profit[id] = this._calcProfit(id, containers[id]);
+	}
+	_updateExpectedProfit(containers, id) {
+		const container = containers[id];
+
+		const expectedProfit = container.querySelector('p#expected-profit-' + id);
+		if (this.profit[id] !== null) {
+			const colorVal = (this.profit[id] - this.minProfit) / (this.maxProfit - this.minProfit);
+			expectedProfit.innerHTML = `Profit: <span class="fw-bold" style="color: hsl(${this.profit[id] >= 0 ? colorVal * 120 : 0}, 67%, ${this.brightness}%)">${POUND}${Math.floor(this.profit[id]).toLocaleString("en-US")}/narco</span>`;
+		} else
+			expectedProfit.innerHTML = `Profit: <span class="text-muted">${POUND}???/narco</span>`;
+
+		const narcoInput = containers[id].querySelector("input.assignNarcoInput");
+		this.assigned[id] = parseInt(narcoInput.value.replaceAll(',', ""));
+	}
+	_updateDaysLeft(daysLeftElement, id) {
+		// Calculate days left
+		// Skip street crimes and offices
+		if (id < 2) return;
+
+		const owned = this.owned[id];
+		const required = this.required[id];
+		
+		if (!isNaN(required) && !isNaN(owned) && required > 0) {
+			const daysLeft = Math.floor(owned / required);
+
+			let colorClass = "text-success";
+			if (daysLeft <= 3) colorClass = "text-danger";
+			else if (daysLeft <= 10) colorClass = "text-warning";
+
+			daysLeftElement.innerHTML = `Days Left: <span class="fw-bold ${colorClass}">${daysLeft}</span>`;
+		} else {
+			daysLeftElement.innerHTML = `Days Left: <span class="fw-bold text-muted">N/A</span>`;
+		}
+	}
+	_calcDailyProfit(containers) {
+		let dailyProfit = 0;
+		for (let j = 0; j !== containers.length; ++j) 
+			dailyProfit += this.profit[j] * this.assigned[j];
 		return dailyProfit;
 	}
 	_adjustColors(elem, value) {
@@ -1225,11 +1289,12 @@ class BetterItemValues {
 		const className = value > 0 ? "text-success" : value < 0 ? "text-danger" : "text-warning";
 		elem.classList.add(className);
 	}
-	_constructProdHeader(dailyProfit, cokeVal) {
+	_constructProdHeader() {
+
 		// Create Expected Daily Profit card
 		const expectedProfit = document.createElement("div");
 		expectedProfit.classList.add("mb-4", "card");
-		expectedProfit.innerHTML = `<div class="header-section"><h2>Expected Daily Profit</h2></div><div class="card-body"><p class="card-text text-center">Each day your narcos will produce roughly <span id="dailyProfit" class="fw-bold ${dailyProfit === null ? "text-muted" : dailyProfit > 0 ? "text-success" : dailyProfit < 0 ? "text-danger" : "text-warning"}">${POUND}${dailyProfit === null ? "???" : Math.round(dailyProfit).toLocaleString("en-US")}</span> in profit.<br>If you take ${this.maxCokeDaily} cocaine daily, your net profit is <span id="dailyProfitMinusCoke" class="fw-bold ${cokeVal === null || dailyProfit === null ? "text-muted" : dailyProfit - this.maxCokeDaily * cokeVal > 0 ? "text-success" : dailyProfit - this.maxCokeDaily * cokeVal < 0 ? "text-danger" : "text-warning"}">${POUND}${cokeVal === null || dailyProfit === null ? "???" : Math.round(dailyProfit - this.maxCokeDaily * cokeVal).toLocaleString("en-US")}</span> per day.</p></div>`;
+		expectedProfit.innerHTML = `<div class="header-section"><h2>Expected Daily Profit</h2></div><div class="card-body"><p class="card-text text-center">Each day your narcos will produce roughly <span id="dailyProfit" class="fw-bold"></span> in profit.<br>If you take ${this.maxCokeDaily} cocaine daily, your net profit is <span id="dailyProfitMinusCoke" class="fw-bold"></span> per day.</p></div>`;
 
 		// Create Buy Production card
 		const linkCard = document.createElement("div");
