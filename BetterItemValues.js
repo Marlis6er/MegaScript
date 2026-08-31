@@ -1021,10 +1021,18 @@ class BetterItemValues {
 
 		for (let i = 0; i !== containers.length; ++i) {
 			const container = containers[i];
+
 			const expectedProfit = document.createElement("p");
 			expectedProfit.id = 'expected-profit-' + i;
 			expectedProfit.classList.add("card-text", "text-center");
 			container.insertBefore(expectedProfit, container.querySelectorAll("hr")[1]);
+
+			const sliderElem = container.querySelector('input.premiumSlider');
+			if (sliderElem) {
+				this._setDistribution(sliderElem, i);
+				sliderElem.addEventListener('change', (evt) => {this._updateDistribution.bind(this)(evt.target, i)});
+			}
+			
 
 			this._updateExpectedProfit(containers, i);
 
@@ -1197,6 +1205,13 @@ class BetterItemValues {
 		this.profit[id] = this._calcProfit(id, containers[id]);
 
 		this.assigned[id] = parseInt(e.target.value);
+
+		this._updateDailyProfit();
+
+		this._updateExpectedProfit(containers, id);
+	}
+	_updateDailyProfit() {
+		const containers = document.querySelectorAll("div.row.g-0.align-items-center.h-100.flex-column");
 		const dailyProfitText = document.querySelector("span#dailyProfit");
 		const dailyProfitCokeText = document.querySelector("span#dailyProfitMinusCoke");
 		const dailyProfit = this._calcDailyProfit(containers);
@@ -1211,7 +1226,28 @@ class BetterItemValues {
 		if (cokeVal === null) return;
 
 		this._adjustColors(dailyProfitCokeText, dailyProfitCoke);
+	}
+	_updateDistribution(sliderElem, id) {
+		this._setDistribution(sliderElem, id);
+
+		const containers = document.querySelectorAll("div.row.g-0.align-items-center.h-100.flex-column");
 		this._updateExpectedProfit(containers, id);
+		this._updateDailyProfit();
+	}
+	_setDistribution(sliderElem, id) {
+		const taintedChance = 100 - parseInt(sliderElem.value);
+		const containers = document.querySelectorAll("div.row.g-0.align-items-center.h-100.flex-column");
+		if (id == 2) {
+			this.taintedChance[0] = taintedChance;
+			this.itemCounts[id]['Cannabis'] = this.maxCannabis / 2 * (1 - this.taintedChance[0] / 100);
+			this.itemCounts[id]['Tainted Cannabis'] = this.maxCannabis / 2 * this.taintedChance[0] / 100;
+		}
+		if (id == 4) {
+			this.taintedChance[1] = taintedChance;
+			this.itemCounts[id]['Cocaine'] = this.maxCoke / 2 * (1 - this.taintedChance[1] / 100);
+			this.itemCounts[id]['Tainted Cocaine'] = this.maxCoke / 2 * this.taintedChance[1] / 100;
+		}
+		this.profit[id] = this._calcProfit(id, containers[id]);
 	}
 	_updateExpectedProfit(containers, id) {
 		const container = containers[id];
@@ -1230,7 +1266,7 @@ class BetterItemValues {
 		// Calculate days left
 		// Skip street crimes and offices
 		if (id < 2) return;
-		
+
 		const owned = this.owned[id];
 		const required = this.required[id];
 		
