@@ -1017,7 +1017,13 @@ class BetterItemValues {
 		const containers = document.querySelectorAll("div.row.g-0.align-items-center.h-100.flex-column");
 		if (containers?.length === 0) return;
 
-		this._getAllProfits(containers);
+
+		const prodHeader = document.querySelector("#mainBackground > div > div > div.col-12 > div.productionsContainer.rounded > div.row.mb-0");
+		const flexContainer = this._constructProdHeader(0);
+		// Insert the flex container at the top of the target section
+		prodHeader.parentNode.insertBefore(flexContainer, prodHeader);
+
+		this._initProfits(containers);
 
 		for (let i = 0; i !== containers.length; ++i) {
 			const container = containers[i];
@@ -1040,7 +1046,7 @@ class BetterItemValues {
 			const narcoInput = container.querySelector("input.assignNarcoInput");
 			if (!narcoInput) continue;
 
-			this.assigned[i] = parseInt(narcoInput.value.replaceAll(',', ""));
+			this.assigned[i] = parseInt(narcoInput.value);
 			narcoInput.id = `inputNum${i}`;
 			narcoInput.addEventListener("change", this._assignedNarcosChange.bind(this));
 
@@ -1050,23 +1056,13 @@ class BetterItemValues {
 			const daysLeftElement = document.createElement("p");
 			daysLeftElement.classList.add("card-text", "text-center");
 
-			const requiredElement = container.querySelector("p.card-text.text-center.mb-0");
-			if (!requiredElement) continue;
-			
 			// Append days left under supply items
+			const requiredElement = container.querySelector("p.card-text.text-center.mb-0");
 			requiredElement.parentElement.insertBefore(daysLeftElement, requiredElement.nextSibling);
 
 			this._updateDaysLeft(daysLeftElement, i);
 		}
-
-		// Calculate Expected Daily Profit
-		const prodHeader = document.querySelector("#mainBackground > div > div > div.col-12 > div.productionsContainer.rounded > div.row.mb-0");
-		const dailyProfit = this._calcDailyProfit(containers);
-
-		const flexContainer = this._constructProdHeader(dailyProfit);
-
-		// Insert the flex container at the top of the target section
-		prodHeader.parentNode.insertBefore(flexContainer, prodHeader);
+		this._updateDailyProfit();
 	}
 	_getPrestigeLevels(prestigeTable) {
 		const prestigeLevels = { productionBoost: 0, efficiency: 0, premiumProduction: 0 };
@@ -1089,7 +1085,7 @@ class BetterItemValues {
 		}
 		return prestigeLevels;
 	}
-	_getAllProfits(containers) {
+	_initProfits(containers) {
 		const profit = [];
 		let maxProfit = -Infinity;
 		let minProfit = Infinity;
@@ -1105,7 +1101,7 @@ class BetterItemValues {
 		this.maxProfit = maxProfit;
 	}
 	_calcProfit(id, container) {
-		this._getSupplyInfo(container, id);
+		this._updateSupplyInfo(container, id);
 
 		const prodCount = this._getProdCount(container);
 
@@ -1149,7 +1145,7 @@ class BetterItemValues {
 		profit /= this.narcoCounts[id] * (id === 4 ? prodCount : 1); // Also dealing with coke custom scaling
 		return profit;
 	}
-	_getSupplyInfo(container, id) {
+	_updateSupplyInfo(container, id) {
 		if (id < 2) return;
 		// Get supply items
 		const requiredElement = container.querySelector("p.card-text.text-center.mb-0");
@@ -1293,13 +1289,12 @@ class BetterItemValues {
 		const className = value > 0 ? "text-success" : value < 0 ? "text-danger" : "text-warning";
 		elem.classList.add(className);
 	}
-	_constructProdHeader(dailyProfit) {
-		const cokeVal = this.getItemValue("Cocaine");
+	_constructProdHeader() {
 
 		// Create Expected Daily Profit card
 		const expectedProfit = document.createElement("div");
 		expectedProfit.classList.add("mb-4", "card");
-		expectedProfit.innerHTML = `<div class="header-section"><h2>Expected Daily Profit</h2></div><div class="card-body"><p class="card-text text-center">Each day your narcos will produce roughly <span id="dailyProfit" class="fw-bold ${dailyProfit === null ? "text-muted" : dailyProfit > 0 ? "text-success" : dailyProfit < 0 ? "text-danger" : "text-warning"}">${POUND}${dailyProfit === null ? "???" : Math.round(dailyProfit).toLocaleString("en-US")}</span> in profit.<br>If you take ${this.maxCokeDaily} cocaine daily, your net profit is <span id="dailyProfitMinusCoke" class="fw-bold ${cokeVal === null || dailyProfit === null ? "text-muted" : dailyProfit - this.maxCokeDaily * cokeVal > 0 ? "text-success" : dailyProfit - this.maxCokeDaily * cokeVal < 0 ? "text-danger" : "text-warning"}">${POUND}${cokeVal === null || dailyProfit === null ? "???" : Math.round(dailyProfit - this.maxCokeDaily * cokeVal).toLocaleString("en-US")}</span> per day.</p></div>`;
+		expectedProfit.innerHTML = `<div class="header-section"><h2>Expected Daily Profit</h2></div><div class="card-body"><p class="card-text text-center">Each day your narcos will produce roughly <span id="dailyProfit" class="fw-bold"></span> in profit.<br>If you take ${this.maxCokeDaily} cocaine daily, your net profit is <span id="dailyProfitMinusCoke" class="fw-bold"></span> per day.</p></div>`;
 
 		// Create Buy Production card
 		const linkCard = document.createElement("div");
