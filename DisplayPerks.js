@@ -87,6 +87,10 @@ Hospital timer by ${hospTimeText} ${this.getPerk(this.medEffectiveness) === 0 ? 
 		return result;
 	}
 	inHomepage(url) {
+		// Ensure that all perks are visible
+		const perkSelect = document.querySelector('#perkCategoryFilter');
+		if (perkSelect?.selectedOptions?.value !== 'all') return;
+		
 		// Grab the perk items from the updated structure
 		const perks = document.querySelectorAll(".col-12.d-flex.align-items-stretch.col-xxl-4 .perk-item");
 		if (perks?.length <= 0) return;
