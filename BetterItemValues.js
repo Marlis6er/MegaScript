@@ -384,6 +384,9 @@ class BetterItemValues {
 
 		// Production-related values
 		this.assigned = [];
+		this.prodProfit = [];
+		this.minProfit = -Infinity;
+		this.maxProfit = Infinity;
 	}
 	getPerk(perkName) {
 		return getNumericValue('perks', perkName);
@@ -1013,25 +1016,17 @@ class BetterItemValues {
 			console.warn("No production containers found!");
 			return;
 		}
-
 		const cokeVal = this.getItemValue("Cocaine");
-		const profit = [];
-		let maxProfit = -Infinity;
-		let minProfit = Infinity;
-		for (let i = 0; i !== containers.length; ++i) {
-			profit[i] = this._calcProfit(i, containers[i]);
-			if (profit[i] === null) continue;
-			maxProfit = Math.max(maxProfit, profit[i]);
-			minProfit = Math.min(minProfit, profit[i]);
-		}
+		this._getAllProfits(containers);
 
 		for (let i = 0; i !== containers.length; ++i) {
 			const container = containers[i];
 			const expectedProfit = document.createElement("p");
+			expectedProfit.id = 'expected-profit-' + i;
 			expectedProfit.classList.add("card-text", "text-center");
-			if (profit[i] !== null) {
-				const colorVal = (profit[i] - minProfit) / (maxProfit - minProfit);
-				expectedProfit.innerHTML = `Profit: <span class="fw-bold" style="color: hsl(${profit[i] >= 0 ? colorVal * 120 : 0}, 67%, ${this.brightness}%)">${POUND}${Math.floor(profit[i]).toLocaleString("en-US")}/narco</span>`;
+			if (this.profit[i] !== null) {
+				const colorVal = (this.profit[i] - this.minProfit) / (this.maxProfit - this.minProfit);
+				expectedProfit.innerHTML = `Profit: <span class="fw-bold" style="color: hsl(${this.profit[i] >= 0 ? colorVal * 120 : 0}, 67%, ${this.brightness}%)">${POUND}${Math.floor(this.profit[i]).toLocaleString("en-US")}/narco</span>`;
 			}
 			else
 				expectedProfit.innerHTML = `Profit: <span class="text-muted">${POUND}???/narco</span>`;
@@ -1040,12 +1035,12 @@ class BetterItemValues {
 			let narcoInput = containers[i].querySelector("input.assignNarcoInput");
 			this.assigned[i] = parseInt(narcoInput.value.replaceAll(',', ""));
 			narcoInput.id = `inputNum${i}`;
-			narcoInput.addEventListener("input", this._assignedNarcosChange.bind(this));
+			narcoInput.addEventListener("change", this._assignedNarcosChange.bind(this));
 		}
 
 		// Calculate Expected Daily Profit
 		const prodHeader = document.querySelector("#mainBackground > div > div > div.col-12 > div.productionsContainer.rounded > div.row.mb-0");
-		const dailyProfit = this._calcDailyProfit(profit, containers);
+		const dailyProfit = this._calcDailyProfit(containers);
 
 		const flexContainer = this._constructProdHeader(dailyProfit, cokeVal);
 
@@ -1125,6 +1120,21 @@ class BetterItemValues {
 		}
 		return prestigeLevels;
 	}
+	_getAllProfits(containers) {
+		const profit = [];
+		let maxProfit = -Infinity;
+		let minProfit = Infinity;
+		for (let i = 0; i !== containers.length; ++i) {
+			profit[i] = this._calcProfit(i, containers[i]);
+			if (profit[i] === null) continue;
+
+			maxProfit = Math.max(maxProfit, profit[i]);
+			minProfit = Math.min(minProfit, profit[i]);
+		}
+		this.profit = profit;
+		this.minProfit = minProfit;
+		this.maxProfit = maxProfit;
+	}
 	_calcProfit(id, container) {
 		const prodCount = this._getProdCount(container);
 		// Get supply amount directly from container, so 'Efficiency' prestige
@@ -1195,28 +1205,48 @@ class BetterItemValues {
 		return supplyCost;
 	}
 	_assignedNarcosChange(e) {
-		this.assigned[parseInt(e.target.id.slice(8))] = parseInt(e.target.value.replaceAll(',', ""));
+		const containers = document.querySelectorAll("div.row.g-0.align-items-center.h-100.flex-column");
+		const id = parseInt(e.target.id.slice(8));
+
+		this.profit[id] = this._calcProfit(id, containers[id]);
+
+		this.assigned[id] = parseInt(e.target.value.replaceAll(',', ""));
 		const dailyProfitText = document.querySelector("span#dailyProfit");
 		const dailyProfitCokeText = document.querySelector("span#dailyProfitMinusCoke");
-		const dailyProfit = this._calcDailyProfit(profit, containers);
+		const dailyProfit = this._calcDailyProfit(containers);
 
 		dailyProfitText.innerText = `${POUND}${dailyProfit === null ? "???" : Math.round(dailyProfit).toLocaleString("en-US")}`;
 		if (dailyProfit === null) return;
 
 		this._adjustColors(dailyProfitText, dailyProfit);
 
+		const cokeVal = this.getItemValue("Cocaine");
 		const dailyProfitCoke = dailyProfit - this.maxCokeDaily * cokeVal;
 		dailyProfitCokeText.innerText = `${POUND}${cokeVal === null ? "???" : Math.round(dailyProfitCoke).toLocaleString("en-US")}`;
 		if (cokeVal === null) return;
 
 		this._adjustColors(dailyProfitCokeText, dailyProfitCoke);
+		this._updateExpectedProfit(containers, id);
 	}
-	_calcDailyProfit(profit, containers) {
-		let dailyProfit = 0;
-		for (var j = 0; j !== containers.length; ++j) {
-			if (profit[j] === null && this.assigned[j]) return null;
+	_updateExpectedProfit(containers, id) {
+		const container = containers[id];
 
-			dailyProfit += profit[j] * this.assigned[j];
+		const expectedProfit = container.querySelector('p#expected-profit-' + id);
+		if (this.profit[id] !== null) {
+			const colorVal = (this.profit[id] - this.minProfit) / (this.maxProfit - this.minProfit);
+			expectedProfit.innerHTML = `Profit: <span class="fw-bold" style="color: hsl(${this.profit[id] >= 0 ? colorVal * 120 : 0}, 67%, ${this.brightness}%)">${POUND}${Math.floor(this.profit[id]).toLocaleString("en-US")}/narco</span>`;
+		} else
+			expectedProfit.innerHTML = `Profit: <span class="text-muted">${POUND}???/narco</span>`;
+
+		const narcoInput = containers[id].querySelector("input.assignNarcoInput");
+		this.assigned[id] = parseInt(narcoInput.value.replaceAll(',', ""));
+	}
+	_calcDailyProfit(containers) {
+		let dailyProfit = 0;
+		for (let j = 0; j !== containers.length; ++j) {
+			if (this.profit[j] === null && this.assigned[j]) return null;
+
+			dailyProfit += this.profit[j] * this.assigned[j];
 		}
 		return dailyProfit;
 	}
