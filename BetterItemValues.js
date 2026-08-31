@@ -317,10 +317,10 @@ class BetterItemValues {
 			{ "Personal Favour": 1 / 20 },
 			{ "Personal Favour": 1 / 15 },
 			{ "Personal Favour": 1 / 10 },
-			{ "Bag of Fertiliser": 5 },
-			{ "Agave Heart": 2.5 },
-			{ "Coca Paste": 9.5 },
-			{ Nails: 11 * 0.4, Bricks: 11 * 0.3, "Concrete Bags": 11 * 0.2, Steel: 11 * 0.1 },
+			{ "Bag of Fertiliser": 6 },
+			{ "Agave Heart": 3.5 },
+			{ "Coca Paste": 12 },
+			{ Nails: 12.5 * 0.4, Bricks: 12.5 * 0.3, "Concrete Bags": 12.5 * 0.2, Steel: 12.5 * 0.1 },
 			{ "Personal Favour": 1 / 5 }, // TODO this is a guess
 			{ "Personal Favour": 1 / 2 } // TODO this is a guess
 		];
@@ -1005,8 +1005,6 @@ class BetterItemValues {
 			console.warn("No production containers found!");
 			return;
 		}
-
-		console.debug("Found", containers.length, "production containers.");
 
 		const cokeVal = this.getItemValue("Cocaine");
 		const profit = [];
