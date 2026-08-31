@@ -396,6 +396,14 @@ class BetterItemValues {
 		console.debug(`Set value_${itemName} to ${POUND}${value.toLocaleString("en-US")}`);
 		return value;
 	}
+	getProdReq(type) {
+		return getNumericValue('prodReq', type);
+	}
+	setProdReq(type, req) {
+		setValue('prodReq', type, req);
+		console.debug(`Set prodReq_${type} to ${req}`);
+		return req;
+	}
 	inPharmacy(url) {
 		this.inTownStore(url);
 	}
@@ -1001,7 +1009,7 @@ class BetterItemValues {
 	inProduction() {
 		// Get all production containers
 		const containers = document.querySelectorAll("div.row.g-0.align-items-center.h-100.flex-column");
-		if (containers.length === 0) {
+		if (containers?.length === 0) {
 			console.warn("No production containers found!");
 			return;
 		}
@@ -1118,9 +1126,15 @@ class BetterItemValues {
 		return prestigeLevels;
 	}
 	_calcProfit(id, container) {
+		const prodCount = this._getProdCount(container);
+		// Get supply amount directly from container, so 'Efficiency' prestige
+		// doesn't need to be applied; 
+		const supplyCost = this._calcSupplyCost(id, prodCount, container);
+
 		const narcoInput = container.querySelector("input.assignNarcoInput");
 		this.assigned[id] = parseInt(narcoInput.value.replaceAll(',', ""));
 		if (this.assigned[id] === 0) return 0;
+		if (supplyCost === null) return null;
 
 		const prestigeTable = container.querySelector('div.table-responsive.production-table.mt-1');
 		const prestigeLevels = this._getPrestigeLevels(prestigeTable);
@@ -1133,20 +1147,10 @@ class BetterItemValues {
 		if (itemProfit === null) return null;
 
 		profit += itemProfit;
-
-		const prodCount = this._getProdCount(container);
-
 		profit *= this._calcProfitScalar(id, prodCount);
-
-		// Each level of 'Efficiency' prestige reduces required supply by 10%
-		const efficiency = 1 - prestigeLevels.efficiency * 0.1;
-
-		const supplyCost = this._calcSupplyCost(id, prodCount, container) * efficiency;
-		if (supplyCost === null) return null;
-
 		profit -= supplyCost;
-
 		profit *= this.prodProfitFactor;
+
 		if (id === 0) profit *= this.streetProfitFactor;
 		profit /= this.narcoCounts[id] * (id === 4 ? prodCount : 1); // Also dealing with coke custom scaling
 		return profit;
@@ -1154,7 +1158,7 @@ class BetterItemValues {
 	_getProdCount(container) {
 		const prodCountText = container.querySelectorAll("tbody tr.align-middle th");
 		if (prodCountText.length === 0) return 1;
-		return parseInt(prodCountText[1].innerText) || 1;
+		return parseInt(prodCountText[1].textContent) || 1;
 	}
 	_calcProfitScalar(id, prodCount) {
 		if (id === 4)
@@ -1172,14 +1176,20 @@ class BetterItemValues {
 		return itemProfit;
 	}
 	_calcSupplyCost(id, prodCount, container) {
+		// street crime + offices have no supply cost
+		if (id < 2) return 0;
+
 		const prodReqsText = container.querySelector("p.card-text.text-center.mb-0");
-		const prodReqs = prodReqsText.innerText.split(' ').filter(w => w.startsWith('x'));
+
+		// Matches x<number>
+		const regexResult = prodReqsText.textContent.match(/^x(\d+)/);
+		const prodReqValue = parseInt(regexResult?.[1]);
 		let supplyCost = 0;
 		let j = 0;
 		for (let itemName of Object.keys(this.prodReqs[id])) {
 			const itemVal = this.getItemValue(itemName);
 			if (itemVal === null) return null;
-			supplyCost += itemVal * parseInt(prodReqs[j].slice(1).replaceAll(',', "")) / (id === 4 ? 1 : prodCount);
+			supplyCost += itemVal * prodReqValue / (id === 4 ? 1 : prodCount);
 			++j;
 		}
 		return supplyCost;

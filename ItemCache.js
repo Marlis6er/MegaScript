@@ -38,6 +38,8 @@ class ItemCache {
 
 		this.prodItemNames = ["Bag of Fertiliser", "Agave Heart", "Coca Paste"];
 		this.itemNames = [...this.prodItemNames, "Cocaine", "Personal Favour", 'Corana Beer']; // Also cache these for other scripts
+		// Weed, Alc, Coke
+		this.narcosPerProd = [25, 10, 60];
 	}
 	getCache(type) {
 		return getNumericValue('itemCache', type);
@@ -109,21 +111,32 @@ class ItemCache {
 	// TODO: Adjust to account for prestiges
 	inProduction(url) {
 		const containers = document
-			.querySelectorAll("div.prodContainer div.equipmentModule div.row.flex-column")
+			.querySelectorAll("div.prodContainer > div.equipmentModule > div.row.flex-column")
 			.values()
 			.toArray()
 			.slice(2);
 		if (containers === null) return;
 
-		const narcosPerProd = [25, 10, 60];
-		const prodReqs = [10, 5, 35];
-		for (let i = 0; i < containers.length; ++i) {
+		for (let i = 0; i < containers.length; i++) {
 			const container = containers[i];
+			const prodReqsText = container.querySelector('p.card-text.text-center.mb-0');
+			// Matches x<number> <name>
+			const regexResult = prodReqsText.textContent.match(/^x(\d+) (.+$)/);
+			const prodReqValue = parseInt(regexResult?.[1]);
+			const prodReqName = regexResult?.[2];
+
+			const prodCount = this._getProdCount(container);
 			const assignedText = container.querySelector("input.assignNarcoInput");
 			const assigned = parseInt(assignedText.value);
-			const prodReq = Math.ceil(assigned / narcosPerProd[i]) * prodReqs[i];
-			this.setReq(this.prodItemNames[i], prodReq);
+			const prodReq = Math.ceil(assigned / (this.narcosPerProd[i] * prodCount)) * prodReqValue;
+			
+			this.setReq(prodReqName, prodReq);
 		}
+	}
+	_getProdCount(container) {
+		const prodCountText = container.querySelectorAll("tbody tr.align-middle th");
+		if (prodCountText.length === 0) return 1;
+		return parseInt(prodCountText[1].textContent) || 1;
 	}
 	inJobs(url) {
 		const jobPanels = document.querySelectorAll("div.equipmentModule div.flex-column");
