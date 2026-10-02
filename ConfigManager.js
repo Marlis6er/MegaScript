@@ -3,6 +3,7 @@ class ConfigManager {
 
     constructor() {
         this.MODULES = [
+            AchievementStats,
             AddItemButtons,
             AddLinks,
             BankDepositTax,
@@ -41,6 +42,7 @@ class ConfigManager {
         ];
 
         this.PAGE_DATA = [
+            [/^achievements\/?.*$/, 'inAchievements', 'In Achievements'],
             [/^gym\/?$/, 'inGym', 'In Gym'],
             [/^university\/?$/, 'inUniversity', 'In Univesity'],
             [/^university\/[132]\/?$/, 'inUniversityPage', 'In Univserity Course'],
