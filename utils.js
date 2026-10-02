@@ -265,6 +265,16 @@ function getValue(prefix, name) {
 	return val;
 }
 
+/**
+ * Retrieve the cached value of an item.
+ * 
+ * @param {string} itemName The name of the item to get the value of
+ * @returns {number | null} - The item value or null if not set
+ */
+function getItemValue(itemName) {
+	return getNumericValue('value', itemName);
+}
+
 // Sets a local cache value
 function setValue(prefix, name, value) {
 	const spacesEscaped = name.replaceAll(' ', '_')
