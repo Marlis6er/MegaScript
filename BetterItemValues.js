@@ -1440,8 +1440,7 @@ class BetterItemValues {
 		const itemList = document.querySelector("div.container.inventoryWrapper.pt-2");
 		const header = itemList.querySelector("div.row.row-cols-3.row-header");
 		const items = itemList.querySelectorAll('div.inventoryItemWrapper');
-		let totalVal = 0;
-		let haveAll = true;
+		const valueTracker = {totalVal: 0, haveAll: true};
 
 		for (const item of items) {
 			if (item.children.length < 7) continue;
@@ -1456,8 +1455,8 @@ class BetterItemValues {
 			const countOf = parseInt(countElem.textContent);
 			const currentBest = this.getItemValue(itemName);
 			if (currentBest === null) {
-				totalVal += parseInt(item.children[3].innerText.slice(1).replaceAll(',', "")) * countOf;
-				haveAll = false;
+				valueTracker.totalVal += parseInt(item.children[3].innerText.slice(1).replaceAll(',', "")) * countOf;
+				valueTracker.haveAll = false;
 				continue;
 			}
 
@@ -1485,12 +1484,10 @@ class BetterItemValues {
 				if (val !== null)
 					valueText.innerHTML += ` <span style="color: hsl(${colorVal}, 67%, ${this.brightness}%)">(${POUND}${Math.round(val).toLocaleString("en-US")}/${append})</span>`;
 			}
-			totalVal += currentBest * countOf;
+			valueTracker.totalVal += currentBest * countOf;
 		}
 
-		const totalValCard = document.createElement("div");
-		totalValCard.classList.add("card-body", "mb-2");
-		totalValCard.innerHTML = `<p class="card-text">The value of these items is ${haveAll ? "" : "roughly "}<span class="fw-bold">${POUND}${totalVal.toLocaleString("en-US")}</span>.</p>`;
+		const totalValCard = this._createTotalValueCard(valueTracker);
 		itemList.insertBefore(totalValCard, header);
 	}
 	inGym(url) {
@@ -1542,9 +1539,7 @@ class BetterItemValues {
 			this._handleGalleryRow(item, valueTracker);
 		}
 
-		const totalValCard = document.createElement('div');
-		totalValCard.classList.add('card-body', 'mb-2');
-		totalValCard.innerHTML = `<p class="card-text">The value of these items is <span class="fw-bold">${POUND}${valueTracker.totalVal.toLocaleString('en-US')}${valueTracker.haveAll ? '' : '+'}</span>.</p>`;
+		const totalValCard = this._createTotalValueCard(valueTracker);
 		galleryElem.parentElement.insertBefore(totalValCard, galleryElem);
 		
 	}
@@ -1568,5 +1563,10 @@ class BetterItemValues {
 		const valueTextNode = elem.querySelector(getSelectColString(5));
 
 		valueTextNode.textContent = `${POUND}${rowValue.toLocaleString('en-us')}`;
+	}
+	_createTotalValueCard(valueTracker) {
+		const totalValCard = document.createElement('div');
+		totalValCard.classList.add('card-body', 'mb-2');
+		totalValCard.innerHTML = `<p class="card-text">The value of these items is <span class="fw-bold">${POUND}${valueTracker.totalVal.toLocaleString('en-US')}${valueTracker.haveAll ? '' : '+'}</span>.</p>`;
 	}
 }
