@@ -78,6 +78,7 @@ class ConfigManager {
             [/^(home|user)\/?$/, 'inHomepage', 'In Homepage'],
             [/^user\/\d+\/?$/, 'inUserProfile', 'In User Profile'],
             [/^user\/stats/, 'inPersonalStats', 'In Personal Stats'],
+            [/^gallery\/\d+\/?$/, 'inGallery', 'In Gallery'],
             [/^property\/?$/, 'inProperty', 'In Property'],
             [/^statestimates(\/|(\/\d+\/?)?(\?.+)?)?/, 'inStatEstimate', 'In Stat Estimates'],
             [/^(advanced)?search/, 'inSearch', 'In Search'],

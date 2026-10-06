@@ -1510,4 +1510,63 @@ class BetterItemValues {
 			if (valueText !== undefined && valueText !== null)
 				valueText.innerHTML = `<span>${valueText.innerText}</span> <span style="color: hsl(${colorVal}, 67%, ${this.brightness}%)">(${POUND}${Math.round(val).toLocaleString("en-US")}/E)</span>`;
 	}
+	inUserProfile(url) {
+		const galleryCards = document.querySelectorAll('#mainBackground > div.container > div.row > div.col-12 > div.mt-3.card:nth-child(10) > div.row.gx-0 > div.container > div.row.row-cols-3.row-cols-md-6.g-3 > div.col > div.galleryCard');
+		if (galleryCards.length === 0) return;
+
+		for (const galleryCard of galleryCards) {
+			this._handleGalleryCard(galleryCard);
+		}
+	}
+	_handleGalleryCard(card) {
+		const nameAndAmount = card.querySelector('div > h5').textContent;
+		const nameRegex = new RegExp('^(.*) x(\\d+)$');
+		const nameRegexResult = nameRegex.exec(nameAndAmount);
+		
+		const name = nameRegexResult[1];
+		const amount = parseInt(nameRegexResult[2]);
+
+		const itemValue = this.getItemValue(name);
+		if (itemValue === null) return;
+
+		const cardValue = amount * itemValue;
+		const valueTextNode = card.querySelector('div > p:last-of-type').childNodes[2];
+
+		valueTextNode.textContent = `${POUND}${cardValue.toLocaleString('en-us')}`;
+	}
+	inGallery(url) {
+		const galleryElem = document.querySelector('#sortableGallery');
+		const valueTracker = {totalVal: 0, haveAll: true};
+
+		for (const item of galleryElem.children) {
+			this._handleGalleryRow(item, valueTracker);
+		}
+
+		const totalValCard = document.createElement('div');
+		totalValCard.classList.add('card-body', 'mb-2');
+		totalValCard.innerHTML = `<p class="card-text">The value of these items is <span class="fw-bold">${POUND}${valueTracker.totalVal.toLocaleString('en-US')}${valueTracker.haveAll ? '' : '+'}</span>.</p>`;
+		galleryElem.parentElement.insertBefore(totalValCard, galleryElem);
+		
+	}
+	_handleGalleryRow(elem, valueTracker) {
+		const getSelectColString = (index) => `div:nth-of-type(${index})`;
+
+		const nameElem = elem.querySelector(getSelectColString(2) + ' > div > span');
+		const name = nameElem.textContent;
+
+		const amountElem = elem.querySelector(getSelectColString(6));
+		const amount = parseInt(amountElem.textContent.slice(1));
+
+		const itemValue = this.getItemValue(name);
+		if (itemValue === null) {
+			valueTracker.haveAll = false;
+			return;
+		}
+
+		const rowValue = amount * itemValue;
+		valueTracker.totalVal += rowValue;
+		const valueTextNode = elem.querySelector(getSelectColString(5));
+
+		valueTextNode.textContent = `${POUND}${rowValue.toLocaleString('en-us')}`;
+	}
 }
