@@ -307,11 +307,11 @@ class AchievementStats {
 		return POUND + this._formatNumberOrDate(number);
 	}
 
-	_getDiff(current, next, multiplier=1) {
-		return (next - current) * multiplier;
+	_getDiff(diff, multiplier=1) {
+		return diff * multiplier;
 	}
 
-	_getRepDiff(current, next) {
+	_getRepDiff(next) {
 		const currentRepElem = document.querySelector('div[aria-label="Reputation"] + div > span');
 		const currentRep = parseInt(currentRepElem.textContent.replaceAll(',', ''));
 		const effectiveLevel = this._calcLevelFromRep(currentRep);
@@ -321,8 +321,7 @@ class AchievementStats {
 		return nextLevelRep - currentRep;
 	}
 
-	_getSupporterCost(current, next) {
-		const diff = next - current;
+	_getSupporterCost(diff) {
 		const spDaysLeftElem = document.querySelector('li.premiumIcon > a');
 		const spDaysLeft = 
 			spDaysLeftElem.parentElement.classList.contains('d-none') ? 
@@ -332,9 +331,7 @@ class AchievementStats {
 		return spAmount * getItemValue('Supporter Pack');
 	}
 
-	_getMinItemCost(current, next, items) {
-		const diff = next - current;
-
+	_getMinItemCost(diff, items) {
 		const cheapestPrice = items.reduce((a, c) => {
 			const curItemValue = getItemValue(c) || Infinity;
 			return curItemValue < a ? curItemValue : a;
@@ -343,8 +340,7 @@ class AchievementStats {
 		return diff * cheapestPrice;
 	}
 
-	_getGambleAmount(current, next, chance) {
-		const diff = next - current;
+	_getGambleAmount(diff, chance) {
 		const avgTicketsTillGoal = Math.floor(diff * (1 / chance));
 
 		return avgTicketsTillGoal;
@@ -357,8 +353,7 @@ class AchievementStats {
 		return Math.floor(cost);
 	}
 
-	_getExpedTime(current, next) {
-		const diff = next - current;
+	_getExpedTime(diff) {
 		const totalMin = diff * 20;
 		const duration = new Temporal.Duration(
 			0, //years
@@ -370,8 +365,7 @@ class AchievementStats {
 		return diff > 0 ? duration : 0;
 	}
 
-	_getMissionTime(current, next) {
-		const diff = next - current;
+	_getMissionTime(diff) {
 		// 7 daily (5 personal + 2 cartel),
 		// 4 weekly (2 personal + 1 cartel + 1 global),
 		// 4 monthly (2 personal + 1 cartel + 1 global)
@@ -386,8 +380,7 @@ class AchievementStats {
 		return diff > 0 ? duration : 0;
 	}
 
-	_getJobTime(current, next, minPerJob) {
-		const diff = next - current;
+	_getJobTime(diff, minPerJob) {
 		const minutesLeft = Math.ceil(diff * minPerJob);
 		const duration = new Temporal.Duration(
 			Math.floor(minutesLeft / (365 * 24 * 60)), //years
@@ -400,27 +393,28 @@ class AchievementStats {
 	}
 
 	_getDiffValue(type, amounts, params=[]) {
+		const diff = amounts[1] - amounts[0];
 		switch (type) {
 			case 'simple':
-				return this._formatNumberOrDate(this._getDiff(...amounts, ...params));
+				return this._formatNumberOrDate(this._getDiff(diff, ...params));
 			case 'level-rep':
-				return this._formatNumberOrDate(this._getRepDiff(...amounts));
+				return this._formatNumberOrDate(this._getRepDiff(amounts[1]));
 			case 'gamble-amount':
-				return this._formatNumberOrDate(this._getGambleAmount(...amounts, ...params));
+				return this._formatNumberOrDate(this._getGambleAmount(diff, ...params));
 			case 'supporter-cost':
-				return this._formatMoney(this._getSupporterCost(...amounts));
+				return this._formatMoney(this._getSupporterCost(diff));
 			case 'min-item-cost':
-				return this._formatMoney(this._getMinItemCost(...amounts, ...params));
+				return this._formatMoney(this._getMinItemCost(diff, ...params));
 			case 'lottery-win-cost':
-				return this._getLotteryWinCost(...amounts);
+				return this._getLotteryWinCost(diff);
 			case 'int-energy':
 				return this._formatNumberOrDate(this._getIntEnergyCost(...amounts));
 			case 'exped-time':
-				return this._formatNumberOrDate(this._getExpedTime(...amounts));
+				return this._formatNumberOrDate(this._getExpedTime(diff));
 			case 'mission-time':
-				return this._formatNumberOrDate(this._getMissionTime(...amounts));
+				return this._formatNumberOrDate(this._getMissionTime(diff));
 			case 'job-time':
-				return this._formatNumberOrDate(this._getJobTime(...amounts, ...params));
+				return this._formatNumberOrDate(this._getJobTime(diff, ...params));
 			default:
 				break;
 		}
