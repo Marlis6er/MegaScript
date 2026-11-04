@@ -1535,16 +1535,22 @@ class BetterItemValues {
 		const galleryElem = document.querySelector('#sortableGallery');
 		const valueTracker = {totalVal: 0, haveAll: true};
 
+		// Add an offset for the div position in the gallery table
+		// if you look at gallery of another player.
+		const userInfo = getUserInfoFromStorage();
+		let offset = 0;
+		if (url.split('/').at(-1) !== userInfo.user_id.toString()) offset = -1;
+
 		for (const item of galleryElem.children) {
-			this._handleGalleryRow(item, valueTracker);
+			this._handleGalleryRow(item, valueTracker, offset);
 		}
 
 		const totalValCard = this._createTotalValueCard(valueTracker);
 		galleryElem.parentElement.insertBefore(totalValCard, galleryElem);
 		
 	}
-	_handleGalleryRow(elem, valueTracker) {
-		const getSelectColString = (index) => `div:nth-of-type(${index})`;
+	_handleGalleryRow(elem, valueTracker, offset=0) {
+		const getSelectColString = (index) => `div:nth-of-type(${index + offset})`;
 
 		const nameElem = elem.querySelector(getSelectColString(2) + ' > div > span');
 		const name = nameElem.textContent;
@@ -1568,5 +1574,6 @@ class BetterItemValues {
 		const totalValCard = document.createElement('div');
 		totalValCard.classList.add('card-body', 'mb-2');
 		totalValCard.innerHTML = `<p class="card-text">The value of these items is <span class="fw-bold">${POUND}${valueTracker.totalVal.toLocaleString('en-US')}${valueTracker.haveAll ? '' : '+'}</span>.</p>`;
+		return totalValCard;
 	}
 }
