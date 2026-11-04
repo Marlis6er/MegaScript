@@ -92,32 +92,32 @@ class AchievementStats {
 		this._modifyAchievement(
 			`#${this.achievementIdPrefix}19`,
 			['simple', 'Refills left: '],
-			['simple', 'Point cost: ', 25 * getItemValue('Supporter Points')]
+			['simple', 'Point cost: ' + POUND, 25 * getItemValue('Supporter Points')]
 		);
 		this._modifyAchievement(
 			`#${this.achievementIdPrefix}20`,
 			['simple', 'Refills left: '],
-			['simple', 'Point cost: ', 25 * getItemValue('Supporter Points')]
+			['simple', 'Point cost: ' + POUND, 25 * getItemValue('Supporter Points')]
 		);
 		this._modifyAchievement(
 			`#${this.achievementIdPrefix}21`,
 			['simple', 'Personal Favors left: '],
-			['simple', 'PF cost: ', getItemValue('Personal Favour')]
+			['simple', 'PF cost: ' + POUND, getItemValue('Personal Favour')]
 		);
 		this._modifyAchievement(
 			`#${this.achievementIdPrefix}22`,
 			['simple', 'Medical Items left: '],
-			['min-item-cost', 'Minimum cost: ', this.medItems]
+			['min-item-cost', 'Minimum cost: ' + POUND, this.medItems]
 		);
 		this._modifyAchievement(
 			`#${this.achievementIdPrefix}23`,
 			['simple', 'Alcohol Items left: '],
-			['min-item-cost', 'Minimum cost: ', this.alcItems]
+			['min-item-cost', 'Minimum cost: ' + POUND, this.alcItems]
 		);
 		this._modifyAchievement(
 			`#${this.achievementIdPrefix}24`,
 			['simple', 'Drug Items left: '],
-			['min-item-cost', 'Minimum cost: ', this.drugItems]
+			['min-item-cost', 'Minimum cost: ' + POUND, this.drugItems]
 		);
 		this._modifyAchievement(
 			`#${this.achievementIdPrefix}26`,
@@ -228,22 +228,22 @@ class AchievementStats {
 		this._modifyAchievement(
 			`#${this.achievementIdPrefix}28`,
 			['simple', 'Spins left: '],
-			['simple', 'Spin cost: ', this.spinCost]
+			['simple', 'Spin cost: ' + POUND, this.spinCost]
 		);
 		this._modifyAchievement(
 			`#${this.achievementIdPrefix}29`,
 			['simple', 'Hands left: '],
-			['simple', 'Min cost: ', this.blackjackCost]
+			['simple', 'Min cost: ' + POUND, this.blackjackCost]
 		);
 		this._modifyAchievement(
 			`#${this.achievementIdPrefix}30`,
 			['simple', 'Spins left: '],
-			['simple', 'Min cost: ', this.blackjackCost]
+			['simple', 'Min cost: ' + POUND, this.blackjackCost]
 		);
 		this._modifyAchievement(
 			`#${this.achievementIdPrefix}35`,
 			['simple', 'Tickets left: '],
-			['simple', 'Ticket cost: ', this.lotteryTicketCost]
+			['simple', 'Ticket cost: ' + POUND, this.lotteryTicketCost]
 		);
 		this._modifyAchievement(
 			`#${this.achievementIdPrefix}36`,
@@ -291,6 +291,8 @@ class AchievementStats {
 		const amounts = this._getAmount(achievementElem);
 
 		const diffValue = this._getDiffValue(type, amounts, params);
+		if (diffValue === null) return;
+
 		statsElem.innerHTML += `${prefix}${diffValue}<br/>`;
 	}
 
@@ -359,8 +361,8 @@ class AchievementStats {
 			0, //years
 			0, // months
 			0, // weeks
-			Math.floor(totalMin / (60 * 24)), // days
-			Math.floor(totalMin / 60) % 24 // hours
+			0,
+			Math.floor(totalMin / 60)// hours
 		);
 		return diff > 0 ? duration : 0;
 	}
@@ -372,10 +374,10 @@ class AchievementStats {
 		const avgMissionsPerDay = 7 + 4/7 + 4/30;
 		const daysLeft = Math.ceil(diff / avgMissionsPerDay);
 		const duration = new Temporal.Duration(
-			Math.floor(daysLeft / 365), //years
-			Math.floor(daysLeft / 30) % 12, // months
-			0, // weeks
-			daysLeft % 30
+			0,
+			0,
+			0,
+			daysLeft
 		);
 		return diff > 0 ? duration : 0;
 	}
@@ -383,17 +385,19 @@ class AchievementStats {
 	_getJobTime(diff, minPerJob) {
 		const minutesLeft = Math.ceil(diff * minPerJob);
 		const duration = new Temporal.Duration(
-			Math.floor(minutesLeft / (365 * 24 * 60)), //years
-			Math.floor(minutesLeft / (30 * 24 * 60)) % 12, // months
+			0,
+			0,
 			0, // weeks
-			Math.floor(minutesLeft / (24 * 60)) % 30, // days
-			Math.floor(minutesLeft / 60) % 24, // hours
+			0,
+			Math.floor(minutesLeft / 60) // hours
 		);
 		return diff > 0 ? duration : 0;
 	}
 
 	_getDiffValue(type, amounts, params=[]) {
 		const diff = amounts[1] - amounts[0];
+		if (diff === 0) return null;
+
 		switch (type) {
 			case 'simple':
 				return this._formatNumberOrDate(this._getDiff(diff, ...params));
