@@ -23,9 +23,7 @@ class ItemCache {
 					displayName: 'Production Stock Days',
 					description: 'Number of days of production materials to stock up',
 					type: SettingType.INTEGER,
-					extra: {
-						defaultValue: 7
-					}
+					defaultValue: 7
 				}
 			}
 		}
