@@ -88,156 +88,7 @@ class BetterItemValues {
 
 		this.pointName = "Supporter Points";
 
-		this.defaultVals = {
-			// Primary Weapons
-			'AK-47': 5_000,
-			'MG34': 200_000,
-			'G36': 375_000,
-			'L86 LSW': 1_000_000,
-			'Steyr AUG': 2_250_000,
-			'SIG SG 550': 3_750_000,
-			'MG5': 4_500_000,
-			'FN SCAR-H': 6_250_000, 
-			'Bazooka': 12_500_000,
-
-			// Secondary Weapons
-			'Baseball Bat': 125,
-			'Walther P38': 1_000,
-			'M16A2 Rifle': 6_250,
-			'M1911': 6_250,
-			'S&W Magnum Revolver': 50_000,
-			'Glock 18': 250_000,
-			'Desert Eagle': 12_000_000, // TODO: Update this price
-
-			// Thrown
-			'Illuminating Grenade': 3_750,
-			'Tear Gas Grenade': 3_750,
-			'Stun Grenade': 3_750,
-			'Flash Bang Grenade': 3_750,
-			'Fragmentation Grenade': 7_500,
-
-			// Armour
-			'Trench Coat': 2_000,
-			'Covert Stab Vest': 2_500,
-			'Ballistic Vest': 5_000,
-			'Kevlar Weave Vest': 12_500,
-			'Carbon Fiber Vest': 20_000,
-			'Armoured Suit': 25_000,
-			'Ceramic Plate Carrier Vest': 50_000,
-			'Riot Suit': 250_000,
-			'Tactical Plate Armour': 375_000,
-			'Blast Suit': 500_000,
-			'New-Age Combat Fatigues': 750_000,
-			'Full-Body Armour': 2_500_000,
-
-			// Special
-			'Green Surprise Gift': 0,
-			'Velvet Mystery Gift': 0,
-			'Rustic Charm Gift': 0,
-			'Golden Treasure Gift': 0,
-			'Mini-Supporter Pack': 0,
-			'Personal Favour': 325_000,
-			'Supporter Pack': 4_750_000,
-
-			// Alcohol
-			'Corana Beer': 55_000,
-			'Mexcal Beer': 105_000,
-			'Blancoda Tequila': 280_000,
-			'Repose Tequila': 530_000,
-			'Anejo Tequila': 830_000,
-			'Raicilla': 1_100_000,
-
-			// Medical
-			'Bandage': 2_500,
-			'Small Medical Kit': 5_000,
-			'Tainted Cannabis': 9_000,
-			'Large Medical Kit': 10_000,
-			'Tainted Cocaine': 13_500,
-			'Basic Trauma Kit': 15_000,
-			'Large Trauma Kit': 25_000,
-
-			// Drugs
-			'Glittering Gift': 0,
-			'Cannabis': 5_000,
-			'Cocaine': 140_000,
-
-			// Production
-			'Bag of Fertiliser': 1_000,
-			'Agave Heart': 2_500,
-			'Coca Paste': 4_500,
-
-			// Construction
-			'Nails': 3_000,
-			'Bricks': 11_250,
-			'Concrete Bags': 17_250,
-			'Steel': 37_500,
-
-			// Food
-			'Dog Food': 5_000,
-			'Black Market Treat': 50_000,
-
-			// Collectible
-			'El Chapo\'s Head': 0,
-			'Pablo\'s Hat': 0,
-			'Quecheu Troll Doll': 0,
-			'The Easter Fuggly': 0,
-			'Elf on a Shelf - Green': 0,
-			'Elf on a Shelf - Red': 0,
-			'Padrino\'s Egg': 0,
-			'The Crimson Star': 0,
-			'La Cara Roja Mask': 0,
-
-			// Luxury
-			'Diablo Tattoo': 1_750,
-			'Italian Shoes': 2_000,
-			'Cuban Cigar Set': 3_750,
-			'Eagle Cabernet': 4_750,
-			'Whiskey Decanter': 12_500,
-			'Gold Grooming Kit': 17_500,
-			'Gemstone Cufflinks': 22_500,
-			'Lapis-Encrusted Lighter': 37_500,
-			'Satellite Phone': 75_000,
-			'Club VIP Lounge Membership': 125_000,
-			'Pearl-Encrusted Lighter': 150_000,
-			'Diamond Watch': 225_000,
-			'Diamond-Encrusted Lighter': 350_000,
-			'Bulletproof Suit': 425_000,
-			'Pet Jaguar': 625_000,
-			'Gold-Plated Pistol': 675_000,
-			'Platinum Credit Card': 1_375_000,
-			'Personal Helicopter': 1_600_000,
-
-			// Cars
-			'Renault Espace': 1_500,
-			'Fiat Panda': 2_250,
-			'Austin Metro': 3_250,
-			'Peugeot 205 GTI': 4_500,
-			'Ford Sierra': 10_000,
-			'Vauxhall Cavalier': 15_000,
-			'Ford Escord': 23_500,
-			'Honda CRX': 32_500,
-			'Saab 900 Turbo': 85_000,
-			'Lancia Delta Integrale': 137_000,
-			'Toyota MR2': 187_500,
-			'Audi Quattro': 0, // TODO: Get market value
-			'Ford Capri 2.8i': 325_000,
-			'Volkswagen Golf GTI': 425_000,
-			'BMW M5': 500_000,
-			'Porsche 959': 625_000,
-			'Ferrari F40': 1_075_000,
-			'Lamborghini Countach': 1_500_000,
-
-			// Enhancement
-			'Street-Quality Enhancement': 10_000,
-			'Syndicate-Issued Enhancement': 200_000,
-			'Blacksite Prototype Enhancement': 500_000,
-
-			// Smuggling Enhancement
-			'Weapons & Armor Specialist Contact': 0,
-			'Alcohol Specialist Contact': 0,
-			'Tech Specialist Contact': 0,
-			'Leadership Specialist Contact': 0,
-		}; // Players should go to the market to load up-to-date values, these are presets probably over half a year old
+		this.defaultVals = Object.fromEntries(GameData.ITEMS.values().map(item => [item.name, item.value]));
 
 		const values = GM_listValues().filter(name => name.startsWith('value_')); // Prefill values first use
 		if (values.length === 0) {
@@ -245,28 +96,31 @@ class BetterItemValues {
 				this.setItemValue(name, this.defaultVals[name]);
 		}
 
-		this.maxCokeDaily = 8;
-		this.cokeODChance = 1; // percent
+		const cocaine = GameData.ITEMS.get('cocaine');
+
+		this.maxCokeDaily = 3600 * 24 / cocaine.cooldown;
 		this.taintedChance = [10, 20]; // percent
+		// Energy gain from item
 		this.energyItems = {
-			'Corana Beer': 5,
-			'Mexcal Beer': 10,
-			'Blancoda Tequila': 15,
-			'Repose Tequila': 20,
-			'Anejo Tequila': 25,
-			"Raicilla": 30,
-			"Cocaine": 50 * (1 - this.cokeODChance / 100),
-			'Glittering Gift': 100
+			'Corana Beer': GameData.ITEMS.get('corana').energyBoost,
+			'Mexcal Beer': GameData.ITEMS.get('mexcal').energyBoost,
+			'Blancoda Tequila': GameData.ITEMS.get('blancoda').energyBoost,
+			'Repose Tequila': GameData.ITEMS.get('repose').energyBoost,
+			'Anejo Tequila': GameData.ITEMS.get('anejo').energyBoost,
+			'Raicilla': GameData.ITEMS.get('raicilla').energyBoost,
+			'Cocaine': cocaine.energyBoost * (1 - cocaine.odChance),
+			'Glittering Gift': GameData.ITEMS.get('glittering_gift').energyBoost
 		};
+		// Hospital time reduction in minutes
 		this.hospitalItems = {
-			Bandage: 10,
-			'Small Medical Kit': 15,
-			'Large Medical Kit': 60,
-			'Basic Trauma Kit': 80,
-			'Large Trauma Kit': 120
+			'Bandage': GameData.ITEMS.get('bandage').hospitalReduction / 60,
+			'Small Medical Kit': GameData.ITEMS.get('small_med_kit').hospitalReduction / 60,
+			'Large Medical Kit': GameData.ITEMS.get('large_med_kit').hospitalReduction / 60,
+			'Basic Trauma Kit': GameData.ITEMS.get('basic_trauma_kit').hospitalReduction / 60,
+			'Large Trauma Kit': GameData.ITEMS.get('large_trauma_kit').hospitalReduction / 60
 		};
 
-		this.prodDepreciation = 2;
+		this.prodDepreciation = GameData.PROD_DEPRECATION;
 		this.narcoCounts = [1, 5, 25, 10, 60];
 		this.prodMoney = [1000, 0, 105000, 70000, 800000]; // Accurate
 		this.prodCokeScaling = [1, 1.75, 2.3125, 2.734375]; // Source: screenshot in the Coke suggestions thread

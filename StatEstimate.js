@@ -54,8 +54,8 @@ class StatEstimate {
 		this.ownStats = this.getEst("self");
 
 		this.constant = 8 / 3;
-		this.maxFF = 3;
-		this.minFF = 1;
+		this.maxFF = GameData.MAX_FFM;
+		this.minFF = GameData.MIN_FFM;
 		this.cutoff = 0.01; // Can't be certain whether it truncates or rounds, use the more conservative estimate
 		this.repQuadratic = false;
 		if (this.repQuadratic) {
@@ -65,13 +65,13 @@ class StatEstimate {
 			this.repM = 0.049;
 			this.repC = 2.7;
 		}
-		this.minStats = 400;
-		this.multMug = 1 / 2;
-		this.multHosp = 3 / 4;
+		this.minStats = GameData.MIN_STATS;
+		this.multMug = GameData.MUG_REP_MULT;
+		this.multHosp = GameData.HOSP_REP_MULT;
 		this.perPage = 50;
 	}
 	getEst(ID = 'self') {
-		return getValue('statEstimate', ID);
+		return getValue('statEstimate', ID.toString());
 	}
 	setEst(ID, estimate) {
 		setValue('statEstimate', ID, estimate);
@@ -86,7 +86,7 @@ class StatEstimate {
 		return list;
 	}
 	getName(ID) {
-		return getValue('name', ID);
+		return getValue('name', ID.toString());
 	}
 	setName(ID, name) {
 		setValue('name', ID, name);
@@ -94,20 +94,29 @@ class StatEstimate {
 		return name;
 	}
 	calcFairFight(ownStats, theirStats) {
-		return Math.min(this.maxFF, Math.max(this.minFF, 1 + this.constant * theirStats / ownStats));
+		return Math.min(
+			this.maxFF, Math.max(
+				this.minFF,
+				GameData.calcFFM(ownStats, theirStats, this.constant)
+			)
+		);
 	}
 	estimateRep(level, fairFight) {
-		return (this.repQuadratic ? Math.pow(level + 1, 2) * this.repA + this.repC : Math.exp(level * this.repM + this.repC)) * fairFight;
+		return this.repQuadratic ?
+		GameData.calcRepEstimateQuad(level, this.repA, this.repC, fairFight) :
+		GameData.calcRepEstimateExp(level, this.repM, this.repC, fairFight);
 	}
 	estimateYouAttacked(ownStats, fairFight) {
+		const stat = GameData.calcStatEstimate(fairFight, ownStats, undefined, this.cutoff, this.constant);
 		if (fairFight === this.minFF)
-			return ['<', Math.ceil(this.cutoff / this.constant * ownStats).toLocaleString("en-US")];
-		return [fairFight === this.maxFF ? '>' : '~', Math.floor(Math.max(this.minStats, (fairFight - 1) / this.constant * ownStats)).toLocaleString("en-US")];
+			return ['<', Math.ceil(stat).toLocaleString("en-US")];
+		return [fairFight === this.maxFF ? '>' : '~', Math.floor(Math.max(this.minStats, stat)).toLocaleString("en-US")];
 	}
 	estimateAttackedYou(ownStats, fairFight) {
+		const stat = GameData.calcStatEstimate(fairFight, undefined, ownStats, this.cutoff, this.constant);
 		if (fairFight === this.minFF)
-			return ['>', Math.floor(this.constant * ownStats / this.cutoff).toLocaleString("en-US")];
-		return [fairFight === this.maxFF ? '<' : '~', Math.ceil(Math.max(this.minStats, this.constant * ownStats / (fairFight - 1))).toLocaleString("en-US")];
+			return ['>', Math.floor(stat).toLocaleString("en-US")];
+		return [fairFight === this.maxFF ? '<' : '~', Math.ceil(Math.max(this.minStats, stat)).toLocaleString("en-US")];
 	}
 	AattackedB(knownStatsText, fairFight, knownIsA) {
 		const knownChar = knownStatsText[0];
