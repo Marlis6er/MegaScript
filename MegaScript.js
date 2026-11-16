@@ -63,15 +63,16 @@ user_id = localStorage.getItem('user_id') || 0;
 	const configManger = ConfigManager.getInstance();
 
 	configManger.MODULES.forEach(__class__ => {
-		const instance = new __class__();
-		const methods = Object.getOwnPropertyNames(Object.getPrototypeOf(instance));
+		const methods = Object.getOwnPropertyNames(__class__.prototype);
 		const settings = getSettings(__class__.name);
-		
+
+		let instance;
 		for (const [regex, method] of configManger.URL_MAP.entries()) {
 			if (!regex.test(URL)) continue;
 			if (!methods.includes(method)) continue;
 			if (!settings['active'][method]) continue;
 
+			instance ??= new __class__();
 			instance[method](URL);
 		}
 		
