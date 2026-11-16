@@ -13,28 +13,16 @@ class AchievementStats {
 
 	constructor() {
 		// A couple of constants
-		this.medItems = [
-			'Bandage',
-			'Small Medical Kit',
-			'Large Medial Kit',
-			'Basic Trauma Kit',
-			'Large Trauma Kit',
-			'Tainted Cannabis',
-			'Tainted Cocaine'
-		];
-		this.alcItems = [
-			'Corana Beer',
-			'Mexcal Beer',
-			'Blancoda Tequila',
-			'Repose Tequila',
-			'Anejo Tequila',
-			'Raicilla'
-		];
-		this.drugItems = [
-			'Cannabis',
-			'Cocaine',
-			'Glittering Gift'
-		];
+
+		const getItemsOfGroup = (type) => GameData.ITEMS
+			.values()
+			.filter(item => item.type === type)
+			.map(item => item.name)
+			.toArray();
+
+		this.medItems = getItemsOfGroup('Medical');
+		this.alcItems = getItemsOfGroup('Alcohol');
+		this.drugItems = getItemsOfGroup('Drug');
 
 		// The prefix used for all achievement IDs
 		this.achievementIdPrefix = 'achievement-';
@@ -45,24 +33,25 @@ class AchievementStats {
 		// Chance to get 5 correct numbers in the lottery
 		this.jackpotChance = 5.244e-7;
 
-		this.spinCost = 100_000;
-		this.lotteryTicketCost = 10_000;
-		this.blackjackCost = 1_000;
+		this.spinCost = GameData.SPIN_COST;
+		this.lotteryTicketCost = GameData.LOTTERY_TICKET_COST;
+		// Assume cheapest bid is used
+		this.blackjackCost = GameData.BLACKJACK_COST[0];
 
 		// Energy cost for attacking
-		this.attackCost = 20;
+		this.attackCost = GameData.ATTACK_COST;
 
 		// Minimum job durations (at P5)
-		this.intimDuration = 2.5;
-		this.arsonDuration = 15;
-		this.gtaDuration = 30;
-		this.drugDuration = 90;
-		this.farmDuration = 7.5;
-		this.agaveDuration = 15;
-		this.pasteDuration = 30;
-		this.constrDuration = 45;
-		this.blackmailDuration = 180;
-		this.hackDuration = 360;
+		this.intimDuration = GameData.JOBS.get('intim').duration / 2;
+		this.arsonDuration = GameData.JOBS.get('arson').duration / 2;
+		this.gtaDuration = GameData.JOBS.get('gta').duration / 2;
+		this.drugDuration = GameData.JOBS.get('drugs').duration / 2;
+		this.farmDuration = GameData.JOBS.get('farm').duration / 2;
+		this.agaveDuration = GameData.JOBS.get('agave').duration / 2;
+		this.pasteDuration = GameData.JOBS.get('paste').duration / 2;
+		this.constrDuration = GameData.JOBS.get('construction').duration / 2;
+		this.blackmailDuration = GameData.JOBS.get('blackmail').duration / 2;
+		this.hackDuration = GameData.JOBS.get('hacking').duration / 2;
 	}
 
 	inAchievements(URL) {
@@ -107,17 +96,17 @@ class AchievementStats {
 		this._modifyAchievement(
 			`#${this.achievementIdPrefix}22`,
 			['simple', 'Medical Items left: '],
-			['min-item-cost', 'Minimum cost: ' + POUND, this.medItems]
+			['min-item-cost', 'Minimum cost: ', this.medItems]
 		);
 		this._modifyAchievement(
 			`#${this.achievementIdPrefix}23`,
 			['simple', 'Alcohol Items left: '],
-			['min-item-cost', 'Minimum cost: ' + POUND, this.alcItems]
+			['min-item-cost', 'Minimum cost: ', this.alcItems]
 		);
 		this._modifyAchievement(
 			`#${this.achievementIdPrefix}24`,
 			['simple', 'Drug Items left: '],
-			['min-item-cost', 'Minimum cost: ' + POUND, this.drugItems]
+			['min-item-cost', 'Minimum cost: ', this.drugItems]
 		);
 		this._modifyAchievement(
 			`#${this.achievementIdPrefix}26`,
@@ -256,16 +245,6 @@ class AchievementStats {
 		);
 	}
 
-	_calcRepFromLevel(level) {
-		const value = 12000 * (Math.exp(level * Math.log(1.1)) - 1);
-		return Math.floor(value);
-	}
-
-	_calcLevelFromRep(rep) {
-		const value = Math.log(rep / 12000 + 1) / Math.log(1.1);
-		return Math.floor(value);
-	}
-
 	_modifyAchievement(id, ...stats) {
 		const elem = document.querySelector(id);
 		this._addStatElem(elem);
@@ -316,10 +295,10 @@ class AchievementStats {
 	_getRepDiff(next) {
 		const currentRepElem = document.querySelector('div[aria-label="Reputation"] + div > span');
 		const currentRep = parseInt(currentRepElem.textContent.replaceAll(',', ''));
-		const effectiveLevel = this._calcLevelFromRep(currentRep);
+		const effectiveLevel = GameData.calcLevelFromRep(currentRep);
 		if (effectiveLevel >= next) return '0 - you can level up now';
 
-		const nextLevelRep = this._calcRepFromLevel(next);
+		const nextLevelRep = GameData.calcRepFromLevel(next);
 		return nextLevelRep - currentRep;
 	}
 
@@ -351,8 +330,12 @@ class AchievementStats {
 	_getIntEnergyCost(current, next) {
 		const extraIntGains = getNumericValue('perks', 'Int Gains') || 0; // percentage
 		const extraGainsFactor = 1 + extraIntGains / 100;
-		const cost = Math.log(next / current) / Math.log(1.000027272479341) / extraGainsFactor
-		return Math.floor(cost);
+		return Math.floor(
+			GameData.calcIntelligenceEnergyCost(
+				next / current,
+				extraGainsFactor
+			)
+		);
 	}
 
 	_getExpedTime(diff) {
@@ -412,7 +395,7 @@ class AchievementStats {
 			case 'lottery-win-cost':
 				return this._getLotteryWinCost(diff);
 			case 'int-energy':
-				return this._formatNumberOrDate(this._getIntEnergyCost(...amounts));
+				return this._formatNumberOrDate(this._getIntEnergyCost(diff));
 			case 'exped-time':
 				return this._formatNumberOrDate(this._getExpedTime(diff));
 			case 'mission-time':

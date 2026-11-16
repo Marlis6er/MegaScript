@@ -64,7 +64,7 @@ class BetterItemValues {
 					type: SettingType.LIST,
 					defaultValue:  [ 'FN SCAR-H', 'Desert Eagle', 'Full-Body Armour' ],
 					extra: {
-						availableElements: ITEMS,
+						availableElements: GameData.ITEMS.values().map(item => item.name).toArray(),
 						unique: true
 					}
 				}
@@ -88,156 +88,7 @@ class BetterItemValues {
 
 		this.pointName = "Supporter Points";
 
-		this.defaultVals = {
-			// Primary Weapons
-			'AK-47': 5_000,
-			'MG34': 200_000,
-			'G36': 375_000,
-			'L86 LSW': 1_000_000,
-			'Steyr AUG': 2_250_000,
-			'SIG SG 550': 3_750_000,
-			'MG5': 4_500_000,
-			'FN SCAR-H': 6_250_000, 
-			'Bazooka': 12_500_000,
-
-			// Secondary Weapons
-			'Baseball Bat': 125,
-			'Walther P38': 1_000,
-			'M16A2 Rifle': 6_250,
-			'M1911': 6_250,
-			'S&W Magnum Revolver': 50_000,
-			'Glock 18': 250_000,
-			'Desert Eagle': 12_000_000, // TODO: Update this price
-
-			// Thrown
-			'Illuminating Grenade': 3_750,
-			'Tear Gas Grenade': 3_750,
-			'Stun Grenade': 3_750,
-			'Flash Bang Grenade': 3_750,
-			'Fragmentation Grenade': 7_500,
-
-			// Armour
-			'Trench Coat': 2_000,
-			'Covert Stab Vest': 2_500,
-			'Ballistic Vest': 5_000,
-			'Kevlar Weave Vest': 12_500,
-			'Carbon Fiber Vest': 20_000,
-			'Armoured Suit': 25_000,
-			'Ceramic Plate Carrier Vest': 50_000,
-			'Riot Suit': 250_000,
-			'Tactical Plate Armour': 375_000,
-			'Blast Suit': 500_000,
-			'New-Age Combat Fatigues': 750_000,
-			'Full-Body Armour': 2_500_000,
-
-			// Special
-			'Green Surprise Gift': 0,
-			'Velvet Mystery Gift': 0,
-			'Rustic Charm Gift': 0,
-			'Golden Treasure Gift': 0,
-			'Mini-Supporter Pack': 0,
-			'Personal Favour': 325_000,
-			'Supporter Pack': 4_750_000,
-
-			// Alcohol
-			'Corana Beer': 55_000,
-			'Mexcal Beer': 105_000,
-			'Blancoda Tequila': 280_000,
-			'Repose Tequila': 530_000,
-			'Anejo Tequila': 830_000,
-			'Raicilla': 1_100_000,
-
-			// Medical
-			'Bandage': 2_500,
-			'Small Medical Kit': 5_000,
-			'Tainted Cannabis': 9_000,
-			'Large Medical Kit': 10_000,
-			'Tainted Cocaine': 13_500,
-			'Basic Trauma Kit': 15_000,
-			'Large Trauma Kit': 25_000,
-
-			// Drugs
-			'Glittering Gift': 0,
-			'Cannabis': 5_000,
-			'Cocaine': 140_000,
-
-			// Production
-			'Bag of Fertiliser': 1_000,
-			'Agave Heart': 2_500,
-			'Coca Paste': 4_500,
-
-			// Construction
-			'Nails': 3_000,
-			'Bricks': 11_250,
-			'Concrete Bags': 17_250,
-			'Steel': 37_500,
-
-			// Food
-			'Dog Food': 5_000,
-			'Black Market Treat': 50_000,
-
-			// Collectible
-			'El Chapo\'s Head': 0,
-			'Pablo\'s Hat': 0,
-			'Quecheu Troll Doll': 0,
-			'The Easter Fuggly': 0,
-			'Elf on a Shelf - Green': 0,
-			'Elf on a Shelf - Red': 0,
-			'Padrino\'s Egg': 0,
-			'The Crimson Star': 0,
-			'La Cara Roja Mask': 0,
-
-			// Luxury
-			'Diablo Tattoo': 1_750,
-			'Italian Shoes': 2_000,
-			'Cuban Cigar Set': 3_750,
-			'Eagle Cabernet': 4_750,
-			'Whiskey Decanter': 12_500,
-			'Gold Grooming Kit': 17_500,
-			'Gemstone Cufflinks': 22_500,
-			'Lapis-Encrusted Lighter': 37_500,
-			'Satellite Phone': 75_000,
-			'Club VIP Lounge Membership': 125_000,
-			'Pearl-Encrusted Lighter': 150_000,
-			'Diamond Watch': 225_000,
-			'Diamond-Encrusted Lighter': 350_000,
-			'Bulletproof Suit': 425_000,
-			'Pet Jaguar': 625_000,
-			'Gold-Plated Pistol': 675_000,
-			'Platinum Credit Card': 1_375_000,
-			'Personal Helicopter': 1_600_000,
-
-			// Cars
-			'Renault Espace': 1_500,
-			'Fiat Panda': 2_250,
-			'Austin Metro': 3_250,
-			'Peugeot 205 GTI': 4_500,
-			'Ford Sierra': 10_000,
-			'Vauxhall Cavalier': 15_000,
-			'Ford Escord': 23_500,
-			'Honda CRX': 32_500,
-			'Saab 900 Turbo': 85_000,
-			'Lancia Delta Integrale': 137_000,
-			'Toyota MR2': 187_500,
-			'Audi Quattro': 0, // TODO: Get market value
-			'Ford Capri 2.8i': 325_000,
-			'Volkswagen Golf GTI': 425_000,
-			'BMW M5': 500_000,
-			'Porsche 959': 625_000,
-			'Ferrari F40': 1_075_000,
-			'Lamborghini Countach': 1_500_000,
-
-			// Enhancement
-			'Street-Quality Enhancement': 10_000,
-			'Syndicate-Issued Enhancement': 200_000,
-			'Blacksite Prototype Enhancement': 500_000,
-
-			// Smuggling Enhancement
-			'Weapons & Armor Specialist Contact': 0,
-			'Alcohol Specialist Contact': 0,
-			'Tech Specialist Contact': 0,
-			'Leadership Specialist Contact': 0,
-		}; // Players should go to the market to load up-to-date values, these are presets probably over half a year old
+		this.defaultVals = Object.fromEntries(GameData.ITEMS.values().map(item => [item.name, item.value]));
 
 		const values = GM_listValues().filter(name => name.startsWith('value_')); // Prefill values first use
 		if (values.length === 0) {
@@ -245,85 +96,25 @@ class BetterItemValues {
 				this.setItemValue(name, this.defaultVals[name]);
 		}
 
-		this.maxCokeDaily = 8;
-		this.cokeODChance = 1; // percent
-		this.taintedChance = [10, 20]; // percent
-		this.energyItems = {
-			'Corana Beer': 5,
-			'Mexcal Beer': 10,
-			'Blancoda Tequila': 15,
-			'Repose Tequila': 20,
-			'Anejo Tequila': 25,
-			"Raicilla": 30,
-			"Cocaine": 50 * (1 - this.cokeODChance / 100),
-			'Glittering Gift': 100
-		};
-		this.hospitalItems = {
-			Bandage: 10,
-			'Small Medical Kit': 15,
-			'Large Medical Kit': 60,
-			'Basic Trauma Kit': 80,
-			'Large Trauma Kit': 120
-		};
+		const cocaine = GameData.ITEMS.get('cocaine');
 
-		this.prodDepreciation = 2;
-		this.narcoCounts = [1, 5, 25, 10, 60];
-		this.prodMoney = [1000, 0, 105000, 70000, 800000]; // Accurate
-		this.prodCokeScaling = [1, 1.75, 2.3125, 2.734375]; // Source: screenshot in the Coke suggestions thread
-		this.prodReqs = [
-			{},
-			{},
-			{ "Bag of Fertiliser": 10 },
-			{ "Agave Heart": 5 },
-			{ "Coca Paste": 35 }
-		];
+		this.maxCokeDaily = 3600 * 24 / cocaine.cooldown;
+		this.taintedChance = [10, 20]; // percent
+		// Energy gain from item
+
+		this.energyItems = GameData.ITEMS.values().filter(item => Object.hasOwn(item, 'energyBoost'));
+		// Hospital time reduction in seconds
+		this.hospitalItems = GameData.ITEMS.values().filter(item => Object.hasOwn(item, 'hospitalReduction'));
+
+		this.productions = Object.values(GameData.PRODUCTIONS);
+		this.prodDepreciation = GameData.PROD_DEPRECATION;
 		this.doctorsOfficePerProd = 1;
-		this.maxCannabis = 12;
+		this.maxCannabis = GameData.MAX_CANNABIS;
 		this.alcoholPerProd = 1;
-		this.maxCoke = 8;
-		this.itemCounts = [
-			{},
-			{
-				"Bandage": this.doctorsOfficePerProd * 50 / 100,
-				"Small Medical Kit": this.doctorsOfficePerProd * 30 / 100,
-				"Large Medical Kit": this.doctorsOfficePerProd * 12.5 / 100,
-				"Basic Trauma Kit": this.doctorsOfficePerProd * 5 / 100,
-				"Large Trauma Kit": this.doctorsOfficePerProd * 2.5 / 100
-			},
-			{
-				"Cannabis": this.maxCannabis / 2 * (1 - this.taintedChance[0] / 100),
-				"Tainted Cannabis": this.maxCannabis / 2 * this.taintedChance[0] / 100
-			},
-			{
-				"Corana Beer": this.alcoholPerProd * 25.9 / 100,
-				"Mexcal Beer": this.alcoholPerProd * 8.5 / 100,
-				"Blancoda Tequila": this.alcoholPerProd * 30.3 / 100,
-				"Repose Tequila": this.alcoholPerProd * 14.1 / 100,
-				"Anejo Tequila": this.alcoholPerProd * 9.5 / 100,
-				"Raicilla": this.alcoholPerProd * 3.1 / 100
-			},
-			{
-				"Cocaine": this.maxCoke / 2 * (1 - this.taintedChance[1] / 100),
-				"Tainted Cocaine": this.maxCoke / 2 * this.taintedChance[1] / 100
-			}
-		];
+		this.maxCoke = GameData.MAX_COKE;
+
 		// Fallback values, since time doesn't show when working
-		this.jobTimes = [ 5, 30, 60, 180, 15, 30, 60, 90, 360, 720 ];
-		this.jobMoney = [1650, 14000, 55000, 250000, 111, 111, 111, 260, 700000, 2250000];
-		// Base rep for standard jobs doubled with https://cartelempire.online/Forum/1/7289
-		this.jobRep = [20, 150, 320, 980, 21, 50, 82, 165, 2260, 4640];
-		this.jobItems = [
-			{},
-			{ "Personal Favour": 1 / 20 },
-			{ "Personal Favour": 1 / 15 },
-			{ "Personal Favour": 1 / 10 },
-			{ "Bag of Fertiliser": 6 },
-			{ "Agave Heart": 3.5 },
-			{ "Coca Paste": 12 },
-			{ Nails: 12.5 * 0.4, Bricks: 12.5 * 0.3, "Concrete Bags": 12.5 * 0.2, Steel: 12.5 * 0.1 },
-			{ "Personal Favour": 1 / 5 }, // TODO this is a guess
-			{ "Personal Favour": 1 / 2 } // TODO this is a guess
-		];
+		this.jobs = GameData.JOBS.values().toArray();
 
 		const prodProfit = this.getPerk('Production Profit') || 0; // percentage;
 		this.prodProfitFactor = 1 + prodProfit / 100;
@@ -341,23 +132,23 @@ class BetterItemValues {
 		this.maxPpht = 0;
 		this.minPpht = Infinity;
 
-		for (const item in this.energyItems) {
-			const price = this.getItemValue(item);
+		for (const item of this.energyItems) {
+			const price = this.getItemValue(item.name);
 			if (price === null) continue;
 
-			const ppe = price / this.energyItems[item];
-			this.poundPerEnergy[item] = ppe;
+			const ppe = price / item.energyBoost;
+			this.poundPerEnergy[item.name] = ppe;
 			this.maxPpe = Math.max(this.maxPpe, ppe);
 			this.minPpe = Math.min(this.minPpe, ppe);
 		}
-		for (const item in this.hospitalItems) {
-			const price = this.getItemValue(item);
+		for (const item of this.hospitalItems) {
+			const price = this.getItemValue(item.name);
 			if (price === null) continue;
 
-			let time = this.hospitalItems[item];
+			let time = item.hospitalReduction / 60;
 			time *= this.medEffectivenessFactor;
 			const ppht = price / time;
-			this.poundPerHospitalTime[item] = ppht;
+			this.poundPerHospitalTime[item.name] = ppht;
 			this.maxPpht = Math.max(this.maxPpht, ppht);
 			this.minPpht = Math.min(this.minPpht, ppht);
 		}
@@ -387,8 +178,12 @@ class BetterItemValues {
 		this.prodProfit = [];
 		this.minProfit = -Infinity;
 		this.maxProfit = Infinity;
-		// Fallback default values
-		this.required = [0, 0, 10, 5, 35];
+		// Fallback default values, assumes we only need one item type
+		this.required = this.productions
+			.map(prod => 
+				Object.values(prod.requirements)
+					.reduce((acc, cur) => acc + cur, 0)
+			);
 		this.owned = [0, 0, 0, 0, 0];
 	}
 	getPerk(perkName) {
@@ -1116,7 +911,7 @@ class BetterItemValues {
 
 		const required = this.required[id];
 		const owned = this.owned[id];
-		const assignedFraction = Math.min(this.assigned[id] / (this.narcoCounts[id] * prodCount), 1);
+		const assignedFraction = Math.min(this.assigned[id] / (this.productions[id].narco_count * prodCount), 1);
 
 		const materialFraction = required > 0 ? Math.min(owned / required, 1) : 1;
 
@@ -1126,7 +921,7 @@ class BetterItemValues {
 		// Each level of 'Production Boost' prestige increases profit by 20%
 		const profitBoost = 1 + prestigeLevels.productionBoost * 0.2;
 
-		let profit = this.prodMoney[id] * profitBoost;
+		let profit = this.productions[id].money * profitBoost;
 		const itemProfit = this._calcItemProfits(id) * profitBoost;
 		if (itemProfit === null) return null;
 
@@ -1142,7 +937,7 @@ class BetterItemValues {
 		profit -= supplyCost;
 
 		if (id === 0) profit *= this.streetProfitFactor;
-		profit /= this.narcoCounts[id] * (id === 4 ? prodCount : 1); // Also dealing with coke custom scaling
+		profit /= this.productions[id].narco_count * (id === 4 ? prodCount : 1); // Also dealing with coke custom scaling
 		return profit;
 	}
 	_updateSupplyInfo(container, id) {
@@ -1164,16 +959,16 @@ class BetterItemValues {
 	}
 	_calcProfitScalar(id, prodCount) {
 		if (id === 4)
-			return this.prodCokeScaling[prodCount - 1]; // Coke has custom scaling
+			return GameData.PROD_COKE_SCALING[prodCount - 1]; // Coke has custom scaling
 		else
 			return Math.pow(1 - this.prodDepreciation / 100, prodCount - 1); // Maybe should instead be *= (1 - prodCount * this.prodDepreciation / 100)
 	}
 	_calcItemProfits(id) {
 		let itemProfit = 0;
-		for (const itemName of Object.keys(this.itemCounts[id])) {
+		for (const itemName of Object.keys(this.productions[id].items)) {
 			const itemVal = this.getItemValue(itemName);
 			if (itemVal === null) continue;
-			itemProfit += itemVal * this.itemCounts[id][itemName];
+			itemProfit += itemVal * this.productions[id].items[itemName];
 		}
 		return itemProfit;
 	}
@@ -1187,7 +982,7 @@ class BetterItemValues {
 		const regexResult = prodReqsText.textContent.match(/^x(\d+)/);
 		const prodReqValue = parseInt(regexResult?.[1]);
 		let supplyCost = 0;
-		for (const itemName of Object.keys(this.prodReqs[id])) {
+		for (const itemName of Object.keys(this.productions[id].requirements)) {
 			const itemVal = this.getItemValue(itemName);
 			if (itemVal === null) return null;
 			supplyCost += itemVal * prodReqValue / (id === 4 ? 1 : prodCount);
@@ -1235,13 +1030,13 @@ class BetterItemValues {
 		const containers = document.querySelectorAll("div.row.g-0.align-items-center.h-100.flex-column");
 		if (id == 2) {
 			this.taintedChance[0] = taintedChance;
-			this.itemCounts[id]['Cannabis'] = this.maxCannabis / 2 * (1 - this.taintedChance[0] / 100);
-			this.itemCounts[id]['Tainted Cannabis'] = this.maxCannabis / 2 * this.taintedChance[0] / 100;
+			this.productions[id].items['Cannabis'] = this.maxCannabis / 2 * (1 - this.taintedChance[0] / 100);
+			this.productions[id].items['Tainted Cannabis'] = this.maxCannabis / 2 * this.taintedChance[0] / 100;
 		}
 		if (id == 4) {
 			this.taintedChance[1] = taintedChance;
-			this.itemCounts[id]['Cocaine'] = this.maxCoke / 2 * (1 - this.taintedChance[1] / 100);
-			this.itemCounts[id]['Tainted Cocaine'] = this.maxCoke / 2 * this.taintedChance[1] / 100;
+			this.productions[id].items['Cocaine'] = this.maxCoke / 2 * (1 - this.taintedChance[1] / 100);
+			this.productions[id].items['Tainted Cocaine'] = this.maxCoke / 2 * this.taintedChance[1] / 100;
 		}
 		this.profit[id] = this._calcProfit(id, containers[id]);
 	}
@@ -1329,21 +1124,22 @@ class BetterItemValues {
 		this.jobValue = [];
 		this.maxJobValue = 0;
 		this.minJobValue = Infinity;
-		for (let i = 0; i !== this.jobMoney.length; ++i) {
+		for (let i = 0; i !== this.jobs.length; ++i) {
 			const jobPanel = jobPanels[i];
 			this._setJobTime(jobPanel, i);
+			const job = this.jobs[i];
 
-			this.jobValue[i] = this.jobMoney[i];
+			this.jobValue[i] = job.avg_money;
 			this._setJobBaseItemReward(i);
 
 			if (this.jobValue[i] !== "???") this._setJobPrestigeReward(jobPanel, i);
 
 			const standardJobRepBonus = getNumericValue('perk', 'Standard Job Rep');
 			// Apply only to standard jobs
-			if (i <= 4) this.jobRep[i] * (1 + (standardJobRepBonus / 100));
+			if (i <= 4) job.avg_rep * (1 + (standardJobRepBonus / 100));
 
-			this.maxJobRep = Math.max(this.maxJobRep, this.jobRep[i] / this.jobTimes[i]);
-			this.minJobRep = Math.min(this.minJobRep, this.jobRep[i] / this.jobTimes[i]);
+			this.maxJobRep = Math.max(this.maxJobRep, job.avg_rep / job.duration);
+			this.minJobRep = Math.min(this.minJobRep, job.avg_rep / job.duration);
 		}
 		this._updateJobUI(jobPanels);
 	}
@@ -1370,7 +1166,7 @@ class BetterItemValues {
 			pElem.textContent = 'Expected gain: ';
 
 			const gain = this.jobValue[i];
-			const repPerTime = this.jobRep[i] / this.jobTimes[i];
+			const repPerTime = this.jobs[i].avg_rep / this.jobs[i].duration;
 			const spanElem = document.createElement('span');
 			
 			if (gain === '???') {
@@ -1399,26 +1195,27 @@ class BetterItemValues {
 		const jobTime = jobPanel.querySelector("p.card-text.fw-bold.text-muted");
 		const jobName = jobPanel.querySelector('h5').firstChild.textContent;
 
+		const job = this.jobs[index];
 		// Fallback, while doing a job; Use cached value
 		if (!jobTime) {
-			this.jobTimes[index] = this.getJobTime(jobName) || this.jobTimes[index];
+			job.duration = this.getJobTime(jobName) || job.duration;
 			return;
 		}
 
 		const jobTimeSplit = jobTime?.textContent.split(' ');
-		this.jobTimes[index] = parseFloat(jobTimeSplit[0].slice(1));
+		job.duration = parseFloat(jobTimeSplit[0].slice(1));
 		if (jobTimeSplit[1].startsWith("hour")) {
-			this.jobTimes[index] *= 60;
+			job.duration *= 60;
 			if (jobTimeSplit.length > 2)
-				this.jobTimes[index] += parseFloat(jobTimeSplit[2]);
+				job.duration += parseFloat(jobTimeSplit[2]);
 		}
-		this.setJobTime(jobName, this.jobTimes[index]);
+		this.setJobTime(jobName, job.duration);
 	}
 	_setJobBaseItemReward(index) {
-		for (const item in this.jobItems[index]) {
-			const price = this.getItemValue(item);
+		for (const [item_name, average_amount] of Object.entries(this.jobs[index].item_rewards)) {
+			const price = this.getItemValue(item_name);
 			if (price !== null)
-				this.jobValue[index] += price * this.jobItems[index][item];
+				this.jobValue[index] += price * average_amount;
 			else {
 				this.jobValue[index] = "???";
 				break;
@@ -1429,10 +1226,10 @@ class BetterItemValues {
 		const prestigeText = jobPanel.querySelector("p.prestigeText");
 		const incrReward = prestigeText !== null && /\+\d+%/.test(prestigeText.innerText) ? parseInt(prestigeText.innerText.match(/\+\d+%/)[0].slice(1, -1)) : 0;
 		this.jobValue[index] *= 1 + incrReward / 100;
-		this.jobRep[index] *= 1 + incrReward / 100;
+		this.jobs[index].avg_rep *= 1 + incrReward / 100;
 
 		this.jobValue[index] *= this.jobProfitFactor;
-		this.jobValue[index] /= this.jobTimes[index];
+		this.jobValue[index] /= this.jobs[index].duration;
 		this.maxJobValue = Math.max(this.maxJobValue, this.jobValue[index]);
 		this.minJobValue = Math.min(this.minJobValue, this.jobValue[index]);
 	}

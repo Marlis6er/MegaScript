@@ -15,7 +15,7 @@ class BankDepositTax {
 	}
 
 	constructor() {
-		this.taxRate = 2.5;
+		this.taxRate = GameData.TAX_RATE;
 		this.ID = "taxOnDeposit";
 	}
 	calc(val) {

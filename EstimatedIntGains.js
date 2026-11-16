@@ -28,16 +28,18 @@ class EstimatedIntGains {
 		this.extraGainsFactor = 1 + extraIntGains / 100;
 	}
 	calcGain(energy, currentInt) {
+		let uncapped;
 		if (this.improperWay)
-			return Math.min(this.maxInt - currentInt, currentInt * (this.base - 1) * energy * this.extraGainsFactor);
+			uncapped = GameData.calcIntGain(currentInt, energy, this.base, this.extraGainsFactor);
 		else
-			return Math.min(this.maxInt - currentInt, currentInt * (Math.pow(this.base, energy * this.extraGainsFactor) - 1));
+			uncapped = GameData.calcIntGainImproper(currentInt, energy, this.base, this.extraGainsFactor);
+		return Math.min(this.maxInt - currentInt, uncapped);
 	}
 	genText(value, currentInt) {
 		return `Expected gain: <span class="fw-bold">${value === 0 ? '0' : '~' + value.toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>`;
 	}
 	genToMaxText(currentInt) {
-		const eToMax = Math.log(this.maxInt / currentInt) / Math.log(this.base) / this.extraGainsFactor;
+		const eToMax = GameData.calcEToMax(this.maxInt, currentInt, this.base, this.extraGainsFactor);
 		return `<span class="fw-bold">~${Math.round(eToMax).toLocaleString("en-US")}</span> energy until ${this.maxInt.toLocaleString("en-US")}`;
 	}
 	inUniversity(url) {

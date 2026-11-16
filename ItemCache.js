@@ -37,7 +37,10 @@ class ItemCache {
 		this.prodItemNames = ["Bag of Fertiliser", "Agave Heart", "Coca Paste"];
 		this.itemNames = [...this.prodItemNames, "Cocaine", "Personal Favour", 'Corana Beer']; // Also cache these for other scripts
 		// Weed, Alc, Coke
-		this.narcosPerProd = [25, 10, 60];
+		this.narcosPerProd = Object
+			.values(GameData.PRODUCTIONS)
+			.filter(prod => Object.keys(prod.requirements).length > 0)
+			.map(prod => prod.narco_count);
 	}
 	getCache(type) {
 		return getNumericValue('itemCache', type);
