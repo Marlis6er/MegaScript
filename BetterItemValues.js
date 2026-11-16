@@ -1338,9 +1338,9 @@ class BetterItemValues {
 
 			if (this.jobValue[i] !== "???") this._setJobPrestigeReward(jobPanel, i);
 
-			const standardJobRepBonus = getNumericValue('perk', 'Standard Job Rep');
+			const standardJobRepBonus = getNumericValue('perks', 'Standard Job Rep');
 			// Apply only to standard jobs
-			if (i <= 4) this.jobRep[i] * (1 + (standardJobRepBonus / 100));
+			if (i <= 4) this.jobRep[i] *= (1 + (standardJobRepBonus / 100));
 
 			this.maxJobRep = Math.max(this.maxJobRep, this.jobRep[i] / this.jobTimes[i]);
 			this.minJobRep = Math.min(this.minJobRep, this.jobRep[i] / this.jobTimes[i]);
