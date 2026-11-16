@@ -64,7 +64,7 @@ class BetterItemValues {
 					type: SettingType.LIST,
 					defaultValue:  [ 'FN SCAR-H', 'Desert Eagle', 'Full-Body Armour' ],
 					extra: {
-						availableElements: ITEMS,
+						availableElements: GameData.ITEMS.values().map(item => item.name).toArray(),
 						unique: true
 					}
 				}
@@ -101,83 +101,20 @@ class BetterItemValues {
 		this.maxCokeDaily = 3600 * 24 / cocaine.cooldown;
 		this.taintedChance = [10, 20]; // percent
 		// Energy gain from item
-		this.energyItems = {
-			'Corana Beer': GameData.ITEMS.get('corana').energyBoost,
-			'Mexcal Beer': GameData.ITEMS.get('mexcal').energyBoost,
-			'Blancoda Tequila': GameData.ITEMS.get('blancoda').energyBoost,
-			'Repose Tequila': GameData.ITEMS.get('repose').energyBoost,
-			'Anejo Tequila': GameData.ITEMS.get('anejo').energyBoost,
-			'Raicilla': GameData.ITEMS.get('raicilla').energyBoost,
-			'Cocaine': cocaine.energyBoost * (1 - cocaine.odChance),
-			'Glittering Gift': GameData.ITEMS.get('glittering_gift').energyBoost
-		};
-		// Hospital time reduction in minutes
-		this.hospitalItems = {
-			'Bandage': GameData.ITEMS.get('bandage').hospitalReduction / 60,
-			'Small Medical Kit': GameData.ITEMS.get('small_med_kit').hospitalReduction / 60,
-			'Large Medical Kit': GameData.ITEMS.get('large_med_kit').hospitalReduction / 60,
-			'Basic Trauma Kit': GameData.ITEMS.get('basic_trauma_kit').hospitalReduction / 60,
-			'Large Trauma Kit': GameData.ITEMS.get('large_trauma_kit').hospitalReduction / 60
-		};
 
+		this.energyItems = GameData.ITEMS.values().filter(item => Object.hasOwn(item, 'energyBoost'));
+		// Hospital time reduction in seconds
+		this.hospitalItems = GameData.ITEMS.values().filter(item => Object.hasOwn(item, 'hospitalReduction'));
+
+		this.productions = Object.values(GameData.PRODUCTIONS);
 		this.prodDepreciation = GameData.PROD_DEPRECATION;
-		this.narcoCounts = [1, 5, 25, 10, 60];
-		this.prodMoney = [1000, 0, 105000, 70000, 800000]; // Accurate
-		this.prodCokeScaling = [1, 1.75, 2.3125, 2.734375]; // Source: screenshot in the Coke suggestions thread
-		this.prodReqs = [
-			{},
-			{},
-			{ "Bag of Fertiliser": 10 },
-			{ "Agave Heart": 5 },
-			{ "Coca Paste": 35 }
-		];
 		this.doctorsOfficePerProd = 1;
-		this.maxCannabis = 12;
+		this.maxCannabis = GameData.MAX_CANNABIS;
 		this.alcoholPerProd = 1;
-		this.maxCoke = 8;
-		this.itemCounts = [
-			{},
-			{
-				"Bandage": this.doctorsOfficePerProd * 50 / 100,
-				"Small Medical Kit": this.doctorsOfficePerProd * 30 / 100,
-				"Large Medical Kit": this.doctorsOfficePerProd * 12.5 / 100,
-				"Basic Trauma Kit": this.doctorsOfficePerProd * 5 / 100,
-				"Large Trauma Kit": this.doctorsOfficePerProd * 2.5 / 100
-			},
-			{
-				"Cannabis": this.maxCannabis / 2 * (1 - this.taintedChance[0] / 100),
-				"Tainted Cannabis": this.maxCannabis / 2 * this.taintedChance[0] / 100
-			},
-			{
-				"Corana Beer": this.alcoholPerProd * 25.9 / 100,
-				"Mexcal Beer": this.alcoholPerProd * 8.5 / 100,
-				"Blancoda Tequila": this.alcoholPerProd * 30.3 / 100,
-				"Repose Tequila": this.alcoholPerProd * 14.1 / 100,
-				"Anejo Tequila": this.alcoholPerProd * 9.5 / 100,
-				"Raicilla": this.alcoholPerProd * 3.1 / 100
-			},
-			{
-				"Cocaine": this.maxCoke / 2 * (1 - this.taintedChance[1] / 100),
-				"Tainted Cocaine": this.maxCoke / 2 * this.taintedChance[1] / 100
-			}
-		];
+		this.maxCoke = GameData.MAX_COKE;
+
 		// Fallback values, since time doesn't show when working
-		this.jobTimes = [ 5, 30, 60, 180, 15, 30, 60, 90, 360, 720 ];
-		this.jobMoney = [1650, 14000, 55000, 250000, 111, 111, 111, 260, 700000, 2250000];
-		// Base rep for standard jobs doubled with https://cartelempire.online/Forum/1/7289
-		this.jobRep = [20, 150, 320, 980, 21, 50, 82, 165, 2260, 4640];
-		this.jobItems = [
-			{},
-			{ "Personal Favour": 1 / 20 },
-			{ "Personal Favour": 1 / 15 },
-			{ "Personal Favour": 1 / 10 },
-			{ "Bag of Fertiliser": 6 },
-			{ "Agave Heart": 3.5 },
-			{ "Coca Paste": 12 },
-			{ Nails: 12.5 * 0.4, Bricks: 12.5 * 0.3, "Concrete Bags": 12.5 * 0.2, Steel: 12.5 * 0.1 },
-			{ "Personal Favour": 1 / 5 }, // TODO this is a guess
-			{ "Personal Favour": 1 / 2 } // TODO this is a guess
-		];
+		this.jobs = GameData.JOBS.values().toArray();
 
 		const prodProfit = this.getPerk('Production Profit') || 0; // percentage;
 		this.prodProfitFactor = 1 + prodProfit / 100;
@@ -195,23 +132,23 @@ class BetterItemValues {
 		this.maxPpht = 0;
 		this.minPpht = Infinity;
 
-		for (const item in this.energyItems) {
-			const price = this.getItemValue(item);
+		for (const item of this.energyItems) {
+			const price = this.getItemValue(item.name);
 			if (price === null) continue;
 
-			const ppe = price / this.energyItems[item];
-			this.poundPerEnergy[item] = ppe;
+			const ppe = price / item.energyBoost;
+			this.poundPerEnergy[item.name] = ppe;
 			this.maxPpe = Math.max(this.maxPpe, ppe);
 			this.minPpe = Math.min(this.minPpe, ppe);
 		}
-		for (const item in this.hospitalItems) {
-			const price = this.getItemValue(item);
+		for (const item of this.hospitalItems) {
+			const price = this.getItemValue(item.name);
 			if (price === null) continue;
 
-			let time = this.hospitalItems[item];
+			let time = item.hospitalReduction / 60;
 			time *= this.medEffectivenessFactor;
 			const ppht = price / time;
-			this.poundPerHospitalTime[item] = ppht;
+			this.poundPerHospitalTime[item.name] = ppht;
 			this.maxPpht = Math.max(this.maxPpht, ppht);
 			this.minPpht = Math.min(this.minPpht, ppht);
 		}
@@ -241,8 +178,12 @@ class BetterItemValues {
 		this.prodProfit = [];
 		this.minProfit = -Infinity;
 		this.maxProfit = Infinity;
-		// Fallback default values
-		this.required = [0, 0, 10, 5, 35];
+		// Fallback default values, assumes we only need one item type
+		this.required = this.productions
+			.map(prod => 
+				Object.values(prod.requirements)
+					.reduce((acc, cur) => acc + cur, 0)
+			);
 		this.owned = [0, 0, 0, 0, 0];
 	}
 	getPerk(perkName) {
@@ -970,7 +911,7 @@ class BetterItemValues {
 
 		const required = this.required[id];
 		const owned = this.owned[id];
-		const assignedFraction = Math.min(this.assigned[id] / (this.narcoCounts[id] * prodCount), 1);
+		const assignedFraction = Math.min(this.assigned[id] / (this.productions[id].narco_count * prodCount), 1);
 
 		const materialFraction = required > 0 ? Math.min(owned / required, 1) : 1;
 
@@ -980,7 +921,7 @@ class BetterItemValues {
 		// Each level of 'Production Boost' prestige increases profit by 20%
 		const profitBoost = 1 + prestigeLevels.productionBoost * 0.2;
 
-		let profit = this.prodMoney[id] * profitBoost;
+		let profit = this.productions[id].money * profitBoost;
 		const itemProfit = this._calcItemProfits(id) * profitBoost;
 		if (itemProfit === null) return null;
 
@@ -996,7 +937,7 @@ class BetterItemValues {
 		profit -= supplyCost;
 
 		if (id === 0) profit *= this.streetProfitFactor;
-		profit /= this.narcoCounts[id] * (id === 4 ? prodCount : 1); // Also dealing with coke custom scaling
+		profit /= this.productions[id].narco_count * (id === 4 ? prodCount : 1); // Also dealing with coke custom scaling
 		return profit;
 	}
 	_updateSupplyInfo(container, id) {
@@ -1018,16 +959,16 @@ class BetterItemValues {
 	}
 	_calcProfitScalar(id, prodCount) {
 		if (id === 4)
-			return this.prodCokeScaling[prodCount - 1]; // Coke has custom scaling
+			return GameData.PROD_COKE_SCALING[prodCount - 1]; // Coke has custom scaling
 		else
 			return Math.pow(1 - this.prodDepreciation / 100, prodCount - 1); // Maybe should instead be *= (1 - prodCount * this.prodDepreciation / 100)
 	}
 	_calcItemProfits(id) {
 		let itemProfit = 0;
-		for (const itemName of Object.keys(this.itemCounts[id])) {
+		for (const itemName of Object.keys(this.productions[id].items)) {
 			const itemVal = this.getItemValue(itemName);
 			if (itemVal === null) continue;
-			itemProfit += itemVal * this.itemCounts[id][itemName];
+			itemProfit += itemVal * this.productions[id].items[itemName];
 		}
 		return itemProfit;
 	}
@@ -1041,7 +982,7 @@ class BetterItemValues {
 		const regexResult = prodReqsText.textContent.match(/^x(\d+)/);
 		const prodReqValue = parseInt(regexResult?.[1]);
 		let supplyCost = 0;
-		for (const itemName of Object.keys(this.prodReqs[id])) {
+		for (const itemName of Object.keys(this.productions[id].requirements)) {
 			const itemVal = this.getItemValue(itemName);
 			if (itemVal === null) return null;
 			supplyCost += itemVal * prodReqValue / (id === 4 ? 1 : prodCount);
@@ -1089,13 +1030,13 @@ class BetterItemValues {
 		const containers = document.querySelectorAll("div.row.g-0.align-items-center.h-100.flex-column");
 		if (id == 2) {
 			this.taintedChance[0] = taintedChance;
-			this.itemCounts[id]['Cannabis'] = this.maxCannabis / 2 * (1 - this.taintedChance[0] / 100);
-			this.itemCounts[id]['Tainted Cannabis'] = this.maxCannabis / 2 * this.taintedChance[0] / 100;
+			this.productions[id].items['Cannabis'] = this.maxCannabis / 2 * (1 - this.taintedChance[0] / 100);
+			this.productions[id].items['Tainted Cannabis'] = this.maxCannabis / 2 * this.taintedChance[0] / 100;
 		}
 		if (id == 4) {
 			this.taintedChance[1] = taintedChance;
-			this.itemCounts[id]['Cocaine'] = this.maxCoke / 2 * (1 - this.taintedChance[1] / 100);
-			this.itemCounts[id]['Tainted Cocaine'] = this.maxCoke / 2 * this.taintedChance[1] / 100;
+			this.productions[id].items['Cocaine'] = this.maxCoke / 2 * (1 - this.taintedChance[1] / 100);
+			this.productions[id].items['Tainted Cocaine'] = this.maxCoke / 2 * this.taintedChance[1] / 100;
 		}
 		this.profit[id] = this._calcProfit(id, containers[id]);
 	}
@@ -1183,21 +1124,22 @@ class BetterItemValues {
 		this.jobValue = [];
 		this.maxJobValue = 0;
 		this.minJobValue = Infinity;
-		for (let i = 0; i !== this.jobMoney.length; ++i) {
+		for (let i = 0; i !== this.jobs.length; ++i) {
 			const jobPanel = jobPanels[i];
 			this._setJobTime(jobPanel, i);
+			const job = this.jobs[i];
 
-			this.jobValue[i] = this.jobMoney[i];
+			this.jobValue[i] = job.avg_money;
 			this._setJobBaseItemReward(i);
 
 			if (this.jobValue[i] !== "???") this._setJobPrestigeReward(jobPanel, i);
 
 			const standardJobRepBonus = getNumericValue('perk', 'Standard Job Rep');
 			// Apply only to standard jobs
-			if (i <= 4) this.jobRep[i] * (1 + (standardJobRepBonus / 100));
+			if (i <= 4) job.avg_rep * (1 + (standardJobRepBonus / 100));
 
-			this.maxJobRep = Math.max(this.maxJobRep, this.jobRep[i] / this.jobTimes[i]);
-			this.minJobRep = Math.min(this.minJobRep, this.jobRep[i] / this.jobTimes[i]);
+			this.maxJobRep = Math.max(this.maxJobRep, job.avg_rep / job.duration);
+			this.minJobRep = Math.min(this.minJobRep, job.avg_rep / job.duration);
 		}
 		this._updateJobUI(jobPanels);
 	}
@@ -1224,7 +1166,7 @@ class BetterItemValues {
 			pElem.textContent = 'Expected gain: ';
 
 			const gain = this.jobValue[i];
-			const repPerTime = this.jobRep[i] / this.jobTimes[i];
+			const repPerTime = this.jobs[i].avg_rep / this.jobs[i].duration;
 			const spanElem = document.createElement('span');
 			
 			if (gain === '???') {
@@ -1253,26 +1195,27 @@ class BetterItemValues {
 		const jobTime = jobPanel.querySelector("p.card-text.fw-bold.text-muted");
 		const jobName = jobPanel.querySelector('h5').firstChild.textContent;
 
+		const job = this.jobs[index];
 		// Fallback, while doing a job; Use cached value
 		if (!jobTime) {
-			this.jobTimes[index] = this.getJobTime(jobName) || this.jobTimes[index];
+			job.duration = this.getJobTime(jobName) || job.duration;
 			return;
 		}
 
 		const jobTimeSplit = jobTime?.textContent.split(' ');
-		this.jobTimes[index] = parseFloat(jobTimeSplit[0].slice(1));
+		job.duration = parseFloat(jobTimeSplit[0].slice(1));
 		if (jobTimeSplit[1].startsWith("hour")) {
-			this.jobTimes[index] *= 60;
+			job.duration *= 60;
 			if (jobTimeSplit.length > 2)
-				this.jobTimes[index] += parseFloat(jobTimeSplit[2]);
+				job.duration += parseFloat(jobTimeSplit[2]);
 		}
-		this.setJobTime(jobName, this.jobTimes[index]);
+		this.setJobTime(jobName, job.duration);
 	}
 	_setJobBaseItemReward(index) {
-		for (const item in this.jobItems[index]) {
-			const price = this.getItemValue(item);
+		for (const [item_name, average_amount] of Object.entries(this.jobs[index].item_rewards)) {
+			const price = this.getItemValue(item_name);
 			if (price !== null)
-				this.jobValue[index] += price * this.jobItems[index][item];
+				this.jobValue[index] += price * average_amount;
 			else {
 				this.jobValue[index] = "???";
 				break;
@@ -1283,10 +1226,10 @@ class BetterItemValues {
 		const prestigeText = jobPanel.querySelector("p.prestigeText");
 		const incrReward = prestigeText !== null && /\+\d+%/.test(prestigeText.innerText) ? parseInt(prestigeText.innerText.match(/\+\d+%/)[0].slice(1, -1)) : 0;
 		this.jobValue[index] *= 1 + incrReward / 100;
-		this.jobRep[index] *= 1 + incrReward / 100;
+		this.jobs[index].avg_rep *= 1 + incrReward / 100;
 
 		this.jobValue[index] *= this.jobProfitFactor;
-		this.jobValue[index] /= this.jobTimes[index];
+		this.jobValue[index] /= this.jobs[index].duration;
 		this.maxJobValue = Math.max(this.maxJobValue, this.jobValue[index]);
 		this.minJobValue = Math.min(this.minJobValue, this.jobValue[index]);
 	}
