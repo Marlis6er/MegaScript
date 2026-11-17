@@ -1,8 +1,6 @@
 # Cartel Empire MegaScript
 This is a tampermonkey script for Cartel Empire, originally created by K9er.
 
-**NOTE:** This is a temporary branch to refactor the script and split it into multiple files. It is usable, but the version the main-branch is a much more user-friendly version.
-
 # Using local files
 
 (Only works on chrome)
@@ -27,6 +25,7 @@ To use this version, you have to:
 // @run-at       document-end
 // @require      file://Path/to/your/folder/utils.js
 
+// @require      file://Path/to/your/folder/AchievementStats.js
 // @require      file://Path/to/your/folder/AddItemButtons.js
 // @require      file://Path/to/your/folder/AddLinks.js
 // @require      file://Path/to/your/folder/BankDepositTax.js
@@ -34,6 +33,7 @@ To use this version, you have to:
 // @require      file://Path/to/your/folder/BetterMoneyInputs.js
 // @require      file://Path/to/your/folder/BetterProgressBars.js
 // @require      file://Path/to/your/folder/BlackjackHelper.js
+// @require      file://Path/to/your/folder/BuyMaxButton.js
 // @require      file://Path/to/your/folder/BuyPointsLink.js
 // @require      file://Path/to/your/folder/CartelMemberRep.js
 // @require      file://Path/to/your/folder/CenterTabs.js
@@ -89,44 +89,6 @@ To use this version, you have to:
 // @grant        GM_listValues
 // @grant        GM_addStyle
 // @run-at       document-end
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/utils.js
-
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/AddItemButtons.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/AddLinks.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/BankDepositTax.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/BetterItemValues.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/BetterMoneyInputs.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/BetterProgressBars.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/BlackjackHelper.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/BuyPointsLink.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/CartelMemberRep.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/CenterTabs.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/CenterText.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/ColorChatNames.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/ColorStats.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/DisableThrow.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/DisplayPerks.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/DisplayTownCaches.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/DPEnergyRefillReminder.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/EstateLevelInfo.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/EstimatedIntGains.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/ExpeditionChances.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/GreenMoney.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/HighlightExcessHealth.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/HighlightInactives.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/HighlightUnequipped.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/IntPerWeek.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/ItemCache.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/LargerGymGraph.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/PropertyPageAgentLink.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/RoundedCards.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/ScriptSettings.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/StatEstimate.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/TotalListingValue.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/TransparentChats.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/TrueKDR.js
-
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/ConfigManager.js
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/refactor/MegaScript.js
+// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/modular/MegaScriptBundled.js
 // ==/UserScript==
 ```
