@@ -8,6 +8,7 @@ files = [
 	"BetterMoneyInputs.js",
 	"BetterProgressBars.js",
 	"BlackjackHelper.js",
+    "BuyMaxButton.js",
 	"BuyPointsLink.js",
 	"CartelMemberRep.js",
 	"CenterTabs.js",
