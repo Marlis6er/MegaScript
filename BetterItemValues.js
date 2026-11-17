@@ -410,8 +410,28 @@ class BetterItemValues {
 		console.debug(`Set prodReq_${type} to ${req}`);
 		return req;
 	}
-	inPharmacy(url) {
-		this.inTownStore(url);
+	_getArea(container) {
+		// Test for Buy-Container
+		const header = container
+			.closest('div.card-body')
+			?.previousSibling
+			?.querySelector('div.header-section > h2')
+			?.textContent;
+		
+		if (header.startsWith('Buy Items')) return 'buy';
+		if (header.startsWith('Special Stock')) return 'special';
+		if (header.startsWith('Sell Items')) return 'sell';
+		return undefined;
+	}
+	_getItemName(area, itemElem) {
+		switch (area) {
+			// 'Buy Items' area
+			case 'buy':
+			// 'Special Stock' area
+			case 'special': return itemElem.children[1].textContent;
+			case 'sell': return itemElem.children[2].firstChild.textContent;
+			default: return;
+		}
 	}
 	inPetshop(url) {
 		this.inTownStore(url);
@@ -621,29 +641,41 @@ class BetterItemValues {
 		});
 	}
 	inTownStore(url) {
-		const itemSelector = 'div.container.inventoryWrapper.mb-4 > div.inventoryItemWrapper';
-		const items = Array.from(document.querySelectorAll(itemSelector));
-		for (const item of items) {
-			if (item.children.length < 2) continue;
+		const containers = document.querySelectorAll('div.container.inventoryWrapper.mb-4');
 
-			let selling = false;
-			let itemName = "";
-			// Determine if we're in the sell or the buy section
-			if (item.children[1].children.length) {
-				itemName = item.children[1].textContent.split(' ').slice(0, -1).join(' ');
-				selling = true;
+		const cannabisValue = this.getItemValue('Cannabis');
+		for (const [id, container] of containers.entries()) {
+			const area = this._getArea(container);
+			if (!area) {
+				console.warn(`Unidentdified container at id ${id}`);
+				continue;
 			}
-			else itemName = item.children[1].textContent;
+			// Can only process special stock with known cannabis prices
+			if (area === 'special' && cannabisValue === null) continue;
 
-			this._updateStoreUI(item, itemName, selling);
+			const items = container.querySelectorAll('div.inventoryItemWrapper');
+			for (const item of items) {
+				this._updateStoreUI(item, area, cannabisValue);
+			}
 		}
 	}
-	_updateStoreUI(item, itemName, inSellingUI) {
+	_updateStoreUI(item, type, cannabisPrice) {
+		const itemName = this._getItemName(type, item);
+
 		const currentBest = this.getItemValue(itemName);
 		if (currentBest === null) return;
 
-		const priceElem = item.children[4];
-		const currentVal = parseInt(priceElem.textContent.slice(1).replaceAll(',', ""));
+		const priceElemIndex = type === 'special' ? 3 : type === 'buy' ? 4 : 5;
+		const priceElem = item.children[priceElemIndex];
+
+		const inSellingUI = type === 'buy' || type === 'special' ? false : true;
+
+		let currentVal;
+		if (type === 'special') {
+			const cannabisAmount = parseInt(priceElem.textContent);
+			currentVal = cannabisAmount * cannabisPrice;
+		} else 
+			currentVal = parseInt(priceElem.textContent.slice(1).replaceAll(',', ""));
 
 		let shopHTML = priceElem.innerHTML;
 		if (currentVal > currentBest)
@@ -654,7 +686,9 @@ class BetterItemValues {
 		const marketHTML = `<br><span class="text-muted">(${POUND}${currentBest.toLocaleString("en-US")})</span>`;
 
 		priceElem.innerHTML = shopHTML + marketHTML;
-		const otherValueText = item.children[6].querySelector("div.col-6");
+
+		const otherValueIndex = type === 'special' ? 5 : type === 'buy' ? 6 : 7;
+		const otherValueText = item.children[otherValueIndex].querySelector("div.col-6");
 		otherValueText.innerHTML = `<div class="card-text"><div class="fw-bold">Value</div>${shopHTML}${marketHTML}</div>`;
 	}
 	inTradeView(url) {
