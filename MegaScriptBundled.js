@@ -5470,7 +5470,7 @@ class HospTimeEstimate {
             const attackType = button.getAttribute('data-bs-attack-type');
             const bodyText = attackConfirmModal.querySelector('.modal-bodyText');
 
-            bodyText.innerHTML += `<br>Estimated hospital time: ${this.defaultTimes[attackType]}min.`;
+            bodyText.innerHTML += `<br>Estimated hospital time: <span class="fw-bold">${this.defaultTimes[attackType]}min</span>.`;
         });
     }
 }
