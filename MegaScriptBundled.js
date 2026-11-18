@@ -292,6 +292,12 @@ function arrayRemoveElem(array, elem) {
 	return array;
 }
 
+function wait(ms) {
+	return new Promise(res => {
+		setTimeout(() => {res()}, ms);
+	});
+}
+
 class AchievementStats {
 
 	static metadata = {
@@ -4389,6 +4395,7 @@ class DisplayPerks {
 
 	constructor() {
 		this.statGains = ["Accuracy", "Agility", "Defence", "Strength"];
+		this.hospTime = 'Hospital Time';
 		this.prod = "Production Profit";
 		this.medEffectiveness = "Med Effectiveness";
 		this.medCooldown = "Med Cooldown";
@@ -4499,7 +4506,10 @@ Hospital timer by ${hospTimeText} ${this.getPerk(this.medEffectiveness) === 0 ? 
 			else if (perkDesc.endsWith("increase to medical item effectiveness"))
 				medEffectiveness += parseFloat(textSplit[0].slice(0, -1));
 			else if (perkDesc.endsWith("Reputation on Standard Jobs"))
+				// e.g. +50% or 24%
 				standardJobRep += parseFloat(textSplit[0].match(/\+?\d+%$/)[0]);
+			else if (perkDesc.startsWith("Increases target hospital time by"))
+				this.setPerk(this.hospTime, parseFloat(textSplit.at(-1).slice(0, -1)));
 		}
 
 		// Update stat gains after processing perks
@@ -5419,6 +5429,50 @@ class HighlightUnequipped {
 		setColor(idle.innerText);
 		observeDOM(idle, e => setColor(e[0].target.innerText));
 	}
+}
+
+
+class HospTimeEstimate {
+
+	static metadata = {
+		displayName: 'Hospital Time Estimate',
+		description: 'Show the expected hospital time when attacking someone',
+		settings: {
+			active: {
+			},
+			custom: {
+			}
+		}
+	}
+
+	constructor() {
+        
+        const hospTimePerk = getNumericValue('perks', 'Hospital Time') || 0;
+        const hospTimeMultiplier = 1 + (hospTimePerk / 100);
+
+        this.defaultTimes = {
+			Attack: 50,
+			Mug: 12.5,
+			Hospitalise: 100 * hospTimeMultiplier
+		}
+	}
+
+	inUserProfile(url) {
+
+        const attackConfirmModal = document.getElementById('attackConfirmModal');
+        attackConfirmModal.addEventListener('show.bs.modal', async (event) => {
+            // Skip one event-loop cycle to let game's listener fire first
+            // hacky solution, please fix later
+            await wait(0);
+            const button = event.relatedTarget;
+            if (!button) return;
+
+            const attackType = button.getAttribute('data-bs-attack-type');
+            const bodyText = attackConfirmModal.querySelector('.modal-bodyText');
+
+            bodyText.innerHTML += `<br>Estimated hospital time: <span class="fw-bold">${this.defaultTimes[attackType]}min</span>.`;
+        });
+    }
 }
 
 
@@ -7231,14 +7285,19 @@ class StatEstimate {
 			expectedRep = this.estimateRep(level, this.maxFF);
 			append = " with 3x fair fight modifier";
 		}
-		observeDOM(attackText, e => {
-			const textSplit = e[0].target.textContent.split(' ');
+		const attackConfirmModal = document.getElementById('attackConfirmModal');
+        attackConfirmModal.addEventListener('show.bs.modal', async (e) => {
+            // Skip one event-loop cycle to let game's listener fire first
+            // hacky solution, please fix later
+            await wait(0);
+			const textSplit = e.relatedTarget?.childNodes[0].textContent.split(' ');
 			let attackType = textSplit[textSplit.length - 2];
+			const bodyText = attackConfirmModal.querySelector('.modal-bodyText');
 			attackType = attackType.charAt(0).toUpperCase() + attackType.slice(1);
 			if (!["Attack", "Mug", "Hospitalise"].includes(attackType))
 				return;
-			e[0].target.innerHTML += `<br>Expected rep gain: <span class="fw-bold">${prefix.replace('>', "&gt;").replace('<', "&lt;")}${expectedRep === "???" ? "???" : Math.round(expectedRep * repMultipliers[attackType])}</span>${append}`;
-		});
+			bodyText.innerHTML += `<br>Expected rep gain: <span class="fw-bold">${prefix.replace('>', "&gt;").replace('<', "&lt;")}${expectedRep === "???" ? "???" : Math.round(expectedRep * repMultipliers[attackType])}</span>${append}`;
+        });
 
 		const userName = document.querySelector("div.header-section > .profileNameTitle").textContent;
 		if (userName !== this.getName(userID)) this.setName(userID, userName);
@@ -7421,6 +7480,7 @@ class ConfigManager {
             HighlightExcessHealth,
             HighlightInactives,
             HighlightUnequipped,
+            HospTimeEstimate,
             IntPerWeek,
             ItemCache,
             LargerGymGraph,

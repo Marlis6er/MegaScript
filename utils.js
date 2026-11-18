@@ -291,3 +291,9 @@ function arrayRemoveElem(array, elem) {
 	if (index !== -1) array.splice(index, 1);
 	return array;
 }
+
+function wait(ms) {
+	return new Promise(res => {
+		setTimeout(() => {res()}, ms);
+	});
+}

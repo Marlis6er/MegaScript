@@ -29,6 +29,7 @@ class ConfigManager {
             HighlightExcessHealth,
             HighlightInactives,
             HighlightUnequipped,
+            HospTimeEstimate,
             IntPerWeek,
             ItemCache,
             LargerGymGraph,

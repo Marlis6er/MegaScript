@@ -28,6 +28,7 @@ class DisplayPerks {
 
 	constructor() {
 		this.statGains = ["Accuracy", "Agility", "Defence", "Strength"];
+		this.hospTime = 'Hospital Time';
 		this.prod = "Production Profit";
 		this.medEffectiveness = "Med Effectiveness";
 		this.medCooldown = "Med Cooldown";
@@ -138,7 +139,10 @@ Hospital timer by ${hospTimeText} ${this.getPerk(this.medEffectiveness) === 0 ? 
 			else if (perkDesc.endsWith("increase to medical item effectiveness"))
 				medEffectiveness += parseFloat(textSplit[0].slice(0, -1));
 			else if (perkDesc.endsWith("Reputation on Standard Jobs"))
+				// e.g. +50% or 24%
 				standardJobRep += parseFloat(textSplit[0].match(/\+?\d+%$/)[0]);
+			else if (perkDesc.startsWith("Increases target hospital time by"))
+				this.setPerk(this.hospTime, parseFloat(textSplit.at(-1).slice(0, -1)));
 		}
 
 		// Update stat gains after processing perks
