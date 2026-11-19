@@ -71,6 +71,7 @@ class ConfigManager {
             [/^cartel\/?$/, 'inCartel', 'In Own Cartel'],
             [/^cartel\/armou?ry\/deposit\/?$/, 'inAddItems', 'In Add Items of Armory'],
             [/^cartel\/armou?ry/, 'inCartelArmory', 'In Cartel Armory'],
+            [/^cartel\/armou?ry\/bulkeditarmou?ry/, 'inCartelArmoryEditor', 'In Cartel Bulk Armory Editor'],
             [/^cartel\/territory\/?$/, 'inCartelWar', 'In Cartel War'],
             [/^cartel\/perks\/?$/, 'inCartelPerks', 'in Cartel Perks'],
             [/^cartel\/allfights/, 'inAttackLog', 'In Cartel Attack Logs'],

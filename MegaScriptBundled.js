@@ -2244,6 +2244,8 @@ class BetterItemValues {
 		totalVals[currentBest] = count;
 	}
 	inCartelArmory(url) {
+		if (url.endsWith('bulkeditarmory')) return;
+
 		const container = document.querySelector("#mainBackground > div.container > div.row > div.col-12");
 		if (!container) {
 			console.error("Container not found");
@@ -2300,6 +2302,62 @@ class BetterItemValues {
 		if (itemName in this.poundPerHospitalTime)
 			if (this.poundPerHospitalTime[itemName] === this.minPpht)
 				item.children[1].style.color = this.bestColor;
+	}
+	inCartelArmoryEditor(url) {
+		const itemList = document.querySelector('div.container-fluid.inventoryWrapper');
+		if (itemList === null) return;
+
+		const topButton = itemList.querySelector('div.row.mt-2.mb-2');
+		const bottomButton = itemList.querySelector('div.row.mt-4');
+
+		const totalContainer = document.createElement('div');
+		totalContainer.classList.add('card-body', 'mb-4');
+		totalContainer.innerHTML = `<p class='card-text'>Total item value: <span class='total-value-span fw-bold'>${POUND}0</span>.</p>`;
+
+		topButton.prepend(totalContainer.cloneNode(true));
+		bottomButton.prepend(totalContainer.cloneNode(true));
+
+		const totalTextTop = topButton.querySelector('span.total-value-span.fw-bold');
+		const totalTextBottom = bottomButton.querySelector('span.total-value-span.fw-bold');
+		const totalVals = {};
+
+		const items = itemList.querySelectorAll('div.inventoryItemWrapper');
+		for (const item of items) {
+			// Skip header
+			if (item.children.length < 2) continue;
+
+			// Get item name and price
+			const itemName = item.children[1].querySelector('p').childNodes[0].textContent;
+			const currentBest = this.getItemValue(itemName);
+
+			// Create price display element
+			const value = document.createElement('span');
+			value.classList.add('itemValue', 'text-muted', 'float-end');
+			value.innerText = `(${POUND}${currentBest === null ? '???' : currentBest.toLocaleString('en-US')})`;
+			item.children[1].appendChild(value);
+
+			const input = item.querySelector('input.form-control');
+			// Skip borrowed items
+			if (!input) continue;
+
+			input.addEventListener('input', e => {
+				const value = e.target.closest('div.inventoryItemWrapper').querySelector('span.itemValue');
+				const currentBest = this.getItemValue(itemName);
+				const inputVal = e.target.value;
+				let totalValue = 0;
+
+				if (inputVal === '' || inputVal.trim()[0] === '-' || parseInt(inputVal) === 0) {
+					this._resetInputDisplay(value, currentBest, totalVals);
+				} else {
+					const count = parseInt(inputVal.replaceAll(',', ''));
+					this._updateInputDisplay(value, currentBest, totalVals, count);
+				}
+				for (const val in totalVals)
+						totalValue += val * totalVals[val];
+				totalTextTop.innerText = `${POUND}${totalValue.toLocaleString('en-US')}`;
+				totalTextBottom.innerText = `${POUND}${totalValue.toLocaleString('en-US')}`;
+			});
+		}
 	}
 	inEvents(url) {
 		const urlParams = new URLSearchParams(window.location.search);
@@ -7660,6 +7718,7 @@ class ConfigManager {
             [/^cartel\/?$/, 'inCartel', 'In Own Cartel'],
             [/^cartel\/armou?ry\/deposit\/?$/, 'inAddItems', 'In Add Items of Armory'],
             [/^cartel\/armou?ry/, 'inCartelArmory', 'In Cartel Armory'],
+            [/^cartel\/armou?ry\/bulkeditarmou?ry/, 'inCartelArmoryEditor', 'In Cartel Bulk Armory Editor'],
             [/^cartel\/territory\/?$/, 'inCartelWar', 'In Cartel War'],
             [/^cartel\/perks\/?$/, 'inCartelPerks', 'in Cartel Perks'],
             [/^cartel\/allfights/, 'inAttackLog', 'In Cartel Attack Logs'],
