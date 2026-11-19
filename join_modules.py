@@ -26,6 +26,7 @@ files = [
 	"HighlightExcessHealth.js",
 	"HighlightInactives.js",
 	"HighlightUnequipped.js",
+    'HighscoreChanges.js',
     'HospTimeEstimate.js',
 	"IntPerWeek.js",
 	"ItemCache.js",

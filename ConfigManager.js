@@ -29,6 +29,7 @@ class ConfigManager {
             HighlightExcessHealth,
             HighlightInactives,
             HighlightUnequipped,
+            HighscoreChanges,
             HospTimeEstimate,
             IntPerWeek,
             ItemCache,
@@ -103,7 +104,7 @@ class ConfigManager {
         this.URL_MAP = new Map(this.PAGE_DATA.map(page_data => [page_data[0], page_data[1]]));
         
         const updatedSettings = this.updateSettings(getValue('script', 'settings'));
-        setValue('script', 'settings', updatedSettings);
+        if (updatedSettings) setValue('script', 'settings', updatedSettings);
 
         this.STRIKETHROUGH = false; // Display the normally-displayed price as well, striked-through
         this.ALWAYS_COLOR_NAMES = [ "FN SCAR-H", "Desert Eagle", "Full-Body Armour" ];
