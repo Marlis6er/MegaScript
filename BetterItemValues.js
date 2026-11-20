@@ -1547,7 +1547,8 @@ class BetterItemValues {
 			const countOf = parseInt(countElem.textContent);
 			const currentBest = this.getItemValue(itemName);
 			if (currentBest === null) {
-				valueTracker.totalVal += parseInt(item.children[3].innerText.slice(1).replaceAll(',', "")) * countOf;
+				const gameItemValue = parseInt(item.children[3].innerText.slice(1).replaceAll(',', "")) || 0;
+				valueTracker.totalVal += gameItemValue * countOf;
 				valueTracker.haveAll = false;
 				continue;
 			}
