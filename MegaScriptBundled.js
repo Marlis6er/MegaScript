@@ -5506,7 +5506,6 @@ class HighscoreChanges {
 
 	constructor() {
 		this.hoursLate = 2;
-		this.height = 16.75;
 		this.cacheNames = [
 			'Battlestats_self',
 			'Networth_self',
@@ -5623,6 +5622,10 @@ class HighscoreChanges {
 		const levelContainer = document.querySelector("div#v-content-level");
 		this.change(levelContainer, "Level");
 		observeDOM(levelContainer, e => this.change(e[0].target, "Level"));
+
+		const revivesContainer = document.querySelector("div#v-content-revives");
+		this.change(revivesContainer, "Revives");
+		observeDOM(revivesContainer, e => this.change(e[0].target, "Revives"));
 
 		GM_addStyle(`#highscoresTable tr:hover td > span { background-color: ${this.hoverColor} !important }`);
 	}
