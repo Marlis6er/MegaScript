@@ -11,7 +11,6 @@ class HighscoreChanges {
 		}
 	}
 
-
 	constructor() {
 		this.hoursLate = 2;
 		this.cacheNames = [
@@ -98,7 +97,7 @@ class HighscoreChanges {
 			for (const row of rows) {
 				const user = row.children[1];
 				const userID = user.children.length ? parseInt(user.children[0].href.match(/\d+$/)[0]) : "self";
-				if (!(userID in curCache[0][1] && userID in curCache[1][1])) return;
+				if (!(userID in curCache[0][1] && userID in curCache[1][1])) continue;
 
 				const diff = curCache[1][1][userID] - curCache[0][1][userID];
                 row.lastChild.innerHTML += this._getChangeText(diff, type);
