@@ -5576,7 +5576,7 @@ class HighscoreChanges {
         // If both current and previous exist, display the change
 		if (curCache[0] !== null && curCache[1] !== null) {
 			const diff = curCache[1][1] - curCache[0][1];
-			if (diff > 0) ownStats.innerHTML += this._getChangeText(diff, type);
+			ownStats.innerHTML += this._getChangeText(diff, type);
 		}
 		this.setCache(`${type}_self`, curCache);
 	}
