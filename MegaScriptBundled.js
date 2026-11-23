@@ -2916,13 +2916,34 @@ class BetterItemValues {
 			return;
 		}
 
-		const jobTimeSplit = jobTime?.textContent.split(' ');
-		this.jobTimes[index] = parseFloat(jobTimeSplit[0].slice(1));
-		if (jobTimeSplit[1].startsWith("hour")) {
-			this.jobTimes[index] *= 60;
-			if (jobTimeSplit.length > 2)
-				this.jobTimes[index] += parseFloat(jobTimeSplit[2]);
+		// Format: (<time>); Remove brackets around time, then split
+		const jobTimeSplit = jobTime?.textContent.slice(1, -1).split(' ');
+		let timeInMinutes = 0;
+		for (let i = 0; i < jobTimeSplit.length; i += 2) {
+			const time = parseInt(jobTimeSplit[i]);
+			if (isNaN(time)) {
+				console.warn('Could not decode time', jobTime[i]);
+				continue;
+			}
+
+			switch (jobTimeSplit[i+1]) {
+				case 'hour':
+				case 'hours':
+					timeInMinutes += time * 60;
+					break;
+				case 'minute':
+				case 'minutes':
+					timeInMinutes += time;
+					break;
+				case 'second':
+				case 'seconds':
+					timeInMinutes += time / 60;
+					break;
+				default:
+					console.warn('Unknown time identifier', jobTimeSplit[i+1]);
+			}
 		}
+		this.jobTimes[index] = timeInMinutes;
 		this.setJobTime(jobName, this.jobTimes[index]);
 	}
 	_setJobBaseItemReward(index) {
