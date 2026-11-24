@@ -376,14 +376,11 @@ class StatEstimate {
 
 		let entries;
 		let start = 0;
-		let linkIdx = 1;
 		if (/^cartel/.test(url)) {
 			entries = table.querySelectorAll("tbody tr");
-			if (/\d\/?$/.test(url)) linkIdx = 0;
 		} else {
 			entries = table.querySelectorAll("thead tr");
 			start = 1;
-			linkIdx = 0;
 		}
 		for (let i = start; i !== entries.length; ++i) {
 			const entry = entries[i];
@@ -412,14 +409,14 @@ class StatEstimate {
 			entry.insertBefore(statEstCol, levelCol);
 		}
 	}
-	inCartelHomepage(url) {
+	inCartel(url) {
 		const table = document.querySelector("div.card-body > div.container-fluid");
 		if (table === null) return;
 
 		const tableHead = table.querySelector(".row-header");
-		let levelCol = tableHead.querySelectorAll(".col")[1];
+		let levelCol = tableHead.querySelectorAll(".col")[2];
 		let roleCol;
-		let daysCol = tableHead.querySelectorAll(".col")[2];
+		let daysCol = tableHead.querySelectorAll(".col")[3];
 
 		let statEstCol = document.createElement("div");
 		statEstCol.classList.add("col", "col-xl-1");
@@ -435,9 +432,9 @@ class StatEstimate {
 		for (const entry of entries) {
 			const cols = entry.querySelectorAll(".col");
 
-			levelCol = cols[0];
-			roleCol = cols[1];
-			daysCol = cols[2];
+			levelCol = cols[1];
+			roleCol = cols[2];
+			daysCol = cols[3];
 
 			statEstCol = document.createElement("div");
 			const statEstColHeader = document.createElement("div");
