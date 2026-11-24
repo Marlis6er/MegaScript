@@ -93,7 +93,7 @@ class ConfigManager {
             [/^(advanced)?search/, 'inSearch', 'In Search'],
             [/^bounty/, 'inBountyOrOtherCartel', 'In Bounty or Other Cartel'],
             [/^fight/, 'inFight', 'In Fight'],
-            [/^connections$/, 'inConnections', 'In Connections'],
+            [/^connections\/?.*$/, 'inConnections', 'In Connections'],
             [/^forum\/\d+\/\d+|^forum\/thread\/\d+/, 'inForumPost', 'In Forum Post'],
             [/^forum\/\d+/, 'inForumCategory', 'In Forum Category'],
             [/^inbox|^outbox/, 'inMail', 'In Mail'],
