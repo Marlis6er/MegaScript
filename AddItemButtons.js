@@ -1,74 +1,3 @@
-// This class is good enough for how it is used now,
-// but if it's used more, _type and _actionName should
-// be replaced by enums
-class Item {
-	/** @type {string} Name of the item*/
-	_name;
-
-	/** @type {number} ImageID used in CE for this item*/
-	_imageID;
-
-	/** @type {string} ImageID used in CE for this item*/
-	_type;
-
-	/** @type {string} Item description as given in the inventory in CE*/
-	_description;
-	
-	/** @type {string} Item effect as given in the inventory in CE*/
-	_effect;
-
-	/** @type {string} Hover value of the 'Use' button in the inventory in CE*/
-	_actionName;
-
-	constructor(name, imageID, type, description, effect, actionName) {
-		this._name = name;
-		this._imageID = imageID;
-		this._type = type;
-		this._description = description;
-		this._effect = effect;
-		this._actionName = actionName;
-	}
-
-	get name() {
-		return this._name;
-	}
-	get imageID() {
-		return this._imageID;
-	}
-	get type() {
-		return this._type;
-	}
-	get description() {
-		return this._description;
-	}
-	get effect() {
-		return this._effect;
-	}
-	get actionName() {
-		return this._actionName;
-	}
-
-	set name(value) {
-		this._name = value;
-	}
-	set imageID(value) {
-		this._imageID = value;
-	}
-	set type(value) {
-		this._type = value;
-	}
-	set description(value) {
-		this._description = value;
-	}
-	set effect(value) {
-		this._effect = value;
-	}
-	set actionName(value) {
-		this._actionName = value;
-	}
-}
-
-
 class AddItemButtons {
 
 	static metadata = {
@@ -97,30 +26,9 @@ class AddItemButtons {
 	constructor() {
 		// Static info on each item
 		this.itemMap = new Map([
-			['Cocaine', new Item(
-				'Cocaine',
-				301,
-				'Drug',
-				'Unlike the shadows of tainted competitors, this cocaine embodies purity \u2013 a potent source of untamed energy, and unparalleled confidence. Time itself seems to bow to your will, granting you control over the universe and its secrets. Cocaine serves as both reward and temptation, a double-edged sword that can either elevate you to greatness or lead you down a treacherous path to Hospital and reduces Combat Stats.',
-				'Increases Energy by 50. Increases drug cooldown by 3 hours. Possible overdose effect of -20% all Combat Stats',
-				'Take'
-			)],
-			['Personal Favour', new Item(
-				'Personal Favour',
-				3,
-				'Special',
-				'The Personal Favour is granted to players by El Capo, the boss of boss\'s. It\'s a valuable asset that can be used to get the player out of jail when they find themselves in a tight spot with the law. With this favour, players bypass the usual legal processes and secure their freedom with just a single phone call to El Capo.',
-				'Releases you from Jail',
-				'Use'
-			)],
-			['Corana Beer', new Item(
-				'Corana Beer',
-				100,
-				'Alcohol',
-				'Often served with a wedge of lime, what better way to take the edge of a hard day of crime than by sitting down to a cool Corana Beer. Provides a minor boost to energy.',
-				'Increases energy by 5. Increases Booster cooldown by 2 hours',
-				'Drink'
-			)]
+			['Cocaine', GameData.ITEMS.get('cocaine')],
+			['Personal Favour', GameData.ITEMS.get('personal_favour')],
+			['Corana Beer', GameData.ITEMS.get('corana')]
 		]);
 	}
 	getID(itemName) {
@@ -135,7 +43,7 @@ class AddItemButtons {
 		return getValue('itemCache', itemName);
 	}
 	setCount(cache, itemName) {
-		setValue('itemCache', itemName, cahce);
+		setValue('itemCache', itemName, cache);
 		return cache;
 	}
 	getItemValue(itemName) {
@@ -263,14 +171,14 @@ class AddItemButtons {
 		const item = this.itemMap.get(itemName);
 		const desc = item.description;
 		const effect = item.effect;
-		const imageID = item.imageID;
+		const imageURL = item.imageURL;
 		const type = item.type;
-		const actionName = item.actionName;
+		const actionName = item.action;
 
 		return `
 		<div class="row row-cols-3 align-items-center pb-${pb} inventoryItemWrapper" id="item-${ID}" style="cursor: auto; border-bottom: none">
 			<div class="col col-4 col-sm-2 col-xl-1">
-				<img class="img-thumbnail" src="/images/items/${imageID}.png" title="${itemName}">
+				<img class="img-thumbnail" src="${imageURL}" title="${itemName}">
 			</div>
 			<div class="col col-8 col-sm-3 col-xl-4">
 				${itemName}<span class="fw-bold"> x<span class="itemQuantity">${count.toLocaleString("en-US")}</span></span>
