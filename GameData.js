@@ -281,7 +281,7 @@ class GameData {
 
         // Robbery
         ['farm', new Job('Farm Robbery', 'robbery', 15, 111, 21,
-            {'Bag of Fertilizer': 6})],
+            {'Bag of Fertiliser': 6})],
         ['agave', new Job('Agave Storehouse Robbery', 'robbery', 30, 111, 50,
             {'Agave Heart': 3.5})],
         ['paste', new Job('Coca Paste Robbery', 'robbery', 60, 111, 82,

@@ -431,7 +431,7 @@ class GameData {
 
         // Robbery
         ['farm', new Job('Farm Robbery', 'robbery', 15, 111, 21,
-            {'Bag of Fertilizer': 6})],
+            {'Bag of Fertiliser': 6})],
         ['agave', new Job('Agave Storehouse Robbery', 'robbery', 30, 111, 50,
             {'Agave Heart': 3.5})],
         ['paste', new Job('Coca Paste Robbery', 'robbery', 60, 111, 82,
@@ -1946,22 +1946,25 @@ class BetterItemValues {
 			return;
 		}
 
+		// Extract the item price from the text
 		const itemPriceText = card.querySelector("p.card-text.fst-italic").textContent.trim();
-		const itemPrice = parseInt(itemPriceText.slice(1).split(' ')[0].replaceAll(',', ""));
+		let itemPrice = itemPriceText
+			.match(/\u00a3(?<amount>\d{1,3}(,\d{3})*)/)
+			?.groups
+			?.amount
+			?.replaceAll(',', '');
+		if (itemPrice === undefined) return;
+		itemPrice = parseInt(itemPrice);
 
 		// Format key to match required format
 		const key = `${itemName.replace(/\s+/g, '_')}`;
 
-		// Use getNumericValue to retrieve the current best value
+		// Check cached value
 		const currentBest = this.getItemValue(key);
-
 		if (currentBest === itemPrice) return;
 
 		console.debug(`Updating value for ${itemName} from ${currentBest} to ${itemPrice}`); // Debugging log
 		this.setItemValue(key, itemPrice); // Store value with formatted key
-
-		const newStoredValue = this.getItemValue(key);
-
 
 		// Ensure pointName and priceCurrentBest are defined
 		if (typeof this.pointName !== 'undefined' && itemName === this.pointName) {
