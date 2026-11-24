@@ -205,8 +205,28 @@ class BetterItemValues {
 		console.debug(`Set prodReq_${type} to ${req}`);
 		return req;
 	}
-	inPharmacy(url) {
-		this.inTownStore(url);
+	_getArea(container) {
+		// Test for Buy-Container
+		const header = container
+			.closest('div.card-body')
+			?.previousSibling
+			?.querySelector('div.header-section > h2')
+			?.textContent;
+		
+		if (header.startsWith('Buy Items')) return 'buy';
+		if (header.startsWith('Special Stock')) return 'special';
+		if (header.startsWith('Sell Items')) return 'sell';
+		return undefined;
+	}
+	_getItemName(area, itemElem) {
+		switch (area) {
+			// 'Buy Items' area
+			case 'buy':
+			// 'Special Stock' area
+			case 'special': return itemElem.children[1].textContent;
+			case 'sell': return itemElem.children[2].firstChild.textContent;
+			default: return;
+		}
 	}
 	inPetshop(url) {
 		this.inTownStore(url);
@@ -416,29 +436,41 @@ class BetterItemValues {
 		});
 	}
 	inTownStore(url) {
-		const itemSelector = 'div.container.inventoryWrapper.mb-4 > div.inventoryItemWrapper';
-		const items = Array.from(document.querySelectorAll(itemSelector));
-		for (const item of items) {
-			if (item.children.length < 2) continue;
+		const containers = document.querySelectorAll('div.container.inventoryWrapper.mb-4');
 
-			let selling = false;
-			let itemName = "";
-			// Determine if we're in the sell or the buy section
-			if (item.children[1].children.length) {
-				itemName = item.children[1].textContent.split(' ').slice(0, -1).join(' ');
-				selling = true;
+		const cannabisValue = this.getItemValue('Cannabis');
+		for (const [id, container] of containers.entries()) {
+			const area = this._getArea(container);
+			if (!area) {
+				console.warn(`Unidentdified container at id ${id}`);
+				continue;
 			}
-			else itemName = item.children[1].textContent;
+			// Can only process special stock with known cannabis prices
+			if (area === 'special' && cannabisValue === null) continue;
 
-			this._updateStoreUI(item, itemName, selling);
+			const items = container.querySelectorAll('div.inventoryItemWrapper');
+			for (const item of items) {
+				this._updateStoreUI(item, area, cannabisValue);
+			}
 		}
 	}
-	_updateStoreUI(item, itemName, inSellingUI) {
+	_updateStoreUI(item, type, cannabisPrice) {
+		const itemName = this._getItemName(type, item);
+
 		const currentBest = this.getItemValue(itemName);
 		if (currentBest === null) return;
 
-		const priceElem = item.children[4];
-		const currentVal = parseInt(priceElem.textContent.slice(1).replaceAll(',', ""));
+		const priceElemIndex = type === 'special' ? 3 : type === 'buy' ? 4 : 5;
+		const priceElem = item.children[priceElemIndex];
+
+		const inSellingUI = type === 'buy' || type === 'special' ? false : true;
+
+		let currentVal;
+		if (type === 'special') {
+			const cannabisAmount = parseInt(priceElem.textContent);
+			currentVal = cannabisAmount * cannabisPrice;
+		} else 
+			currentVal = parseInt(priceElem.textContent.slice(1).replaceAll(',', ""));
 
 		let shopHTML = priceElem.innerHTML;
 		if (currentVal > currentBest)
@@ -449,7 +481,9 @@ class BetterItemValues {
 		const marketHTML = `<br><span class="text-muted">(${POUND}${currentBest.toLocaleString("en-US")})</span>`;
 
 		priceElem.innerHTML = shopHTML + marketHTML;
-		const otherValueText = item.children[6].querySelector("div.col-6");
+
+		const otherValueIndex = type === 'special' ? 5 : type === 'buy' ? 6 : 7;
+		const otherValueText = item.children[otherValueIndex].querySelector("div.col-6");
 		otherValueText.innerHTML = `<div class="card-text"><div class="fw-bold">Value</div>${shopHTML}${marketHTML}</div>`;
 	}
 	inTradeView(url) {
@@ -586,6 +620,8 @@ class BetterItemValues {
 		totalVals[currentBest] = count;
 	}
 	inCartelArmory(url) {
+		if (url.endsWith('bulkeditarmory')) return;
+
 		const container = document.querySelector("#mainBackground > div.container > div.row > div.col-12");
 		if (!container) {
 			console.error("Container not found");
@@ -642,6 +678,62 @@ class BetterItemValues {
 		if (itemName in this.poundPerHospitalTime)
 			if (this.poundPerHospitalTime[itemName] === this.minPpht)
 				item.children[1].style.color = this.bestColor;
+	}
+	inCartelArmoryEditor(url) {
+		const itemList = document.querySelector('div.container-fluid.inventoryWrapper');
+		if (itemList === null) return;
+
+		const topButton = itemList.querySelector('div.row.mt-2.mb-2');
+		const bottomButton = itemList.querySelector('div.row.mt-4');
+
+		const totalContainer = document.createElement('div');
+		totalContainer.classList.add('card-body', 'mb-4');
+		totalContainer.innerHTML = `<p class='card-text'>Total item value: <span class='total-value-span fw-bold'>${POUND}0</span>.</p>`;
+
+		topButton.prepend(totalContainer.cloneNode(true));
+		bottomButton.prepend(totalContainer.cloneNode(true));
+
+		const totalTextTop = topButton.querySelector('span.total-value-span.fw-bold');
+		const totalTextBottom = bottomButton.querySelector('span.total-value-span.fw-bold');
+		const totalVals = {};
+
+		const items = itemList.querySelectorAll('div.inventoryItemWrapper');
+		for (const item of items) {
+			// Skip header
+			if (item.children.length < 2) continue;
+
+			// Get item name and price
+			const itemName = item.children[1].querySelector('p').childNodes[0].textContent;
+			const currentBest = this.getItemValue(itemName);
+
+			// Create price display element
+			const value = document.createElement('span');
+			value.classList.add('itemValue', 'text-muted', 'float-end');
+			value.innerText = `(${POUND}${currentBest === null ? '???' : currentBest.toLocaleString('en-US')})`;
+			item.children[1].appendChild(value);
+
+			const input = item.querySelector('input.form-control');
+			// Skip borrowed items
+			if (!input) continue;
+
+			input.addEventListener('input', e => {
+				const value = e.target.closest('div.inventoryItemWrapper').querySelector('span.itemValue');
+				const currentBest = this.getItemValue(itemName);
+				const inputVal = e.target.value;
+				let totalValue = 0;
+
+				if (inputVal === '' || inputVal.trim()[0] === '-' || parseInt(inputVal) === 0) {
+					this._resetInputDisplay(value, currentBest, totalVals);
+				} else {
+					const count = parseInt(inputVal.replaceAll(',', ''));
+					this._updateInputDisplay(value, currentBest, totalVals, count);
+				}
+				for (const val in totalVals)
+						totalValue += val * totalVals[val];
+				totalTextTop.innerText = `${POUND}${totalValue.toLocaleString('en-US')}`;
+				totalTextBottom.innerText = `${POUND}${totalValue.toLocaleString('en-US')}`;
+			});
+		}
 	}
 	inEvents(url) {
 		const urlParams = new URLSearchParams(window.location.search);
@@ -1134,9 +1226,9 @@ class BetterItemValues {
 
 			if (this.jobValue[i] !== "???") this._setJobPrestigeReward(jobPanel, i);
 
-			const standardJobRepBonus = getNumericValue('perk', 'Standard Job Rep');
+			const standardJobRepBonus = getNumericValue('perks', 'Standard Job Rep');
 			// Apply only to standard jobs
-			if (i <= 4) job.avg_rep * (1 + (standardJobRepBonus / 100));
+			if (i <= 4) job.avg_rep *= (1 + (standardJobRepBonus / 100));
 
 			this.maxJobRep = Math.max(this.maxJobRep, job.avg_rep / job.duration);
 			this.minJobRep = Math.min(this.minJobRep, job.avg_rep / job.duration);
@@ -1202,13 +1294,34 @@ class BetterItemValues {
 			return;
 		}
 
-		const jobTimeSplit = jobTime?.textContent.split(' ');
-		job.duration = parseFloat(jobTimeSplit[0].slice(1));
-		if (jobTimeSplit[1].startsWith("hour")) {
-			job.duration *= 60;
-			if (jobTimeSplit.length > 2)
-				job.duration += parseFloat(jobTimeSplit[2]);
+		// Format: (<time>); Remove brackets around time, then split
+		const jobTimeSplit = jobTime?.textContent.slice(1, -1).split(' ');
+		let timeInMinutes = 0;
+		for (let i = 0; i < jobTimeSplit.length; i += 2) {
+			const time = parseInt(jobTimeSplit[i]);
+			if (isNaN(time)) {
+				console.warn('Could not decode time', jobTime[i]);
+				continue;
+			}
+
+			switch (jobTimeSplit[i+1]) {
+				case 'hour':
+				case 'hours':
+					timeInMinutes += time * 60;
+					break;
+				case 'minute':
+				case 'minutes':
+					timeInMinutes += time;
+					break;
+				case 'second':
+				case 'seconds':
+					timeInMinutes += time / 60;
+					break;
+				default:
+					console.warn('Unknown time identifier', jobTimeSplit[i+1]);
+			}
 		}
+		job.duration = timeInMinutes;
 		this.setJobTime(jobName, job.duration);
 	}
 	_setJobBaseItemReward(index) {
@@ -1252,7 +1365,8 @@ class BetterItemValues {
 			const countOf = parseInt(countElem.textContent);
 			const currentBest = this.getItemValue(itemName);
 			if (currentBest === null) {
-				valueTracker.totalVal += parseInt(item.children[3].innerText.slice(1).replaceAll(',', "")) * countOf;
+				const gameItemValue = parseInt(item.children[3].innerText.slice(1).replaceAll(',', "")) || 0;
+				valueTracker.totalVal += gameItemValue * countOf;
 				valueTracker.haveAll = false;
 				continue;
 			}

@@ -739,14 +739,19 @@ class StatEstimate {
 			expectedRep = this.estimateRep(level, this.maxFF);
 			append = " with 3x fair fight modifier";
 		}
-		observeDOM(attackText, e => {
-			const textSplit = e[0].target.textContent.split(' ');
+		const attackConfirmModal = document.getElementById('attackConfirmModal');
+        attackConfirmModal.addEventListener('show.bs.modal', async (e) => {
+            // Skip one event-loop cycle to let game's listener fire first
+            // hacky solution, please fix later
+            await wait(0);
+			const textSplit = e.relatedTarget?.childNodes[0].textContent.split(' ');
 			let attackType = textSplit[textSplit.length - 2];
+			const bodyText = attackConfirmModal.querySelector('.modal-bodyText');
 			attackType = attackType.charAt(0).toUpperCase() + attackType.slice(1);
 			if (!["Attack", "Mug", "Hospitalise"].includes(attackType))
 				return;
-			e[0].target.innerHTML += `<br>Expected rep gain: <span class="fw-bold">${prefix.replace('>', "&gt;").replace('<', "&lt;")}${expectedRep === "???" ? "???" : Math.round(expectedRep * repMultipliers[attackType])}</span>${append}`;
-		});
+			bodyText.innerHTML += `<br>Expected rep gain: <span class="fw-bold">${prefix.replace('>', "&gt;").replace('<', "&lt;")}${expectedRep === "???" ? "???" : Math.round(expectedRep * repMultipliers[attackType])}</span>${append}`;
+        });
 
 		const userName = document.querySelector("div.header-section > .profileNameTitle").textContent;
 		if (userName !== this.getName(userID)) this.setName(userID, userName);

@@ -11,6 +11,7 @@ class ConfigManager {
             BetterMoneyInputs,
             BetterProgressBars,
             BlackjackHelper,
+            BuyMaxButton,
             BuyPointsLink,
             CartelMemberRep,
             CenterTabs,
@@ -28,6 +29,8 @@ class ConfigManager {
             HighlightExcessHealth,
             HighlightInactives,
             HighlightUnequipped,
+            HighscoreChanges,
+            HospTimeEstimate,
             IntPerWeek,
             ItemCache,
             LargerGymGraph,
@@ -53,6 +56,9 @@ class ConfigManager {
             [/^town\/?$/, 'inTown', 'In Town'],
             [/^town\/estateagent\/?/, 'inEstateAgent', 'In Estate Agent'],
             [/^town\/pharmacy\/?$/, 'inPharmacy', 'In Pharmancy'],
+            [/^town\/armedsurplus\/?$/, 'inArmedSurplus', 'In Armed Surplus'],
+            [/^town\/diablos\/?$/, 'inDiablos', 'In Diablo\'s Underground Weapon Store'],
+            [/^town\/dealership\/?$/, 'inCarDealership', 'In Car Dealership'],
             [/^town\/club\/?$/, 'inSicarios', 'In Scicarios Store'],
             [/^town\/mateos\/?$/, 'inMateos', 'In Mateo\'s Store'],
             [/^town\/policeauction\/?$/, 'inPoliceAuction', 'In Police Auction'],
@@ -65,6 +71,7 @@ class ConfigManager {
             [/^cartel\/?$/, 'inCartel', 'In Own Cartel'],
             [/^cartel\/armou?ry\/deposit\/?$/, 'inAddItems', 'In Add Items of Armory'],
             [/^cartel\/armou?ry/, 'inCartelArmory', 'In Cartel Armory'],
+            [/^cartel\/armou?ry\/bulkeditarmou?ry/, 'inCartelArmoryEditor', 'In Cartel Bulk Armory Editor'],
             [/^cartel\/territory\/?$/, 'inCartelWar', 'In Cartel War'],
             [/^cartel\/perks\/?$/, 'inCartelPerks', 'in Cartel Perks'],
             [/^cartel\/allfights/, 'inAttackLog', 'In Cartel Attack Logs'],
@@ -98,7 +105,7 @@ class ConfigManager {
         this.URL_MAP = new Map(this.PAGE_DATA.map(page_data => [page_data[0], page_data[1]]));
         
         const updatedSettings = this.updateSettings(getValue('script', 'settings'));
-        setValue('script', 'settings', updatedSettings);
+        if (updatedSettings) setValue('script', 'settings', updatedSettings);
 
         this.STRIKETHROUGH = false; // Display the normally-displayed price as well, striked-through
         this.ALWAYS_COLOR_NAMES = [ "FN SCAR-H", "Desert Eagle", "Full-Body Armour" ];
