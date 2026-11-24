@@ -1,7 +1,8 @@
 import glob
 
 pre = [
-    'utils.js'
+    'utils.js',
+    'GameData.js'
 ]
 
 post = [
