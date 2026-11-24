@@ -756,6 +756,55 @@ class StatEstimate {
 		const userName = document.querySelector("div.header-section > .profileNameTitle").textContent;
 		if (userName !== this.getName(userID)) this.setName(userID, userName);
 	}
+	inConnections(url) {
+		const repMultipliers = {
+			Attack: 1,
+			Mug: this.multMug,
+			Hospitalise: this.multHosp
+		};
+
+		const attackConfirmModal = document.getElementById('attackConfirmModal');
+		attackConfirmModal.addEventListener('show.bs.modal', async (e) => {
+			const button = e.relatedTarget;
+			if (!button) return;
+
+			const entry = button.closest('.connection-row');
+
+			const userID = entry
+				.querySelector('.conn-col-name > div > a')
+				.getAttribute('href')
+				?.split('/')
+				.at(-1);
+			const estimate = this.getEst(userID);
+
+			let prefix = "";
+			let append = "";
+			// Assumes that the last attack type was 'Attack'
+			const expectedRep = Math.floor(parseFloat(entry.getAttribute('data-lastrep')));
+			if (!expectedRep) return;
+
+			if (estimate !== null) {
+				const textSplit = estimate.split(' ');
+				const statEstimate = textSplit[0];
+				prefix = statEstimate[0].replace('~', "");
+			} else {
+				append = " with 3x fair fight modifier";
+			}
+
+			const userName = entry.getAttribute('data-name');
+			if (userName !== undefined && userName !== this.getName(userID)) this.setName(userID, userName);
+
+			// Skip one event-loop cycle to let game's listener fire first
+			// hacky solution, please fix later
+			await wait(0);
+
+			const attackType = button.getAttribute('data-bs-attack-type');
+			const bodyText = attackConfirmModal.querySelector('.modal-bodyText');
+			if (!["Attack", "Mug", "Hospitalise"].includes(attackType))
+				return;
+			bodyText.innerHTML += `<br>Expected rep gain: <span class="fw-bold">${prefix.replace('>', "&gt;").replace('<', "&lt;")}${expectedRep === "???" ? "???" : Math.round(expectedRep * repMultipliers[attackType])}</span>${append}`;
+		});
+	}
 	inEvents(url) {
 		const urlParams = new URLSearchParams(window.location.search);
 		const category = urlParams.get("filter");

@@ -24,7 +24,12 @@ class HospTimeEstimate {
 	}
 
 	inUserProfile(url) {
-
+		this._updateModal();
+    }
+	inConnections(url) {
+		this._updateModal();
+    }
+	_updateModal() {
         const attackConfirmModal = document.getElementById('attackConfirmModal');
         attackConfirmModal.addEventListener('show.bs.modal', async (event) => {
             // Skip one event-loop cycle to let game's listener fire first
@@ -38,5 +43,5 @@ class HospTimeEstimate {
 
             bodyText.innerHTML += `<br>Estimated hospital time: <span class="fw-bold">${this.defaultTimes[attackType]}min</span>.`;
         });
-    }
+	}
 }
