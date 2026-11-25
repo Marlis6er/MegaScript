@@ -15,7 +15,7 @@ joined_file_name = 'MegaScriptBundled.js'
 def can_add_file(file):
 	return not (file in pre or file in post or file == joined_file_name)
 
-files = [file for file in glob.glob('*.js') if can_add_file(file)]
+files = [file for file in glob.glob('modules/*.js') if can_add_file(file)]
 files.sort(key=lambda key: key.lower())
 
 # read files into a temporary string
