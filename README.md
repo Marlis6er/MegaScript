@@ -1,6 +1,31 @@
 # Cartel Empire MegaScript
 This is a tampermonkey script for Cartel Empire, originally created by K9er.
 
+# Using the github version
+
+(Should work with any browser)
+To use this version, you have to:
+1) Create a new tampermonkey script
+2) Copy-paste the following template:
+```
+// ==UserScript==
+// @name         MegaScript Modular github version
+// @namespace    Cartel Empire
+// @version      1.0.27
+// @description  An updated version of the MegaScript by K9er
+// @author       K9ER [781], Marlis [15746]
+// @include      /https:\/\/cartelempire\.online\/?.*$/
+// @icon         https://i.imgur.com/Zh7LX39.png
+// @grant        GM_setValue
+// @grant        GM_getValue
+// @grant        GM_deleteValue
+// @grant        GM_listValues
+// @grant        GM_addStyle
+// @run-at       document-end
+// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/modular/MegaScriptBundled.js
+// ==/UserScript==
+```
+
 # Using local files
 
 (Only works on chrome)
@@ -67,28 +92,3 @@ To use this version, you have to:
 // ==/UserScript==
 ```
 And replace the `Path/to/your/folder` part with a path to the folder which contains all the scripts.
-
-# Using the github version
-
-(Should work with any browser)
-To use this version, you have to:
-1) Create a new tampermonkey script
-2) Copy-paste the following template:
-```
-// ==UserScript==
-// @name         MegaScript Modular github version
-// @namespace    Cartel Empire
-// @version      1.0.27
-// @description  An updated version of the MegaScript by K9er
-// @author       K9ER [781], Marlis [15746]
-// @include      /https:\/\/cartelempire\.online\/?.*$/
-// @icon         https://i.imgur.com/Zh7LX39.png
-// @grant        GM_setValue
-// @grant        GM_getValue
-// @grant        GM_deleteValue
-// @grant        GM_listValues
-// @grant        GM_addStyle
-// @run-at       document-end
-// @require      https://raw.githubusercontent.com/Marlis6er/MegaScript/refs/heads/modular/MegaScriptBundled.js
-// ==/UserScript==
-```
